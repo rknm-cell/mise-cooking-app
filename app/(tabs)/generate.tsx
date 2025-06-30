@@ -27,10 +27,16 @@ interface RecipeSchema {
   nutrition: string[];
 }
 
+// Flexible API configuration
+const API_BASE = __DEV__ 
+  ? 'http://localhost:8080'  // Local development
+  : 'https://mise-cooking-app-production.up.railway.app'; // Production
+
 export default function RecipeGenerator() {
   const [generation, setGeneration] = useState<RecipeSchema | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -39,7 +45,7 @@ export default function RecipeGenerator() {
       setGeneration(undefined);
       setIsLoading(true);
       
-      const response = await fetch('https://mise-cooking-app-production.up.railway.app/api/generate', {
+      const response = await fetch(`${API_BASE}/api/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +137,7 @@ export default function RecipeGenerator() {
                 style={[
                   styles.progressBar,
                   {
-                    width: useRef(new Animated.Value(0)).current.interpolate({
+                    width: progressAnim.interpolate({
                       inputRange: [0, 1],
                       outputRange: ['0%', '100%']
                     })
