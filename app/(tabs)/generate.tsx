@@ -1,250 +1,261 @@
+"use client";
+
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function GenerateScreen() {
-  const [ingredients, setIngredients] = useState('');
-  const [cuisine, setCuisine] = useState('');
-  const [dietaryRestrictions, setDietaryRestrictions] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedRecipe, setGeneratedRecipe] = useState('');
+interface RecipeSchema {
+  id: string;
+  name: string;
+  description: string;
+  totalTime: string;
+  servings: number;
+  ingredients: string[];
+  instructions: string[];
+  storage: string;
+  nutrition: string[];
+}
 
-  const cuisineOptions = [
-    'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Indian', 
-    'French', 'American', 'Thai', 'Japanese', 'Greek'
-  ];
+export default function RecipeGenerator() {
+  const [generation, setGeneration] = useState<RecipeSchema | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+  const [input, setInput] = useState('');
 
-  const dietaryOptions = [
-    'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 
-    'Low-Carb', 'Keto', 'Paleo', 'None'
-  ];
-
-  const handleGenerateRecipe = async () => {
-    if (!ingredients.trim()) {
-      Alert.alert('Error', 'Please enter at least one ingredient');
-      return;
-    }
-
-    setIsGenerating(true);
+  const handleSubmit = async () => {
+    if (!input.trim()) return;
     
-    // Simulate API call for recipe generation
-    setTimeout(() => {
-      const mockRecipe = `🍳 Recipe Generated!
+    try {
+      setGeneration(undefined);
+      setIsLoading(true);
+      
+      const response = await fetch('http://localhost:3000/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: input,
+        }),
+      });
 
-Ingredients:
-${ingredients.split(',').map(ing => `• ${ing.trim()}`).join('\n')}
-
-${cuisine ? `Cuisine: ${cuisine}` : ''}
-${dietaryRestrictions ? `Dietary: ${dietaryRestrictions}` : ''}
-
-Instructions:
-1. Prepare all ingredients as listed above
-2. Heat a large pan over medium heat
-3. Add your main ingredients and cook for 5-7 minutes
-4. Season with salt, pepper, and your favorite herbs
-5. Serve hot and enjoy!
-
-Cooking Time: 20-25 minutes
-Servings: 2-3 people
-
-💡 Tip: Feel free to adjust seasoning and cooking time based on your preferences!`;
-
-      setGeneratedRecipe(mockRecipe);
-      setIsGenerating(false);
-    }, 2000);
+      const recipeData: RecipeSchema = await response.json();
+      setGeneration(recipeData);
+      console.log('recipedata: ', recipeData);
+      setIsLoading(false);
+    } catch (error) {
+      const e = error as Error;
+      Alert.alert('Error', e.message || 'An unknown error occurred.');
+      setIsLoading(false);
+    }
   };
 
-  const clearForm = () => {
-    setIngredients('');
-    setCuisine('');
-    setDietaryRestrictions('');
-    setGeneratedRecipe('');
-  };
+  const renderRecipe = (recipe: RecipeSchema) => (
+    <View style={styles.recipeContainer}>
+      <Text style={styles.recipeTitle}>{recipe.name}</Text>
+      <Text style={styles.recipeDescription}>{recipe.description}</Text>
+      
+      <View style={styles.recipeInfo}>
+        <Text style={styles.recipeInfoText}>⏱️ {recipe.totalTime}</Text>
+        <Text style={styles.recipeInfoText}>👥 {recipe.servings} servings</Text>
+      </View>
+
+      <Text style={styles.sectionTitle}>Ingredients:</Text>
+      {recipe.ingredients.map((ingredient, index) => (
+        <Text key={index} style={styles.ingredient}>• {ingredient}</Text>
+      ))}
+
+      <Text style={styles.sectionTitle}>Instructions:</Text>
+      {recipe.instructions.map((instruction, index) => (
+        <Text key={index} style={styles.instruction}>{index + 1}. {instruction}</Text>
+      ))}
+
+      <Text style={styles.sectionTitle}>Storage:</Text>
+      <Text style={styles.storage}>{recipe.storage}</Text>
+
+      <Text style={styles.sectionTitle}>Nutrition:</Text>
+      {recipe.nutrition.map((item, index) => (
+        <Text key={index} style={styles.nutrition}>• {item}</Text>
+      ))}
+    </View>
+  );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
-      <View style={{ flex: 1 }}>
-        <ScrollView 
-          style={{ flex: 1, padding: 20 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={{ marginBottom: 30 }}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 8, color: '#333' }}>
-              Generate Recipe
-            </Text>
-            <Text style={{ fontSize: 16, opacity: 0.7, color: '#666' }}>
-              Tell us what ingredients you have, and we'll create a delicious recipe for you!
-            </Text>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Recipe Generator</Text>
+          <Text style={styles.subtitle}>What do you want to make?</Text>
+        </View>
 
-          {/* Ingredients Input */}
-          <View style={{ marginBottom: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 10, color: '#333' }}>
-              Available Ingredients
-            </Text>
-            <TextInput
-              style={{
-                borderWidth: 1,
-                borderColor: '#ddd',
-                borderRadius: 12,
-                padding: 15,
-                fontSize: 16,
-                backgroundColor: '#fff',
-                minHeight: 100,
-                textAlignVertical: 'top',
-              }}
-              placeholder="Enter ingredients separated by commas (e.g., chicken, rice, tomatoes)"
-              value={ingredients}
-              onChangeText={setIngredients}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-
-          {/* Cuisine Selection */}
-          <View style={{ marginBottom: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 10, color: '#333' }}>
-              Preferred Cuisine (Optional)
-            </Text>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={{ marginBottom: 10 }}
-            >
-              {cuisineOptions.map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  onPress={() => setCuisine(cuisine === option ? '' : option)}
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                    marginRight: 10,
-                    backgroundColor: cuisine === option ? '#007AFF' : '#f0f0f0',
-                  }}
-                >
-                  <Text style={{
-                    color: cuisine === option ? '#fff' : '#333',
-                    fontSize: 14,
-                    fontWeight: '500',
-                  }}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* Dietary Restrictions */}
-          <View style={{ marginBottom: 30 }}>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 10, color: '#333' }}>
-              Dietary Restrictions (Optional)
-            </Text>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              style={{ marginBottom: 10 }}
-            >
-              {dietaryOptions.map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  onPress={() => setDietaryRestrictions(dietaryRestrictions === option ? '' : option)}
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                    marginRight: 10,
-                    backgroundColor: dietaryRestrictions === option ? '#34C759' : '#f0f0f0',
-                  }}
-                >
-                  <Text style={{
-                    color: dietaryRestrictions === option ? '#fff' : '#333',
-                    fontSize: 14,
-                    fontWeight: '500',
-                  }}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* Generate Button */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={input}
+            onChangeText={setInput}
+            placeholder="Enter your ingredients or recipe idea..."
+            placeholderTextColor="#999"
+            multiline
+            numberOfLines={3}
+            editable={!isLoading}
+          />
           <TouchableOpacity
-            onPress={handleGenerateRecipe}
-            disabled={isGenerating}
-            style={{
-              backgroundColor: '#007AFF',
-              paddingVertical: 16,
-              borderRadius: 12,
-              alignItems: 'center',
-              marginBottom: 20,
-              opacity: isGenerating ? 0.6 : 1,
-            }}
+            style={[styles.submitButton, (!input.trim() || isLoading) && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={isLoading || !input.trim()}
           >
-            {isGenerating ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <ActivityIndicator color="#fff" style={{ marginRight: 10 }} />
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>
-                  Generating Recipe...
-                </Text>
-              </View>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
             ) : (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="restaurant" size={24} color="#fff" style={{ marginRight: 10 }} />
-                <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>
-                  Generate Recipe
-                </Text>
-              </View>
+              <Ionicons name="restaurant" size={20} color="#fff" />
             )}
           </TouchableOpacity>
+        </View>
 
-          {/* Clear Button */}
-          <TouchableOpacity
-            onPress={clearForm}
-            style={{
-              backgroundColor: '#f0f0f0',
-              paddingVertical: 12,
-              borderRadius: 12,
-              alignItems: 'center',
-              marginBottom: 20,
-            }}
-          >
-            <Text style={{ color: '#666', fontSize: 16, fontWeight: '500' }}>
-              Clear Form
-            </Text>
-          </TouchableOpacity>
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#428a93" />
+            <Text style={styles.loadingText}>Generating your recipe...</Text>
+          </View>
+        )}
 
-          {/* Generated Recipe */}
-          {generatedRecipe ? (
-            <View style={{
-              backgroundColor: '#fff',
-              padding: 20,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: '#e9ecef',
-            }}>
-              <Text style={{ 
-                fontSize: 16, 
-                lineHeight: 24,
-                color: '#333'
-              }}>
-                {generatedRecipe}
-              </Text>
-            </View>
-          ) : null}
-        </ScrollView>
-      </View>
+        {generation && renderRecipe(generation)}
+      </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  scrollView: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 20,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: 15,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    marginRight: 10,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  submitButton: {
+    backgroundColor: '#428a93',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitButtonDisabled: {
+    opacity: 0.5,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    padding: 40,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  recipeContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  recipeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  recipeDescription: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 16,
+    lineHeight: 24,
+  },
+  recipeInfo: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  recipeInfoText: {
+    fontSize: 14,
+    color: '#666',
+    marginRight: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  ingredient: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  instruction: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  storage: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 22,
+  },
+  nutrition: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+});
