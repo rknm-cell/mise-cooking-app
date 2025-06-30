@@ -3,7 +3,7 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject} from "ai";
 import { nanoid } from "nanoid";
-import { saveRecipe } from "~/server/db/queries";
+import { saveRecipe } from "../db/queries";
 import { z } from "zod";
 
 

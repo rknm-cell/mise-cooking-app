@@ -6,7 +6,7 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/mise_cooking',
-    ssl: true,
+    ssl: { rejectUnauthorized: false },
   },
   verbose: true,
   strict: true,

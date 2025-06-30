@@ -11,12 +11,12 @@ import * as schema from './db/schema.js';
 config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8081;
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8082',
+  origin: ['http://localhost:8082', 'http://192.168.1.165:8081', 'exp://192.168.1.165:8081'],
   credentials: true
 }));
 app.use(morgan('combined'));
