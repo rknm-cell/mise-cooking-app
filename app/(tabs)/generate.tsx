@@ -36,6 +36,7 @@ export default function RecipeGenerator() {
   const [generation, setGeneration] = useState<RecipeSchema | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -136,7 +137,7 @@ export default function RecipeGenerator() {
                 style={[
                   styles.progressBar,
                   {
-                    width: useRef(new Animated.Value(0)).current.interpolate({
+                    width: progressAnim.interpolate({
                       inputRange: [0, 1],
                       outputRange: ['0%', '100%']
                     })

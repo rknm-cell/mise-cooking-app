@@ -24,15 +24,15 @@ interface Recipe {
   createdAt: string;
 }
 
-// Flexible API configuration
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080'  // Local development
-  : 'https://mise-cooking-app-production.up.railway.app'; // Production
-
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Flexible API configuration
+  const API_BASE = __DEV__ 
+    ? 'http://localhost:8080'  // Local development
+    : 'https://mise-cooking-app-production.up.railway.app'; // Production
 
   const fetchRecipes = async () => {
     try {

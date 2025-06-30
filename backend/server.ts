@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
+import { generateRecipe } from './utils/recipe.js';
 
 config();
 
@@ -40,46 +41,26 @@ app.post('/api/generate', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Mock recipe generation (replace with actual AI integration)
-    const mockRecipe = {
-      id: `recipe_${Date.now()}`,
-      name: `Generated Recipe from: ${prompt}`,
-      description: `A delicious recipe created based on your request: ${prompt}`,
-      totalTime: '30 minutes',
-      servings: 4,
-      ingredients: [
-        '2 cups of main ingredient',
-        '1 tablespoon of seasoning',
-        '1/2 cup of liquid',
-        'Salt and pepper to taste'
-      ],
-      instructions: [
-        'Prepare your ingredients as listed above',
-        'Heat a large pan over medium heat',
-        'Add your main ingredients and cook for 5-7 minutes',
-        'Season with salt, pepper, and your favorite herbs',
-        'Serve hot and enjoy!'
-      ],
-      storage: 'Store in an airtight container in the refrigerator for up to 3 days',
-      nutrition: [
-        'Calories: 250 per serving',
-        'Protein: 15g',
-        'Carbohydrates: 30g',
-        'Fat: 8g'
-      ],
-      createdAt: new Date()
-    };
+    // Generate recipe using AI
+    const recipe = await generateRecipe(prompt);
+    
+    if (!recipe) {
+      return res.status(500).json({ error: 'Failed to generate recipe' });
+    }
 
     // Try to save to Supabase database
     try {
-      await db.insert(schema.recipe).values(mockRecipe);
+      await db.insert(schema.recipe).values({
+        ...recipe,
+        createdAt: new Date(),
+      });
       console.log('Recipe saved to Supabase database');
     } catch (dbError) {
       console.warn('Supabase database not available, recipe not saved:', dbError);
       // Continue without saving to database
     }
 
-    res.json(mockRecipe);
+    res.json(recipe);
   } catch (error) {
     console.error('Error generating recipe:', error);
     res.status(500).json({ error: 'Failed to generate recipe' });

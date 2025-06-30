@@ -1,17 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { openai } from "@ai-sdk/openai";
-import { generateObject} from "ai";
+import { generateObject } from "ai";
 import { nanoid } from "nanoid";
-import { saveRecipe } from "../db/queries";
 import { z } from "zod";
+import { saveRecipe } from "../db/queries";
 
-
-
-export async function POST(req: Request) {
+export async function generateRecipe(prompt: string) {
   try {
-    const {prompt}: {prompt: string} = await req.json();
-    console.log("prompt: ", prompt)
+    console.log("Generating recipe for prompt: ", prompt);
     
     const result = await generateObject({
       model: openai("gpt-4o-mini"),
@@ -65,7 +62,32 @@ export async function POST(req: Request) {
     console.log("saveResult: ", saveResult);
     console.log("recipe: ", recipe.name);
 
-    return result.toJsonResponse();
+    return recipe;
+  } catch (error) {
+    console.error("Error generating recipe:", error);
+    return null;
+  }
+}
+
+// Keep the original POST function for compatibility if needed
+export async function POST(req: Request) {
+  try {
+    const {prompt}: {prompt: string} = await req.json();
+    console.log("prompt: ", prompt)
+    
+    const recipe = await generateRecipe(prompt);
+    
+    if (!recipe) {
+      return new Response(JSON.stringify({ error: "Failed to generate recipe" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify(recipe), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Error in POST /api/chat:", error);
     return new Response(JSON.stringify({ error: "Failed to generate recipe" }), {

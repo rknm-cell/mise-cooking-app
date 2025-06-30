@@ -24,6 +24,11 @@ interface Recipe {
   createdAt: string;
 }
 
+// Flexible API configuration
+const API_BASE = __DEV__ 
+  ? 'http://localhost:8080'  // Local development
+  : 'https://mise-cooking-app-production.up.railway.app'; // Production
+
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -38,7 +43,7 @@ export default function RecipeDetailScreen() {
     }
 
     try {
-      const response = await fetch(`https://mise-cooking-app-production.up.railway.app/api/recipes/${id}`);
+      const response = await fetch(`${API_BASE}/api/recipes/${id}`);
       if (response.ok) {
         const data = await response.json();
         setRecipe(data);
