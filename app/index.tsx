@@ -59,17 +59,7 @@ export default function LandingPage() {
             </View>
           </View>
 
-          <View style={styles.featureItem}>
-            <View style={styles.featureIcon}>
-              <Ionicons name="globe" size={24} color="#34C759" />
-            </View>
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Global Cuisines</Text>
-              <Text style={styles.featureDescription}>
-                Explore recipes from around the world
-              </Text>
-            </View>
-          </View>
+          
 
           <View style={styles.featureItem}>
             <View style={styles.featureIcon}>

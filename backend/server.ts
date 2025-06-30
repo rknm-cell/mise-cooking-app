@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
+import { signIn, signUp } from './models/users.js';
 import { generateRecipe } from './utils/recipe.js';
 
 config();
@@ -181,6 +182,49 @@ app.get('/api/health', (req: Request, res: Response) => {
     database: process.env.DATABASE_URL ? 'Configured' : 'Not configured',
     timestamp: new Date().toISOString()
   });
+});
+
+// Auth endpoints
+app.post('/api/auth/signup', async (req: Request, res: Response) => {
+  try {
+    const { name, email, password } = req.body;
+    
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+
+    const result = await signUp(name, email, password);
+    
+    if (result.success) {
+      res.status(201).json({ message: result.message });
+    } else {
+      res.status(400).json({ error: result.message });
+    }
+  } catch (error) {
+    console.error('Error in signup:', error);
+    res.status(500).json({ error: 'Failed to create account' });
+  }
+});
+
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const result = await signIn(email, password);
+    
+    if (result.success) {
+      res.json({ message: result.message });
+    } else {
+      res.status(401).json({ error: result.message });
+    }
+  } catch (error) {
+    console.error('Error in login:', error);
+    res.status(500).json({ error: 'Failed to authenticate' });
+  }
 });
 
 // 404 handler
