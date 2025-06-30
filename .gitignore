@@ -38,3 +38,10 @@ backend/.env
 *.tsbuildinfo
 
 app-example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
