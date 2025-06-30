@@ -1,10 +1,11 @@
 "use client";
 
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   ScrollView,
   StyleSheet,
   Text,
@@ -38,7 +39,7 @@ export default function RecipeGenerator() {
       setGeneration(undefined);
       setIsLoading(true);
       
-      const response = await fetch('http://localhost:3000/api/generate', {
+      const response = await fetch('https://mise-cooking-app-production.up.railway.app/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,6 +126,19 @@ export default function RecipeGenerator() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#428a93" />
             <Text style={styles.loadingText}>Generating your recipe...</Text>
+            <View style={styles.progressBarContainer}>
+              <Animated.View 
+                style={[
+                  styles.progressBar,
+                  {
+                    width: useRef(new Animated.Value(0)).current.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0%', '100%']
+                    })
+                  }
+                ]}
+              />
+            </View>
           </View>
         )}
 
@@ -257,5 +271,17 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 4,
     lineHeight: 22,
+  },
+  progressBarContainer: {
+    width: '100%',
+    height: 4,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 2,
+    marginTop: 10,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#428a93',
+    borderRadius: 2,
   },
 });

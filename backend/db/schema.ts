@@ -1,28 +1,20 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
+// Drizzle ORM Schema for Mise Cooking App
 
-import { mysqlTableCreator } from "drizzle-orm/mysql-core";
 import { relations, type InferSelectModel } from "drizzle-orm";
 import {
+  boolean,
   integer,
-  text,
   pgTable,
+  primaryKey,
+  text,
   timestamp,
   varchar,
-  boolean,
-  foreignKey,
-  serial,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 import { z } from "zod/v4";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = mysqlTableCreator((name) => `RecipeApp_${name}`);
+// ============================================================================
+// RECIPE TABLES
+// ============================================================================
 
 export const recipe = pgTable("Recipe", {
   id: varchar("id").primaryKey().notNull(),
@@ -53,6 +45,10 @@ export const recipeObject = z.object({
 
 export type RecipeSchema = z.infer<typeof recipeObject>;
 
+// ============================================================================
+// USER TABLES
+// ============================================================================
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -69,10 +65,9 @@ export const user = pgTable("user", {
     .notNull(),
 });
 
-export const userRecipes = relations(user, ({ many }) => ({
-  recipes: many(recipe),
-  bookmarks: many(bookmark),
-}));
+// ============================================================================
+// BOOKMARK TABLES
+// ============================================================================
 
 export const bookmark = pgTable(
   "bookmarks",
@@ -90,19 +85,11 @@ export const bookmark = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.recipeId] })],
 );
 
-export type Bookmark = z.infer<typeof bookmark>
+export type Bookmark = z.infer<typeof bookmark>;
 
-export const bookmarksRelations = relations(bookmark,({one}) => ({
-  user: one(user, {
-    fields: [bookmark.userId],
-    references: [user.id],
-  }),
-  recipe: one(recipe, {
-    fields: [bookmark.recipeId],
-    references: [recipe.id]
-  })
-}))
-
+// ============================================================================
+// AUTHENTICATION TABLES
+// ============================================================================
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -147,5 +134,29 @@ export const verification = pgTable("verification", {
     () => /* @__PURE__ */ new Date(),
   ),
 });
+
+// ============================================================================
+// RELATIONS
+// ============================================================================
+
+export const userRecipes = relations(user, ({ many }) => ({
+  recipes: many(recipe),
+  bookmarks: many(bookmark),
+}));
+
+export const bookmarksRelations = relations(bookmark, ({ one }) => ({
+  user: one(user, {
+    fields: [bookmark.userId],
+    references: [user.id],
+  }),
+  recipe: one(recipe, {
+    fields: [bookmark.recipeId],
+    references: [recipe.id],
+  }),
+}));
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
 
 export const schema = { user, session, account, verification };
