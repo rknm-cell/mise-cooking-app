@@ -288,16 +288,17 @@ interface CreatePostRequest {
 ```
 components/
 ├── cooking/
-│   ├── CookingCameraView.tsx      # Main camera component
-│   ├── RecipeOverlay.tsx          # Recipe instructions panel
-│   ├── SmartTimer.tsx             # AI-powered timer
-│   ├── CameraControls.tsx         # Camera control buttons
-│   └── CookingProgress.tsx        # Progress tracking
+│   ├── CameraTest.tsx             # Basic camera test component
+│   ├── CookingCameraView.tsx      # Main camera component (future)
+│   ├── RecipeOverlay.tsx          # Recipe instructions panel (future)
+│   ├── SmartTimer.tsx             # AI-powered timer (future)
+│   ├── CameraControls.tsx         # Camera control buttons (future)
+│   └── CookingProgress.tsx        # Progress tracking (future)
 ├── community/
-│   ├── CommunityFeed.tsx          # Social feed
-│   ├── PhotoGallery.tsx           # Recipe photos
-│   ├── RatingSystem.tsx           # Upvote/downvote
-│   └── PostCard.tsx               # Individual post
+│   ├── CommunityFeed.tsx          # Social feed (future)
+│   ├── PhotoGallery.tsx           # Recipe photos (future)
+│   ├── RatingSystem.tsx           # Upvote/downvote (future)
+│   └── PostCard.tsx               # Individual post (future)
 ├── ui/
 │   ├── IconSymbol.tsx             # Icon wrapper
 │   ├── TabBarBackground.tsx       # Tab bar styling
@@ -344,12 +345,53 @@ app/
 ├── (tabs)/
 │   ├── generate.tsx              # Recipe AI generation
 │   ├── recipes.tsx               # Recipe browsing
-│   ├── cooking-guide.tsx         # AI cooking guide (NEW)
+│   ├── camera-test.tsx           # Camera test (MVP)
 │   ├── bookmarks.tsx             # Saved recipes
-│   ├── community.tsx             # Social feed (NEW)
+│   ├── shopping.tsx              # Shopping lists
 │   └── profile.tsx               # User profile
 └── index.tsx                     # Landing page
 ```
+
+## Camera Implementation (MVP)
+
+### Basic Camera Test Component
+```typescript
+// CameraTest.tsx - Basic camera functionality
+interface CameraTestProps {
+  // Simple camera test with basic controls
+}
+
+// Implemented Features:
+- Camera permission request and handling
+- Camera preview display
+- Switch between front/back cameras
+- Take picture functionality
+- Basic error handling and user feedback
+- App theme integration (#fcf45a yellow accent)
+
+// Technical Implementation:
+- Expo Camera integration
+- React Native state management
+- TypeScript interfaces
+- Responsive design with app colors
+- Console logging for debugging
+```
+
+### Camera Test Screen
+```typescript
+// camera-test.tsx - Simple test screen
+- Minimal wrapper for CameraTest component
+- Accessible via tab navigation
+- No complex state management
+- Focus on basic camera functionality testing
+```
+
+### Next Steps for Camera Enhancement
+1. **Image Processing**: Add base64 encoding for AI analysis
+2. **Continuous Capture**: Implement 5-second interval capture
+3. **UI Layout**: Add 40/60 split with recipe panel
+4. **AI Integration**: Connect to vision API for stage detection
+5. **Timer Integration**: Add smart timer functionality
 
 ## AI Integration Architecture
 
