@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { db } from './db/index.js';
 import * as schema from './db/schema.js';
+import { validateApiKey } from './middleware/apiKey.js';
 import { signIn, signUp } from './models/users.js';
 import { generateRecipe } from './utils/recipe.js';
 
@@ -32,6 +33,25 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
+
+// Handle preflight requests
+app.options('*', cors());
+
+// API key endpoint (for frontend to get the key)
+app.get('/api/config', (req: Request, res: Response) => {
+  res.json({ 
+    apiKey: process.env.API_KEY || null,
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+// Apply API key authentication to all API routes except config
+app.use('/api/', (req: Request, res: Response, next: NextFunction) => {
+  // Skip API key validation for config endpoint
+  if (req.path === '/config') {
+    return next();
+  }
+  return validateApiKey(req, res, next);
+});
 
 // Recipe generation endpoint
 app.post('/api/generate', async (req: Request, res: Response) => {
@@ -183,6 +203,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString()
   });
 });
+
 
 // Auth endpoints
 app.post('/api/auth/signup', async (req: Request, res: Response) => {

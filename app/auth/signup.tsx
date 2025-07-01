@@ -13,11 +13,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Flexible API configuration
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080'  // Local development
-  : 'https://mise-cooking-app-production.up.railway.app'; // Production
+import { API_CONFIG, buildApiUrl, getApiHeaders } from '../../constants/Config';
 
 interface SignupForm {
   email: string;
@@ -69,9 +65,9 @@ export default function SignupScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/auth/signup`, {
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SIGNUP), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getApiHeaders(),
         body: JSON.stringify({
           name: form.name,
           email: form.email,
