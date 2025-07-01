@@ -105,7 +105,7 @@ export default function RecipeGenerator() {
         <Text style={styles.recipeTitle}>{recipe.name}</Text>
         {conversationHistory.length > 0 && (
           <TouchableOpacity style={styles.clearButton} onPress={clearConversation}>
-            <Ionicons name="refresh" size={20} color="#666" />
+            <Ionicons name="refresh" size={20} color="#fcf45a" />
           </TouchableOpacity>
         )}
       </View>
@@ -146,6 +146,7 @@ export default function RecipeGenerator() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.title}>Recipe Generator</Text>
@@ -181,7 +182,7 @@ export default function RecipeGenerator() {
 
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#428a93" />
+            <ActivityIndicator size="large" color="#fcf45a" />
             <Text style={styles.loadingText}>Generating your recipe...</Text>
             <View style={styles.progressBarContainer}>
               <Animated.View 
@@ -208,7 +209,15 @@ export default function RecipeGenerator() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1d7b86',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   scrollView: {
     flex: 1,
@@ -220,12 +229,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -235,17 +245,18 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
     padding: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     marginRight: 10,
     minHeight: 80,
     textAlignVertical: 'top',
+    color: '#1d7b86',
   },
   submitButton: {
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -262,26 +273,27 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   recipeContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
     padding: 20,
     marginTop: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   recipeTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 8,
   },
   recipeDescription: {
@@ -302,43 +314,43 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#1d7b86',
     marginTop: 20,
     marginBottom: 10,
   },
   ingredient: {
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 4,
     lineHeight: 22,
   },
   instruction: {
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 8,
     lineHeight: 22,
   },
   storage: {
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     lineHeight: 22,
   },
   nutrition: {
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 4,
     lineHeight: 22,
   },
   progressBarContainer: {
     width: '100%',
     height: 4,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 2,
     marginTop: 10,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     borderRadius: 2,
   },
   recipeHeader: {
@@ -354,14 +366,14 @@ const styles = StyleSheet.create({
   conversationIndicator: {
     marginTop: 20,
     padding: 12,
-    backgroundColor: '#f0f8ff',
-    borderRadius: 8,
+    backgroundColor: 'rgba(252, 244, 90, 0.2)',
+    borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#428a93',
+    borderLeftColor: '#fcf45a',
   },
   conversationText: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
     fontStyle: 'italic',
   },
 });

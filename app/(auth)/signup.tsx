@@ -96,6 +96,7 @@ export default function SignupScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <KeyboardAvoidingView 
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -109,7 +110,7 @@ export default function SignupScreen() {
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={24} color="#333" />
+              <Ionicons name="arrow-back" size={24} color="#fcf45a" />
             </TouchableOpacity>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>
@@ -236,7 +237,15 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1d7b86',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   keyboardView: {
     flex: 1,
@@ -256,13 +265,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     lineHeight: 24,
+    opacity: 0.9,
   },
   form: {
     flex: 1,
@@ -273,38 +283,38 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
     padding: 16,
     fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#333',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    color: '#1d7b86',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    backgroundColor: '#fff',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
   },
   passwordInput: {
     flex: 1,
     padding: 16,
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
   },
   eyeButton: {
     padding: 16,
   },
   signupButton: {
-    backgroundColor: '#428a93',
-    borderRadius: 12,
+    backgroundColor: '#fcf45a',
+    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
@@ -314,7 +324,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   signupButtonText: {
-    color: '#fff',
+    color: '#1d7b86',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -326,19 +336,20 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ddd',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   dividerText: {
     marginHorizontal: 16,
-    color: '#666',
+    color: '#fff',
     fontSize: 14,
+    opacity: 0.8,
   },
   loginButton: {
     alignItems: 'center',
     padding: 16,
   },
   loginButtonText: {
-    color: '#428a93',
+    color: '#fcf45a',
     fontSize: 16,
     fontWeight: '500',
   },

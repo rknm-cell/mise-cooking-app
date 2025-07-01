@@ -125,7 +125,7 @@ export default function RecipeDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#428a93" />
+          <ActivityIndicator size="large" color="#fcf45a" />
           <Text style={styles.loadingText}>Loading recipe...</Text>
         </View>
       </SafeAreaView>
@@ -136,7 +136,7 @@ export default function RecipeDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={48} color="#ff6b6b" />
+          <Ionicons name="alert-circle" size={48} color="#fcf45a" />
           <Text style={styles.errorTitle}>Oops!</Text>
           <Text style={styles.errorText}>{error || 'Recipe not found'}</Text>
           <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -149,6 +149,7 @@ export default function RecipeDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <Animated.View 
         style={[
           styles.animatedContainer,
@@ -159,7 +160,7 @@ export default function RecipeDetailScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-            <Ionicons name="arrow-back" size={24} color="#333" />
+            <Ionicons name="arrow-back" size={24} color="#fcf45a" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Recipe Details</Text>
           <BookmarkButton recipeId={id} size={24} />
@@ -172,11 +173,11 @@ export default function RecipeDetailScreen() {
             
             <View style={styles.recipeInfo}>
               <View style={styles.infoItem}>
-                <Ionicons name="time-outline" size={20} color="#428a93" />
+                <Ionicons name="time-outline" size={20} color="#fcf45a" />
                 <Text style={styles.infoText}>{recipe.totalTime}</Text>
               </View>
               <View style={styles.infoItem}>
-                <Ionicons name="people-outline" size={20} color="#428a93" />
+                <Ionicons name="people-outline" size={20} color="#fcf45a" />
                 <Text style={styles.infoText}>{recipe.servings} servings</Text>
               </View>
             </View>
@@ -246,16 +247,24 @@ export default function RecipeDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1d7b86',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
   },
   backButton: {
     padding: 8,
@@ -263,7 +272,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#1d7b86',
   },
   placeholder: {
     width: 40,
@@ -276,7 +285,8 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   errorContainer: {
     flex: 1,
@@ -287,19 +297,20 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 24,
+    opacity: 0.8,
   },
   backButtonText: {
     fontSize: 16,
-    color: '#428a93',
+    color: '#fcf45a',
     fontWeight: '600',
   },
   scrollView: {
@@ -311,14 +322,15 @@ const styles = StyleSheet.create({
   recipeTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginBottom: 12,
   },
   recipeDescription: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     lineHeight: 24,
     marginBottom: 20,
+    opacity: 0.9,
   },
   recipeInfo: {
     flexDirection: 'row',
@@ -331,16 +343,28 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
     marginLeft: 6,
+    opacity: 0.8,
   },
   section: {
     marginBottom: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 12,
   },
   ingredientItem: {
@@ -352,14 +376,14 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     marginTop: 8,
     marginRight: 12,
   },
   ingredientText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     lineHeight: 22,
   },
   instructionItem: {
@@ -370,7 +394,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -378,17 +402,17 @@ const styles = StyleSheet.create({
   stepNumberText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#1d7b86',
   },
   instructionText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     lineHeight: 22,
   },
   storageText: {
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     lineHeight: 22,
   },
   nutritionItem: {
@@ -399,16 +423,16 @@ const styles = StyleSheet.create({
   nutritionText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#1d7b86',
     lineHeight: 22,
   },
   animatedContainer: {
     flex: 1,
   },
   generateListButton: {
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -416,7 +440,7 @@ const styles = StyleSheet.create({
   generateListButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: '#1d7b86',
     marginLeft: 8,
   },
 });

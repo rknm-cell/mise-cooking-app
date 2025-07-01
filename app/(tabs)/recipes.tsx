@@ -1,13 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import StyledTitle from '../../components/StyledTitle';
@@ -27,6 +29,8 @@ interface Recipe {
 
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -41,6 +45,7 @@ export default function RecipesScreen() {
       if (response.ok) {
         const data = await response.json();
         setRecipes(data);
+        setFilteredRecipes(data);
       } else {
         console.error('Failed to fetch recipes:', response.status);
       }
@@ -49,6 +54,22 @@ export default function RecipesScreen() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const filterRecipes = (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setFilteredRecipes(recipes);
+    } else {
+      const filtered = recipes.filter(recipe =>
+        (recipe.name?.toLowerCase() || '').includes(query.toLowerCase()) ||
+        (recipe.description?.toLowerCase() || '').includes(query.toLowerCase()) ||
+        recipe.ingredients.some(ingredient => 
+          (ingredient?.toLowerCase() || '').includes(query.toLowerCase())
+        )
+      );
+      setFilteredRecipes(filtered);
     }
   };
 
@@ -97,7 +118,7 @@ export default function RecipesScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#428a93" />
+          <ActivityIndicator size="large" color="#fcf45a" />
           <Text style={styles.loadingText}>Loading recipes...</Text>
         </View>
       </SafeAreaView>
@@ -106,16 +127,35 @@ export default function RecipesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <View style={styles.header}>
         <StyledTitle 
           title="Recipes" 
-          subtitle={`${recipes.length} recipe${recipes.length !== 1 ? 's' : ''} saved`} 
+          subtitle={`${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found`} 
           size="medium"
         />
       </View>
 
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={20} color="#fcf45a" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search recipes..."
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={filterRecipes}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => filterRecipes('')} style={styles.clearButton}>
+              <Ionicons name="close-circle" size={20} color="#fcf45a" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       <FlatList
-        data={recipes}
+        data={filteredRecipes}
         renderItem={renderRecipeCard}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -133,7 +173,15 @@ export default function RecipesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1d7b86',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   loadingContainer: {
     flex: 1,
@@ -143,32 +191,33 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   listContainer: {
     padding: 20,
     paddingTop: 10,
   },
   recipeCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   cardContent: {
     flex: 1,
   },
   recipeName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 8,
   },
   recipeDescription: {
@@ -186,7 +235,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   separator: {
-    height: 12,
+    height: 16,
   },
   emptyState: {
     flex: 1,
@@ -195,17 +244,50 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
+    opacity: 0.8,
   },
   header: {
     padding: 20,
+    paddingBottom: 10,
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#1d7b86',
+  },
+  clearButton: {
+    padding: 6,
   },
 }); 

@@ -35,6 +35,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <View style={styles.header}>
         <Text style={styles.title}>Profile</Text>
       </View>
@@ -50,7 +51,7 @@ export default function ProfileScreen() {
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out" size={20} color="#ff6b6b" />
+        <Ionicons name="log-out" size={20} color="#fcf45a" />
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -60,24 +61,41 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1d7b86',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fcf45a',
   },
   profileSection: {
     alignItems: 'center',
     padding: 30,
-    backgroundColor: '#fff',
-    marginBottom: 20,
+    backgroundColor: '#2d8d8b',
+    margin: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   avatarContainer: {
     marginBottom: 16,
@@ -86,19 +104,19 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#fcf45a',
     justifyContent: 'center',
     alignItems: 'center',
   },
   userName: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#fcf45a',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: '#666',
+    color: '#fcf45a',
   },
 
   logoutButton: {
@@ -106,16 +124,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#2d8d8b',
     marginHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#ff6b6b',
+    borderColor: '#fcf45a',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   logoutText: {
     marginLeft: 8,
     fontSize: 16,
     fontWeight: '500',
-    color: '#ff6b6b',
+    color: '#fcf45a',
   },
 }); 

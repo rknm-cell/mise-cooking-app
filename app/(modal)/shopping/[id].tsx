@@ -170,7 +170,7 @@ export default function ShoppingListDetailScreen() {
         style={styles.deleteButton}
         onPress={() => handleDeleteItem(item)}
       >
-        <Ionicons name="trash-outline" size={20} color="#ff6b6b" />
+                    <Ionicons name="trash-outline" size={20} color="#fcf45a" />
       </TouchableOpacity>
     </View>
   );
@@ -186,6 +186,7 @@ export default function ShoppingListDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -322,7 +323,16 @@ export default function ShoppingListDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1d7b86',
     padding: 20,
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   header: {
     flexDirection: 'row',
@@ -336,6 +346,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     marginBottom: 0,
+    color: '#fff',
   },
   addButton: {
     padding: 8,
@@ -348,7 +359,8 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   emptyContainer: {
     flex: 1,
@@ -361,21 +373,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 16,
     marginBottom: 8,
+    color: '#fff',
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 24,
+    opacity: 0.8,
   },
   addFirstButton: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#fcf45a',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   addFirstButtonText: {
-    color: 'white',
+    color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -385,21 +399,22 @@ const styles = StyleSheet.create({
   },
   summaryText: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
+    opacity: 0.8,
   },
   listContainer: {
     paddingBottom: 20,
   },
   itemContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   completedItem: {
     opacity: 0.6,
@@ -407,7 +422,7 @@ const styles = StyleSheet.create({
   itemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
     flex: 1,
   },
   checkbox: {
@@ -415,8 +430,8 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.light.tint,
-    backgroundColor: Colors.light.tint,
+    borderColor: '#fcf45a',
+    backgroundColor: '#fcf45a',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -428,6 +443,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 2,
+    color: '#1d7b86',
   },
   itemDetails: {
     fontSize: 14,
@@ -448,7 +464,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: 24,
     width: '90%',
@@ -463,17 +479,20 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '600',
+    color: '#1d7b86',
   },
   closeButton: {
     padding: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    color: '#1d7b86',
   },
   row: {
     flexDirection: 'row',
@@ -499,16 +518,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addItemButton: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#fcf45a',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   addButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: 'rgba(252, 244, 90, 0.5)',
   },
   addButtonText: {
-    color: 'white',
+    color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },
