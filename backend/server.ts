@@ -6,9 +6,10 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { db } from './db/index.js';
+import { getBookmarks, removeBookmark, saveBookmark } from './db/queries.js';
 import * as schema from './db/schema.js';
-import { validateApiKey } from './middleware/apiKey.js';
 import { signIn, signUp } from './models/users.js';
+
 import { generateRecipe } from './utils/recipe.js';
 
 config();
@@ -43,14 +44,6 @@ app.get('/api/config', (req: Request, res: Response) => {
     apiKey: process.env.API_KEY || null,
     environment: process.env.NODE_ENV || 'development'
   });
-});
-// Apply API key authentication to all API routes except config
-app.use('/api/', (req: Request, res: Response, next: NextFunction) => {
-  // Skip API key validation for config endpoint
-  if (req.path === '/config') {
-    return next();
-  }
-  return validateApiKey(req, res, next);
 });
 
 // Recipe generation endpoint
@@ -164,7 +157,7 @@ app.get('/api/bookmarks/:userId', async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Database URL not configured' });
     }
 
-    const bookmarks = await db.select().from(schema.bookmark).where(eq(schema.bookmark.userId, userId));
+    const bookmarks = await getBookmarks(userId);
     res.json(bookmarks || []);
   } catch (error) {
     console.error('Error fetching bookmarks from Supabase:', error);
@@ -181,16 +174,38 @@ app.post('/api/bookmarks', async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Database URL not configured' });
     }
 
-    const result = await db.insert(schema.bookmark).values({
-      userId,
-      recipeId,
-      bookmarkedAt: new Date(),
-    });
+    const result = await saveBookmark(userId, recipeId);
     
-    res.json({ success: true });
+    if (result.success) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ error: result.message || 'Failed to save bookmark' });
+    }
   } catch (error) {
     console.error('Error saving bookmark to Supabase:', error);
     res.status(500).json({ error: 'Failed to save bookmark' });
+  }
+});
+
+// Remove bookmark from Supabase
+app.delete('/api/bookmarks', async (req: Request, res: Response) => {
+  try {
+    const { userId, recipeId } = req.body;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
+    }
+
+    const result = await removeBookmark(userId, recipeId);
+    
+    if (result.success) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ error: result.message || 'Failed to remove bookmark' });
+    }
+  } catch (error) {
+    console.error('Error removing bookmark from Supabase:', error);
+    res.status(500).json({ error: 'Failed to remove bookmark' });
   }
 });
 
@@ -267,17 +282,29 @@ app.get('/api/auth/me', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'No token provided' });
     }
 
-    // For now, we'll use a simple approach - in production you'd want proper JWT verification
-    // This is a placeholder that assumes the token contains user info
-    // In a real app, you'd decode and verify the JWT token
-    
-    // For development, we'll return a mock user
-    // TODO: Implement proper JWT verification
-    res.json({
-      id: 'user-123',
-      name: 'Test User',
-      email: 'test@example.com',
+    // Find the session in the database using the token
+    const session = await db.query.session.findFirst({
+      where: eq(schema.session.token, token),
     });
+    
+    if (session && session.userId) {
+      // Get the user data from the database
+      const user = await db.query.user.findFirst({
+        where: eq(schema.user.id, session.userId),
+      });
+      
+      if (user) {
+        res.json({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        });
+      } else {
+        res.status(401).json({ error: 'User not found in database' });
+      }
+    } else {
+      res.status(401).json({ error: 'Invalid or expired token' });
+    }
   } catch (error) {
     console.error('Error getting user:', error);
     res.status(401).json({ error: 'Invalid token' });

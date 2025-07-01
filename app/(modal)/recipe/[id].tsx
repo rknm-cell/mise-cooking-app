@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import BookmarkButton from '../../../components/BookmarkButton';
 
 interface Recipe {
   id: string;
@@ -127,7 +128,7 @@ export default function RecipeDetailScreen() {
             <Ionicons name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Recipe Details</Text>
-          <View style={styles.placeholder} />
+          <BookmarkButton recipeId={id} size={24} />
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>

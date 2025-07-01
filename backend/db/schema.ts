@@ -72,10 +72,10 @@ export const user = pgTable("user", {
 export const bookmark = pgTable(
   "bookmarks",
   {
-    userId: varchar("user_id")
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    recipeId: varchar("recipe_id")
+    recipeId: text("recipe_id")
       .notNull()
       .references(() => recipe.id, { onDelete: "cascade" }),
     bookmarkedAt: timestamp("bookmarked_at", { withTimezone: true })
@@ -159,4 +159,4 @@ export const bookmarksRelations = relations(bookmark, ({ one }) => ({
 // EXPORTS
 // ============================================================================
 
-export const schema = { user, session, account, verification };
+export const schema = { user, session, account, verification, recipe, bookmark };

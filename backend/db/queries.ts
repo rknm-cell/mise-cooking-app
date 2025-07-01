@@ -1,7 +1,7 @@
 "server-only";
+import { eq } from "drizzle-orm";
 import { db } from "./index";
 import * as schema from "./schema";
-import { eq } from "drizzle-orm";
 
 export async function saveRecipe({
   id,
@@ -79,11 +79,26 @@ export async function getBookmarks(userId: string): Promise<schema.Bookmark[] | 
   }
 }
 
-export async function saveBookmark(userId: string, recipeId: string): Promise<schema.Bookmark>{
-  try{
-    return await db.insert(schema.bookmark).values({userId, recipeId});
+export async function saveBookmark(userId: string, recipeId: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    await db.insert(schema.bookmark).values({userId, recipeId});
+    return { success: true };
   } catch (error) {
-    console.error(`Error saving bookmark: `, error)
-    return null;
+    console.error(`Error saving bookmark: `, error);
+    return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
+
+export async function removeBookmark(userId: string, recipeId: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    await db.delete(schema.bookmark).where(
+      eq(schema.bookmark.userId, userId) && eq(schema.bookmark.recipeId, recipeId)
+    );
+    return { success: true };
+  } catch (error) {
+    console.error(`Error removing bookmark: `, error);
+    return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+
