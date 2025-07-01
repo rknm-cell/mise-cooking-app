@@ -2,18 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { API_CONFIG, buildApiUrl, getApiHeaders } from '../../constants/Config';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface SignupForm {
   email: string;
@@ -23,6 +23,7 @@ interface SignupForm {
 }
 
 export default function SignupScreen() {
+  const { signup } = useAuth();
   const [form, setForm] = useState<SignupForm>({
     email: '',
     password: '',
@@ -65,31 +66,21 @@ export default function SignupScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SIGNUP), {
-        method: 'POST',
-        headers: await getApiHeaders(),
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        }),
-      });
-
-      const data = await response.json();
+      const success = await signup(form.name, form.email, form.password);
       
-      if (response.ok) {
+      if (success) {
         Alert.alert(
           'Success!',
-          'Account created successfully. Please log in.',
+          'Account created successfully.',
           [
             {
               text: 'OK',
-              onPress: () => router.replace('/auth/login'),
+              onPress: () => router.replace('/'),
             },
           ]
         );
       } else {
-        Alert.alert('Error', data.error || 'Failed to create account. Please try again.');
+        Alert.alert('Error', 'Failed to create account. Please try again.');
       }
     } catch (error) {
       console.error('Signup error:', error);
@@ -100,7 +91,7 @@ export default function SignupScreen() {
   };
 
   const handleLoginPress = () => {
-    router.push('/auth/login');
+    router.push('/(auth)/login');
   };
 
   return (

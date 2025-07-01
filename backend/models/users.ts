@@ -2,16 +2,23 @@ import { auth } from "../lib/auth.js";
 
 export const signIn = async (email: string, password: string) => {
   try {
-    await auth.api.signInEmail({
+    const result = await auth.api.signInEmail({
       body: {
         email: email,
         password: password,
       },
     });
     console.log("Signed in");
+    
     return {
       success: true,
       message: "Signed in successfully",
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+      },
+      token: result.token,
     };
   } catch (error) {
     const e = error as Error;
@@ -24,7 +31,7 @@ export const signIn = async (email: string, password: string) => {
 
 export const signUp = async (username: string, email: string, password: string) => {
   try {
-    await auth.api.signUpEmail({
+    const result = await auth.api.signUpEmail({
       body: {
         name: username,
         email: email,
@@ -33,7 +40,13 @@ export const signUp = async (username: string, email: string, password: string) 
     });
     return {
       success: true,
-      message: "Signed up successfully."
+      message: "Signed up successfully.",
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+      },
+      token: result.token,
     };
   } catch (error) {
     const e = error as Error;

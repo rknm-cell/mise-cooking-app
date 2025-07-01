@@ -14,7 +14,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function LandingPage() {
   const handleGetStarted = () => {
-    router.push('/(tabs)');
+    router.push('/generate');
   };
 
   return (

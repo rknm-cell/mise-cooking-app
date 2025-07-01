@@ -2,12 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -34,6 +35,8 @@ export default function RecipeDetailScreen() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scaleAnim] = useState(new Animated.Value(0));
+  const [opacityAnim] = useState(new Animated.Value(0));
 
   const fetchRecipe = async () => {
     if (!id) {
@@ -62,10 +65,25 @@ export default function RecipeDetailScreen() {
 
   useEffect(() => {
     fetchRecipe();
+    
+    // Animate in with scale effect
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 50,
+      friction: 7,
+    }).start();
   }, [id]);
 
   const handleBackPress = () => {
-    router.back();
+    // Animate out before closing
+    Animated.timing(scaleAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      router.back();
+    });
   };
 
   if (loading) {
@@ -96,68 +114,77 @@ export default function RecipeDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Recipe Details</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.recipeContainer}>
-          <Text style={styles.recipeTitle}>{recipe.name}</Text>
-          <Text style={styles.recipeDescription}>{recipe.description}</Text>
-          
-          <View style={styles.recipeInfo}>
-            <View style={styles.infoItem}>
-              <Ionicons name="time-outline" size={20} color="#428a93" />
-              <Text style={styles.infoText}>{recipe.totalTime}</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Ionicons name="people-outline" size={20} color="#428a93" />
-              <Text style={styles.infoText}>{recipe.servings} servings</Text>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ingredients</Text>
-            {recipe.ingredients.map((ingredient, index) => (
-              <View key={index} style={styles.ingredientItem}>
-                <View style={styles.bullet} />
-                <Text style={styles.ingredientText}>{ingredient}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Instructions</Text>
-            {recipe.instructions.map((instruction, index) => (
-              <View key={index} style={styles.instructionItem}>
-                <View style={styles.stepNumber}>
-                  <Text style={styles.stepNumberText}>{index + 1}</Text>
-                </View>
-                <Text style={styles.instructionText}>{instruction}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Storage</Text>
-            <Text style={styles.storageText}>{recipe.storage}</Text>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Nutrition</Text>
-            {recipe.nutrition.map((item, index) => (
-              <View key={index} style={styles.nutritionItem}>
-                <View style={styles.bullet} />
-                <Text style={styles.nutritionText}>{item}</Text>
-              </View>
-            ))}
-          </View>
+      <Animated.View 
+        style={[
+          styles.animatedContainer,
+          {
+            transform: [{ scale: scaleAnim }],
+          }
+        ]}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Recipe Details</Text>
+          <View style={styles.placeholder} />
         </View>
-      </ScrollView>
+
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.recipeContainer}>
+            <Text style={styles.recipeTitle}>{recipe.name}</Text>
+            <Text style={styles.recipeDescription}>{recipe.description}</Text>
+            
+            <View style={styles.recipeInfo}>
+              <View style={styles.infoItem}>
+                <Ionicons name="time-outline" size={20} color="#428a93" />
+                <Text style={styles.infoText}>{recipe.totalTime}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Ionicons name="people-outline" size={20} color="#428a93" />
+                <Text style={styles.infoText}>{recipe.servings} servings</Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Ingredients</Text>
+              {recipe.ingredients.map((ingredient, index) => (
+                <View key={index} style={styles.ingredientItem}>
+                  <View style={styles.bullet} />
+                  <Text style={styles.ingredientText}>{ingredient}</Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Instructions</Text>
+              {recipe.instructions.map((instruction, index) => (
+                <View key={index} style={styles.instructionItem}>
+                  <View style={styles.stepNumber}>
+                    <Text style={styles.stepNumberText}>{index + 1}</Text>
+                  </View>
+                  <Text style={styles.instructionText}>{instruction}</Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Storage</Text>
+              <Text style={styles.storageText}>{recipe.storage}</Text>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Nutrition</Text>
+              {recipe.nutrition.map((item, index) => (
+                <View key={index} style={styles.nutritionItem}>
+                  <View style={styles.bullet} />
+                  <Text style={styles.nutritionText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -320,5 +347,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     lineHeight: 22,
+  },
+  animatedContainer: {
+    flex: 1,
   },
 });

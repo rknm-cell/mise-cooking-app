@@ -2,18 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { API_CONFIG, buildApiUrl, getApiHeaders } from '../../constants/Config';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LoginForm {
   email: string;
@@ -21,6 +21,7 @@ interface LoginForm {
 }
 
 export default function LoginScreen() {
+  const { login } = useAuth();
   const [form, setForm] = useState<LoginForm>({
     email: '',
     password: '',
@@ -54,31 +55,21 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.LOGIN), {
-        method: 'POST',
-        headers: await getApiHeaders(),
-        body: JSON.stringify({
-          email: form.email,
-          password: form.password,
-        }),
-      });
-
-      const data = await response.json();
+      const success = await login(form.email, form.password);
       
-      if (response.ok) {
-        // TODO: Store auth token/session here
+      if (success) {
         Alert.alert(
           'Welcome Back!',
           'Successfully logged in.',
           [
             {
               text: 'Continue',
-              onPress: () => router.replace('/(tabs)'),
+              onPress: () => router.replace('/'),
             },
           ]
         );
       } else {
-        Alert.alert('Login Failed', data.error || 'Invalid email or password. Please try again.');
+        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -89,7 +80,7 @@ export default function LoginScreen() {
   };
 
   const handleSignupPress = () => {
-    router.push('/auth/signup');
+    router.push('/(auth)/signup');
   };
 
   const handleForgotPassword = () => {
