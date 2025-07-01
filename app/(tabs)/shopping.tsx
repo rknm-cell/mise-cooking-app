@@ -144,6 +144,7 @@ export default function ShoppingScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <View style={styles.header}>
         <StyledTitle title="Shopping Lists" />
         <TouchableOpacity
@@ -241,7 +242,16 @@ export default function ShoppingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1d7b86',
     padding: 20,
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   header: {
     flexDirection: 'row',
@@ -252,19 +262,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     marginBottom: 0,
+    color: '#fff',
   },
   addButton: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#fcf45a',
     width: 44,
     height: 44,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   loadingContainer: {
     flex: 1,
@@ -274,7 +285,8 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   emptyContainer: {
     flex: 1,
@@ -287,21 +299,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 16,
     marginBottom: 8,
+    color: '#fff',
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 24,
+    opacity: 0.8,
   },
   createFirstButton: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#fcf45a',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   createFirstButtonText: {
-    color: 'white',
+    color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -309,19 +323,19 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   listItem: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   listContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
   },
   listInfo: {
     flex: 1,
@@ -330,6 +344,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 4,
+    color: '#1d7b86',
   },
   listDate: {
     fontSize: 14,
@@ -350,7 +365,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: 24,
     width: '85%',
@@ -365,17 +380,20 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '600',
+    color: '#1d7b86',
   },
   closeButton: {
     padding: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
     padding: 12,
     fontSize: 16,
     marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    color: '#1d7b86',
   },
   modalActions: {
     flexDirection: 'row',
@@ -391,16 +409,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   createButton: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: '#fcf45a',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   createButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: 'rgba(252, 244, 90, 0.5)',
   },
   createButtonText: {
-    color: 'white',
+    color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },

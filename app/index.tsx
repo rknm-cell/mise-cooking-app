@@ -49,7 +49,7 @@ export default function LandingPage() {
         <View style={styles.featuresContainer}>
           <View style={styles.featureItem}>
             <View style={styles.featureIcon}>
-              <Ionicons name="bulb" size={24} color="#007AFF" />
+              <Ionicons name="bulb" size={24} color="#fcf45a" />
             </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>Smart Recipe Generation</Text>
@@ -61,7 +61,7 @@ export default function LandingPage() {
 
           <View style={styles.featureItem}>
             <View style={styles.featureIcon}>
-              <Ionicons name="heart" size={24} color="#FF6B6B" />
+              <Ionicons name="heart" size={24} color="#fcf45a" />
             </View>
             <View style={styles.featureText}>
               <Text style={styles.featureTitle}>Save Favorites</Text>

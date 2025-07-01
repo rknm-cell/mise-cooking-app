@@ -15,7 +15,7 @@ export default function BookmarkButton({
   recipeId, 
   size = 24, 
   color = '#666',
-  activeColor = '#428a93'
+  activeColor = '#fcf45a'
 }: BookmarkButtonProps) {
   const { user } = useAuth();
   const [isBookmarked, setIsBookmarked] = useState(false);

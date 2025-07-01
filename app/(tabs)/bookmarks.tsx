@@ -90,16 +90,16 @@ export default function BookmarksScreen() {
         </Text>
         <View style={styles.recipeInfo}>
           <View style={styles.infoItem}>
-            <Ionicons name="time-outline" size={16} color="#666" />
+            <Ionicons name="time-outline" size={16} color="#fcf45a" />
             <Text style={styles.infoText}>{item.totalTime}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Ionicons name="people-outline" size={16} color="#666" />
+            <Ionicons name="people-outline" size={16} color="#fcf45a" />
             <Text style={styles.infoText}>{item.servings} servings</Text>
           </View>
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#ccc" />
+      <Ionicons name="chevron-forward" size={20} color="#fcf45a" />
     </TouchableOpacity>
   );
 
@@ -107,7 +107,7 @@ export default function BookmarksScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#428a93" />
+          <ActivityIndicator size="large" color="#fcf45a" />
           <Text style={styles.loadingText}>Loading bookmarks...</Text>
         </View>
       </SafeAreaView>
@@ -118,7 +118,7 @@ export default function BookmarksScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={48} color="#ff6b6b" />
+          <Ionicons name="alert-circle" size={48} color="#fcf45a" />
           <Text style={styles.errorTitle}>Oops!</Text>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={loadBookmarks}>
@@ -133,7 +133,7 @@ export default function BookmarksScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Ionicons name="person-circle" size={48} color="#666" />
+          <Ionicons name="person-circle" size={48} color="#fcf45a" />
           <Text style={styles.errorTitle}>Sign In Required</Text>
           <Text style={styles.errorText}>Please sign in to view your bookmarks</Text>
         </View>
@@ -143,6 +143,7 @@ export default function BookmarksScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.backgroundGradient} />
       <View style={styles.header}>
         <Text style={styles.title}>My Bookmarks</Text>
         <Text style={styles.subtitle}>
@@ -152,7 +153,7 @@ export default function BookmarksScreen() {
 
       {bookmarkedRecipes.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="bookmark-outline" size={64} color="#ccc" />
+          <Ionicons name="bookmark-outline" size={64} color="#fcf45a" />
           <Text style={styles.emptyTitle}>No bookmarks yet</Text>
           <Text style={styles.emptyText}>
             Start exploring recipes and bookmark your favorites
@@ -180,23 +181,32 @@ export default function BookmarksScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#1d7b86',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#426b70',
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.8,
   },
   loadingContainer: {
     flex: 1,
@@ -206,7 +216,8 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
+    opacity: 0.9,
   },
   errorContainer: {
     flex: 1,
@@ -217,24 +228,25 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 24,
+    opacity: 0.8,
   },
   retryButton: {
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   retryButtonText: {
-    color: '#fff',
+    color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -247,24 +259,25 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
     marginBottom: 24,
+    opacity: 0.8,
   },
   exploreButton: {
-    backgroundColor: '#428a93',
+    backgroundColor: '#fcf45a',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   exploreButtonText: {
-    color: '#fff',
+    color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -274,18 +287,18 @@ const styles = StyleSheet.create({
   recipeItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   recipeContent: {
     flex: 1,
@@ -293,7 +306,7 @@ const styles = StyleSheet.create({
   recipeTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#1d7b86',
     marginBottom: 4,
   },
   recipeDescription: {
