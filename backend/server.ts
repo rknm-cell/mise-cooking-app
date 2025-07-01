@@ -9,6 +9,7 @@ import { db } from './db/index.js';
 import { getBookmarks, removeBookmark, saveBookmark } from './db/queries.js';
 import * as schema from './db/schema.js';
 import { signIn, signUp } from './models/users.js';
+import shoppingRoutes from './routes/shopping.js';
 
 import { generateRecipe } from './utils/recipe.js';
 
@@ -310,6 +311,9 @@ app.get('/api/auth/me', async (req: Request, res: Response) => {
     res.status(401).json({ error: 'Invalid token' });
   }
 });
+
+// Shopping list routes
+app.use('/api/shopping', shoppingRoutes);
 
 // 404 handler
 app.use('*', (req: Request, res: Response) => {
