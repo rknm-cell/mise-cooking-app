@@ -196,7 +196,12 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
     const result = await signUp(name, email, password);
     
     if (result.success) {
-      res.status(201).json({ message: result.message });
+      // Return user data and token
+      res.status(201).json({ 
+        message: result.message,
+        user: result.user,
+        token: result.token
+      });
     } else {
       res.status(400).json({ error: result.message });
     }
@@ -217,13 +222,44 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     const result = await signIn(email, password);
     
     if (result.success) {
-      res.json({ message: result.message });
+      // Return user data and token
+      res.json({ 
+        message: result.message,
+        user: result.user,
+        token: result.token
+      });
     } else {
       res.status(401).json({ error: result.message });
     }
   } catch (error) {
     console.error('Error in login:', error);
     res.status(500).json({ error: 'Failed to authenticate' });
+  }
+});
+
+// Get current user
+app.get('/api/auth/me', async (req: Request, res: Response) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    // For now, we'll use a simple approach - in production you'd want proper JWT verification
+    // This is a placeholder that assumes the token contains user info
+    // In a real app, you'd decode and verify the JWT token
+    
+    // For development, we'll return a mock user
+    // TODO: Implement proper JWT verification
+    res.json({
+      id: 'user-123',
+      name: 'Test User',
+      email: 'test@example.com',
+    });
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(401).json({ error: 'Invalid token' });
   }
 });
 

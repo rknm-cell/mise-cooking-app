@@ -61,7 +61,7 @@ export default function RecipesScreen() {
   };
 
   const handleRecipePress = (recipeId: string) => {
-    router.push(`/recipes/${recipeId}`);
+    router.push(`/(modal)/recipe/${recipeId}`);
   };
 
   const renderRecipeCard = ({ item }: { item: Recipe }) => (

@@ -1,94 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function ProfileScreen() {
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
+  const { user, logout } = useAuth();
 
-  const menuItems = [
-    {
-      icon: 'person-circle',
-      title: 'Edit Profile',
-      subtitle: 'Update your personal information',
-      action: 'navigate',
-    },
-    {
-      icon: 'notifications',
-      title: 'Notifications',
-      subtitle: 'Manage notification preferences',
-      action: 'toggle',
-      value: notificationsEnabled,
-      onValueChange: setNotificationsEnabled,
-    },
-    {
-      icon: 'moon',
-      title: 'Dark Mode',
-      subtitle: 'Switch between light and dark themes',
-      action: 'toggle',
-      value: darkModeEnabled,
-      onValueChange: setDarkModeEnabled,
-    },
-    {
-      icon: 'settings',
-      title: 'Settings',
-      subtitle: 'App preferences and configuration',
-      action: 'navigate',
-    },
-    {
-      icon: 'help-circle',
-      title: 'Help & Support',
-      subtitle: 'Get help and contact support',
-      action: 'navigate',
-    },
-    {
-      icon: 'information-circle',
-      title: 'About',
-      subtitle: 'App version and information',
-      action: 'navigate',
-    },
-  ];
-
-  const renderMenuItem = (item: typeof menuItems[0], index: number) => (
-    <TouchableOpacity
-      key={index}
-      style={styles.menuItem}
-      onPress={() => {
-        if (item.action === 'navigate') {
-          // Handle navigation
-          console.log(`Navigate to ${item.title}`);
-        }
-      }}
-    >
-      <View style={styles.menuItemLeft}>
-        <View style={styles.iconContainer}>
-          <Ionicons name={item.icon as any} size={24} color="#007AFF" />
-        </View>
-        <View style={styles.menuItemText}>
-          <Text style={styles.menuItemTitle}>{item.title}</Text>
-          <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
-        </View>
-      </View>
-      
-      {item.action === 'toggle' ? (
-        <Switch
-          value={item.value}
-          onValueChange={item.onValueChange}
-          trackColor={{ false: '#e9ecef', true: '#007AFF' }}
-          thumbColor="#fff"
-        />
-      ) : (
-        <Ionicons name="chevron-forward" size={20} color="#ccc" />
-      )}
-    </TouchableOpacity>
-  );
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -102,15 +45,11 @@ export default function ProfileScreen() {
             <Ionicons name="person" size={40} color="#fff" />
           </View>
         </View>
-        <Text style={styles.userName}>John Doe</Text>
-        <Text style={styles.userEmail}>john.doe@example.com</Text>
+        <Text style={styles.userName}>{user?.name || 'User'}</Text>
+        <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
       </View>
 
-      <View style={styles.menuContainer}>
-        {menuItems.map(renderMenuItem)}
-      </View>
-
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Ionicons name="log-out" size={20} color="#ff6b6b" />
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
@@ -161,41 +100,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  menuContainer: {
-    backgroundColor: '#fff',
-    marginBottom: 20,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    alignItems: 'center',
-  },
-  menuItemText: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  menuItemTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 2,
-  },
-  menuItemSubtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
+
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',

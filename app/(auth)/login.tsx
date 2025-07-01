@@ -2,65 +2,51 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 
-// Flexible API configuration
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080'  // Local development
-  : 'https://mise-cooking-app-production.up.railway.app'; // Production
-
-interface SignupForm {
+interface LoginForm {
   email: string;
   password: string;
-  confirmPassword: string;
-  name: string;
 }
 
-export default function SignupScreen() {
-  const [form, setForm] = useState<SignupForm>({
+export default function LoginScreen() {
+  const { login } = useAuth();
+  const [form, setForm] = useState<LoginForm>({
     email: '',
     password: '',
-    confirmPassword: '',
-    name: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const updateForm = (field: keyof SignupForm, value: string) => {
+  const updateForm = (field: keyof LoginForm, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
   const validateForm = (): string | null => {
-    if (!form.name.trim()) {
-      return 'Name is required';
-    }
     if (!form.email.trim()) {
       return 'Email is required';
     }
     if (!/\S+@\S+\.\S+/.test(form.email)) {
       return 'Please enter a valid email address';
     }
-    if (form.password.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-    if (form.password !== form.confirmPassword) {
-      return 'Passwords do not match';
+    if (!form.password.trim()) {
+      return 'Password is required';
     }
     return null;
   };
 
-  const handleSignup = async () => {
+  const handleLogin = async () => {
     const error = validateForm();
     if (error) {
       Alert.alert('Validation Error', error);
@@ -69,42 +55,40 @@ export default function SignupScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        }),
-      });
-
-      const data = await response.json();
+      const success = await login(form.email, form.password);
       
-      if (response.ok) {
+      if (success) {
         Alert.alert(
-          'Success!',
-          'Account created successfully. Please log in.',
+          'Welcome Back!',
+          'Successfully logged in.',
           [
             {
-              text: 'OK',
-              onPress: () => router.replace('/auth/login'),
+              text: 'Continue',
+              onPress: () => router.replace('/'),
             },
           ]
         );
       } else {
-        Alert.alert('Error', data.error || 'Failed to create account. Please try again.');
+        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
       }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Login error:', error);
       Alert.alert('Error', 'Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLoginPress = () => {
-    router.push('/auth/login');
+  const handleSignupPress = () => {
+    router.push('/(auth)/signup');
+  };
+
+  const handleForgotPassword = () => {
+    Alert.alert(
+      'Forgot Password',
+      'Please contact support to reset your password.',
+      [{ text: 'OK' }]
+    );
   };
 
   return (
@@ -124,27 +108,13 @@ export default function SignupScreen() {
             >
               <Ionicons name="arrow-back" size={24} color="#333" />
             </TouchableOpacity>
-            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.title}>Welcome Back</Text>
             <Text style={styles.subtitle}>
-              Join Mise Cooking and start creating amazing recipes
+              Sign in to your Mise Cooking account
             </Text>
           </View>
 
           <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Full Name</Text>
-              <TextInput
-                style={styles.input}
-                value={form.name}
-                onChangeText={(value) => updateForm('name', value)}
-                placeholder="Enter your full name"
-                placeholderTextColor="#999"
-                autoCapitalize="words"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </View>
-
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -167,7 +137,7 @@ export default function SignupScreen() {
                   style={styles.passwordInput}
                   value={form.password}
                   onChangeText={(value) => updateForm('password', value)}
-                  placeholder="Create a password"
+                  placeholder="Enter your password"
                   placeholderTextColor="#999"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
@@ -187,40 +157,21 @@ export default function SignupScreen() {
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirm Password</Text>
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={styles.passwordInput}
-                  value={form.confirmPassword}
-                  onChangeText={(value) => updateForm('confirmPassword', value)}
-                  placeholder="Confirm your password"
-                  placeholderTextColor="#999"
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  editable={!isLoading}
-                />
-                <TouchableOpacity
-                  style={styles.eyeButton}
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  <Ionicons 
-                    name={showConfirmPassword ? "eye-off" : "eye"} 
-                    size={20} 
-                    color="#666" 
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
             <TouchableOpacity
-              style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
-              onPress={handleSignup}
+              style={styles.forgotPasswordButton}
+              onPress={handleForgotPassword}
               disabled={isLoading}
             >
-              <Text style={styles.signupButtonText}>
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.loginButtonText}>
+                {isLoading ? 'Signing In...' : 'Sign In'}
               </Text>
             </TouchableOpacity>
 
@@ -231,12 +182,12 @@ export default function SignupScreen() {
             </View>
 
             <TouchableOpacity
-              style={styles.loginButton}
-              onPress={handleLoginPress}
+              style={styles.signupButton}
+              onPress={handleSignupPress}
               disabled={isLoading}
             >
-              <Text style={styles.loginButtonText}>
-                Already have an account? Log in
+              <Text style={styles.signupButtonText}>
+                Don't have an account? Sign up
               </Text>
             </TouchableOpacity>
           </View>
@@ -315,18 +266,26 @@ const styles = StyleSheet.create({
   eyeButton: {
     padding: 16,
   },
-  signupButton: {
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 20,
+  },
+  forgotPasswordText: {
+    color: '#428a93',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  loginButton: {
     backgroundColor: '#428a93',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
-    marginTop: 20,
     marginBottom: 20,
   },
-  signupButtonDisabled: {
+  loginButtonDisabled: {
     opacity: 0.6,
   },
-  signupButtonText: {
+  loginButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
@@ -346,11 +305,11 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 14,
   },
-  loginButton: {
+  signupButton: {
     alignItems: 'center',
     padding: 16,
   },
-  loginButtonText: {
+  signupButtonText: {
     color: '#428a93',
     fontSize: 16,
     fontWeight: '500',
