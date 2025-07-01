@@ -16,6 +16,7 @@
 - **Navigation**: Expo Router (file-based routing)
 - **Styling**: NativeWind (Tailwind CSS for React Native)
 - **Icons**: Expo Vector Icons (Ionicons)
+- **Camera**: Expo Camera for real-time video processing
 - **State Management**: React Context API
 - **Authentication**: Custom auth system with JWT tokens
 - **Storage**: AsyncStorage for local data persistence
@@ -27,6 +28,7 @@
 - **Authentication**: Better Auth library
 - **AI Integration**: OpenAI GPT-4o-mini via AI SDK
 - **Computer Vision**: Google Cloud Vision API / Azure Computer Vision
+- **On-Device AI**: TensorFlow Lite / MediaPipe for basic detection
 - **Real-time Processing**: WebSocket for live camera feed
 - **Deployment**: Railway
 - **Security**: Helmet, CORS, Rate limiting
@@ -77,12 +79,15 @@
 - **User Profiles**: Basic user information storage
 
 ### 6. AI-Powered Cooking Guide
-- **Real-time Camera Analysis**: Live video processing during cooking
-- **Cooking Stage Detection**: AI recognition of prep work, cooking stages, and time intervals
-- **Smart Timer Integration**: Automatic timer setting for specific cooking situations (boil, bake, etc.)
-- **Hands-free Guidance**: Voice and visual cues without requiring user interaction
-- **Cooking Session Management**: Track progress across entire recipes
-- **Multi-recipe Support**: Handle multiple concurrent recipes (entrée + sides)
+- **Real-time Camera Analysis**: Live video processing during cooking with 5-second intervals
+- **Cooking Stage Detection**: AI recognition of ingredient prep, food cooking, and plating stages
+- **Smart Timer Integration**: Recipe-based timer triggers with AI confirmation of cooking conditions
+- **Hands-free Guidance**: Voice announcements for critical steps, visual overlays for details
+- **Cooking Session Management**: User-initiated sessions tracking progress across recipes
+- **Multi-recipe Support**: AI-optimized cooking sequences for efficient parallel preparation
+- **Tiered AI System**: On-device basic detection (free) + Cloud AI detailed analysis (premium)
+- **Fallback System**: Manual step progression when AI analysis fails
+- **Performance Target**: 2-second response time (max 10 seconds acceptable)
 
 ### 7. Social Recipe Community
 - **Recipe Sharing**: Users can share photos of their completed dishes
@@ -102,10 +107,11 @@
 6. **Sessions** - Authentication sessions
 7. **Accounts** - OAuth account connections
 8. **Verifications** - Email verification tokens
-9. **Cooking Sessions** - Active cooking sessions and progress
-10. **Cooking Photos** - User-shared cooking result photos
-11. **Recipe Ratings** - User ratings and votes for recipes
-12. **Community Posts** - Social media posts and interactions
+9. **Cooking Sessions** - User-initiated cooking sessions with status tracking
+10. **Cooking Steps** - Individual cooking steps with AI analysis and stage detection
+11. **Cooking Photos** - User-shared cooking result photos
+12. **Recipe Ratings** - User ratings and votes for recipes
+13. **Community Posts** - Social media posts and interactions
 
 ### Key Relationships
 - Users can have multiple bookmarks, shopping lists, and cooking sessions
@@ -144,11 +150,12 @@
 - `POST /api/auth/signout` - User logout
 
 ### Cooking Guide
-- `POST /api/cooking-sessions` - Start new cooking session
-- `PUT /api/cooking-sessions/:id` - Update cooking progress
-- `GET /api/cooking-sessions/:id` - Get session details
-- `POST /api/cooking-sessions/:id/analyze` - AI image analysis
-- `POST /api/cooking-sessions/:id/timer` - Set smart timer
+- `POST /api/cooking-sessions` - Start new cooking session (user-initiated)
+- `PUT /api/cooking-sessions/:id/progress` - Update cooking progress and current step
+- `GET /api/cooking-sessions/:id` - Get session details and step history
+- `POST /api/cooking-sessions/:id/analyze` - AI image analysis (5-second intervals)
+- `POST /api/cooking-sessions/:id/timer` - Set smart timer with AI confirmation
+- `PUT /api/cooking-sessions/:id/optimize` - AI-optimize multi-recipe sequence
 - `DELETE /api/cooking-sessions/:id` - End cooking session
 
 ### Community & Social
@@ -184,8 +191,10 @@
 - **BookmarkButton**: Interactive bookmark toggle
 - **HapticTab**: Haptic feedback tab bar
 - **ParallaxScrollView**: Enhanced scrolling experience
-- **CookingCameraView**: Real-time camera feed with AI overlay
-- **SmartTimer**: AI-powered timer component
+- **CookingCameraView**: Small camera overlay (40% width) with recipe panel (60% width)
+- **RecipeOverlay**: Recipe instructions panel with step-by-step guidance
+- **SmartTimer**: Visual timer display with cooking stage context
+- **CameraControls**: Floating camera controls (start/stop, switch camera)
 - **CommunityFeed**: Social media-style recipe sharing
 - **CookingProgress**: Visual progress tracking for cooking sessions
 
@@ -236,6 +245,32 @@
 - **Backend**: Railway deployment
 - **Database**: PostgreSQL on Railway
 
+## Implementation Strategy
+
+### Phase 1: Camera Integration (MVP)
+1. **Expo Camera Setup**: Basic camera integration with permissions
+2. **Camera Overlay UI**: Small camera view (40%) with recipe panel (60%)
+3. **Camera Controls**: Start/stop, switch camera functionality
+4. **Basic Recipe Integration**: Simple 3-step recipe for testing
+
+### Phase 2: Basic AI Detection (Proof of Concept)
+1. **On-Device AI**: TensorFlow Lite for basic stage detection
+2. **Three-Stage Detection**: Prep, cooking, plating recognition
+3. **Manual Fallback**: Button/voice progression when AI fails
+4. **Simple Recipe Test**: "Boil water" recipe for validation
+
+### Phase 3: Hybrid AI System (Production)
+1. **Cloud AI Integration**: Google Cloud Vision API for detailed analysis
+2. **Tiered System**: Free (on-device) + Premium (cloud AI)
+3. **Smart Timer Integration**: Recipe-based timers with AI confirmation
+4. **Performance Optimization**: 2-second response time target
+
+### Phase 4: Multi-Recipe Coordination (Advanced)
+1. **Recipe Optimization Engine**: AI-generated optimal cooking sequences
+2. **Parallel Cooking Support**: Multiple recipes with staggered timing
+3. **Resource Coordination**: Shared ingredients and equipment management
+4. **Advanced UI**: Multi-recipe interface with progress tracking
+
 ## Future Enhancements
 
 ### Planned Features
@@ -278,9 +313,16 @@ mise-cooking/
 │   ├── routes/           # API route handlers
 │   ├── middleware/       # Express middleware
 │   ├── ai/               # AI and computer vision services
+│   │   ├── vision/       # Google Cloud Vision integration
+│   │   ├── tensorflow/   # On-device AI models
+│   │   └── optimization/ # Multi-recipe optimization engine
 │   └── utils/            # Utility functions
 ├── components/           # Reusable React components
 │   ├── cooking/          # Cooking guide components
+│   │   ├── CookingCameraView.tsx
+│   │   ├── RecipeOverlay.tsx
+│   │   ├── SmartTimer.tsx
+│   │   └── CameraControls.tsx
 │   ├── community/        # Social features components
 │   └── ui/               # UI components
 ├── contexts/            # React Context providers
@@ -305,6 +347,9 @@ mise-cooking/
 - App load times
 - Error rates
 - Database query performance
+- AI analysis response time (target: 2 seconds)
+- Camera processing performance
+- Multi-recipe optimization accuracy
 
 ### Business Metrics
 - User retention rates
