@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Camera } from 'expo-camera';
-import React, { useEffect, useState } from 'react';
+import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
+import React, { useRef, useState } from 'react';
 import {
     Alert,
     StyleSheet,
@@ -11,49 +11,47 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CameraTest() {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [cameraType, setCameraType] = useState<'front' | 'back'>('back');
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-      
-      if (status !== 'granted') {
-        Alert.alert(
-          'Camera Permission Required',
-          'This app needs camera access.',
-          [{ text: 'OK' }]
-        );
-      }
-    })();
-  }, []);
+  if (!permission) {
+    // Camera permissions are still loading.
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>Loading camera permissions...</Text>
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>We need your permission to show the camera</Text>
+        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const takePicture = async () => {
-    Alert.alert('Camera Test', 'Take picture functionality would be implemented here');
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        Alert.alert('Success', 'Photo captured successfully!');
+        console.log('Photo captured:', photo.uri);
+      } catch (error) {
+        Alert.alert('Error', 'Failed to take picture');
+        console.error('Camera error:', error);
+      }
+    }
   };
 
-  const switchCamera = () => {
-    setCameraType(current => 
-      current === 'back' ? 'front' : 'back'
-    );
+  const toggleCameraFacing = () => {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
-
-  if (hasPermission === null) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Requesting camera permission...</Text>
-      </View>
-    );
-  }
-
-  if (hasPermission === false) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>No access to camera</Text>
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,22 +60,21 @@ export default function CameraTest() {
       </View>
 
       <View style={styles.cameraContainer}>
-        <View style={styles.cameraPlaceholder}>
-          <Ionicons name="camera" size={64} color="#fcf45a" />
-          <Text style={styles.placeholderText}>Camera Preview</Text>
-          <Text style={styles.placeholderSubtext}>Type: {cameraType}</Text>
-        </View>
+        <CameraView 
+          ref={cameraRef}
+          style={styles.camera} 
+          facing={facing}
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+              <Ionicons name="camera-reverse" size={24} color="#fcf45a" />
+              <Text style={styles.buttonText}>Flip Camera</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
       </View>
 
       <View style={styles.controls}>
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={switchCamera}
-        >
-          <Ionicons name="camera-reverse" size={24} color="#fcf45a" />
-          <Text style={styles.buttonText}>Switch</Text>
-        </TouchableOpacity>
-        
         <TouchableOpacity 
           style={styles.captureButton} 
           onPress={takePicture}
@@ -110,37 +107,31 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#426b70',
   },
-  cameraPlaceholder: {
+  camera: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    margin: 64,
+  },
+  button: {
+    flex: 1,
+    alignSelf: 'flex-end',
     alignItems: 'center',
   },
-  placeholderText: {
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#fcf45a',
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
-  },
-  placeholderSubtext: {
-    color: '#fff',
-    fontSize: 14,
-    marginTop: 8,
-    opacity: 0.8,
+    marginTop: 4,
   },
   controls: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  button: {
-    alignItems: 'center',
-    padding: 10,
-  },
-  buttonText: {
-    color: '#fcf45a',
-    fontSize: 12,
-    marginTop: 4,
   },
   captureButton: {
     width: 80,
@@ -155,6 +146,18 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
+  },
+  permissionButton: {
+    backgroundColor: '#fcf45a',
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  permissionButtonText: {
+    color: '#1d7b86',
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 }); 
