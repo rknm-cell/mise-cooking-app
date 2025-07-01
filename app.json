@@ -33,6 +33,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "assets/fonts/NanumPenScript-Regular.ttf"
+          ]
+        }
       ]
     ],
     "experiments": {

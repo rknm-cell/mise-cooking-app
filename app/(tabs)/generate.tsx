@@ -36,14 +36,32 @@ export default function RecipeGenerator() {
   const [generation, setGeneration] = useState<RecipeSchema | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
     
+    const userMessage = input.trim();
+    setInput(''); // Clear input immediately
+    
     try {
       setGeneration(undefined);
       setIsLoading(true);
+      
+      // Start the progress bar animation
+      progressAnim.setValue(0);
+      Animated.timing(progressAnim, {
+        toValue: 1,
+        duration: 10000, // 10 seconds
+        useNativeDriver: false,
+      }).start();
+      
+      // Build the conversation context
+      const messages = [
+        ...conversationHistory,
+        { role: 'user' as const, content: userMessage }
+      ];
       
       const response = await fetch(`${API_BASE}/api/generate`, {
         method: 'POST',
@@ -51,12 +69,22 @@ export default function RecipeGenerator() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: input,
+          prompt: userMessage,
+          conversationHistory: messages,
         }),
       });
 
       const recipeData: RecipeSchema = await response.json();
       setGeneration(recipeData);
+      
+      // Update conversation history
+      const assistantMessage = `Generated recipe: ${recipeData.name} - ${recipeData.description}`;
+      setConversationHistory(prev => [
+        ...prev,
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: assistantMessage }
+      ]);
+      
       console.log('recipedata: ', recipeData);
       setIsLoading(false);
     } catch (error) {
@@ -66,9 +94,21 @@ export default function RecipeGenerator() {
     }
   };
 
+  const clearConversation = () => {
+    setConversationHistory([]);
+    setGeneration(undefined);
+  };
+
   const renderRecipe = (recipe: RecipeSchema) => (
     <View style={styles.recipeContainer}>
-      <Text style={styles.recipeTitle}>{recipe.name}</Text>
+      <View style={styles.recipeHeader}>
+        <Text style={styles.recipeTitle}>{recipe.name}</Text>
+        {conversationHistory.length > 0 && (
+          <TouchableOpacity style={styles.clearButton} onPress={clearConversation}>
+            <Ionicons name="refresh" size={20} color="#666" />
+          </TouchableOpacity>
+        )}
+      </View>
       <Text style={styles.recipeDescription}>{recipe.description}</Text>
       
       <View style={styles.recipeInfo}>
@@ -93,6 +133,14 @@ export default function RecipeGenerator() {
       {recipe.nutrition.map((item, index) => (
         <Text key={index} style={styles.nutrition}>• {item}</Text>
       ))}
+      
+      {conversationHistory.length > 0 && (
+        <View style={styles.conversationIndicator}>
+          <Text style={styles.conversationText}>
+            💬 Conversation context active ({conversationHistory.length / 2} exchanges)
+          </Text>
+        </View>
+      )}
     </View>
   );
 
@@ -109,7 +157,10 @@ export default function RecipeGenerator() {
             style={styles.input}
             value={input}
             onChangeText={setInput}
-            placeholder="Enter your ingredients or recipe idea..."
+            placeholder={conversationHistory.length > 0 
+              ? "Ask a follow-up question or request modifications..." 
+              : "Enter your ingredients or recipe idea..."
+            }
             placeholderTextColor="#999"
             multiline
             numberOfLines={3}
@@ -289,5 +340,28 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#428a93',
     borderRadius: 2,
+  },
+  recipeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  clearButton: {
+    padding: 8,
+    marginTop: 4,
+  },
+  conversationIndicator: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#428a93',
+  },
+  conversationText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
   },
 });

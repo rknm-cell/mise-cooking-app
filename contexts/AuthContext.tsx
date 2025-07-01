@@ -1,10 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-// Flexible API configuration
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080'  // Local development
-  : 'https://mise-cooking-app-production.up.railway.app'; // Production
+import { API_BASE_URL } from '../constants/Config';
 
 interface User {
   id: string;
@@ -19,6 +15,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  getToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,18 +37,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = await AsyncStorage.getItem('authToken');
       if (token) {
         // Verify token with backend
-        const response = await fetch(`${API_BASE}/api/auth/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          // Token is invalid, remove it
-          await AsyncStorage.removeItem('authToken');
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          } else {
+            // Token is invalid, remove it
+            await AsyncStorage.removeItem('authToken');
+            setUser(null);
+          }
+        } catch (networkError) {
+          console.error('Network error checking auth status:', networkError);
+          // If there's a network error, we'll keep the token but set user to null
+          // This allows the app to work offline
           setUser(null);
         }
       } else {
@@ -67,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${API_BASE}/api/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -89,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${API_BASE}/api/auth/signup`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
@@ -118,6 +122,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const getToken = async (): Promise<string | null> => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      return token;
+    } catch (error) {
+      console.error('Error getting token:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -129,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signup,
     logout,
     checkAuthStatus,
+    getToken,
   };
 
   return (

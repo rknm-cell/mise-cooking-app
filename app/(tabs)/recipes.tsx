@@ -10,6 +10,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import StyledTitle from '../../components/StyledTitle';
 
 interface Recipe {
   id: string;
@@ -106,10 +107,11 @@ export default function RecipesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Recipes</Text>
-        <Text style={styles.subtitle}>
-          {recipes.length} recipe{recipes.length !== 1 ? 's' : ''} saved
-        </Text>
+        <StyledTitle 
+          title="Recipes" 
+          subtitle={`${recipes.length} recipe${recipes.length !== 1 ? 's' : ''} saved`} 
+          size="medium"
+        />
       </View>
 
       <FlatList
@@ -132,20 +134,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-  },
-  header: {
-    padding: 20,
-    paddingBottom: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
   },
   loadingContainer: {
     flex: 1,
@@ -216,5 +204,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  header: {
+    padding: 20,
   },
 }); 

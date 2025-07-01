@@ -1,7 +1,9 @@
-const jwt = require('jsonwebtoken');
-const { getUserById } = require('../db/queries.js');
+import { eq } from 'drizzle-orm';
+import { NextFunction, Request, Response } from 'express';
+import { db } from '../db/index.js';
+import * as schema from '../db/schema.js';
 
-const auth = async (req, res, next) => {
+const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -9,20 +11,36 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'No token, authorization denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
-    const user = await getUserById(decoded.userId);
+    // Find the session in the database using the token
+    const session = await db.query.session.findFirst({
+      where: eq(schema.session.token, token),
+    });
     
-    if (!user) {
+    if (!session || !session.userId) {
       return res.status(401).json({ error: 'Token is not valid' });
     }
 
-    // Remove password from user object
-    const { password, ...userWithoutPassword } = user;
-    req.user = userWithoutPassword;
+    // Check if session is expired
+    if (session.expiresAt < new Date()) {
+      return res.status(401).json({ error: 'Token has expired' });
+    }
+
+    // Get the user data from the database
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, session.userId),
+    });
+    
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Add user to request object
+    (req as any).user = user;
     next();
   } catch (error) {
+    console.error('Auth middleware error:', error);
     res.status(401).json({ error: 'Token is not valid' });
   }
 };
 
-module.exports = auth; 
+export { verifyToken };

@@ -21,6 +21,9 @@ export const API_CONFIG = {
   }
 };
 
+// Export API_BASE_URL for backward compatibility
+export const API_BASE_URL = API_CONFIG.BASE_URL;
+
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.BASE_URL}${endpoint}`;

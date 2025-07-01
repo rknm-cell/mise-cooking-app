@@ -9,6 +9,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import StyledTitle from '../components/StyledTitle';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,12 +25,11 @@ export default function LandingPage() {
       
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Ionicons name="restaurant" size={40} color="#fff" />
-          </View>
-          <Text style={styles.appName}>Mise Cooking</Text>
-        </View>
+        <StyledTitle 
+          title="Mise" 
+          subtitle="(meez)" 
+          size="large"
+        />
       </View>
 
       {/* Main content */}
@@ -58,8 +58,6 @@ export default function LandingPage() {
               </Text>
             </View>
           </View>
-
-          
 
           <View style={styles.featureItem}>
             <View style={styles.featureIcon}>
@@ -93,7 +91,7 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#1d7b86',
   },
   backgroundGradient: {
     position: 'absolute',
@@ -101,32 +99,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#426b70',
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 40,
-  },
-  logoContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logo: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  appName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-  },
+
   content: {
     flex: 1,
     paddingHorizontal: 20,
@@ -137,19 +119,20 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#fff',
     textAlign: 'center',
     lineHeight: 40,
     marginBottom: 16,
   },
   highlight: {
-    color: '#007AFF',
+    color: '#fcf45a',
   },
   heroSubtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     textAlign: 'center',
     lineHeight: 24,
+    opacity: 0.9,
   },
   featuresContainer: {
     gap: 24,
@@ -157,7 +140,7 @@ const styles = StyleSheet.create({
   featureItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     padding: 20,
     borderRadius: 16,
     shadowColor: '#000',
@@ -173,7 +156,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#f0f8ff',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -184,20 +167,21 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
     marginBottom: 4,
   },
   featureDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
     lineHeight: 20,
+    opacity: 0.8,
   },
   bottomSection: {
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
   getStartedButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#fcf45a',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -205,24 +189,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: '#007AFF',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
   },
   getStartedText: {
-    color: '#fff',
+    color: '#1d7b86',
     fontSize: 18,
     fontWeight: '600',
     marginRight: 8,
   },
   footerText: {
     fontSize: 14,
-    color: '#999',
+    color: '#fff',
     textAlign: 'center',
+    opacity: 0.7,
   },
 });

@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BookmarkButton from '../../../components/BookmarkButton';
+import { useAuth } from '../../../contexts/AuthContext';
+import { generateShoppingListFromRecipe } from '../../../services/shopping';
 
 interface Recipe {
   id: string;
@@ -33,11 +36,13 @@ const API_BASE = __DEV__
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { getToken } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scaleAnim] = useState(new Animated.Value(0));
   const [opacityAnim] = useState(new Animated.Value(0));
+  const [generatingList, setGeneratingList] = useState(false);
 
   const fetchRecipe = async () => {
     if (!id) {
@@ -85,6 +90,35 @@ export default function RecipeDetailScreen() {
     }).start(() => {
       router.back();
     });
+  };
+
+  const handleGenerateShoppingList = async () => {
+    if (!recipe) return;
+    
+    const token = await getToken();
+    if (!token) return;
+
+    setGeneratingList(true);
+    try {
+      const listName = `Shopping for ${recipe.name}`;
+      const newList = await generateShoppingListFromRecipe(token, recipe.id, listName);
+      Alert.alert(
+        'Success!', 
+        `Shopping list "${listName}" created with ${recipe.ingredients.length} items!`,
+        [
+          { text: 'OK' },
+          { 
+            text: 'View List', 
+            onPress: () => router.push(`/shopping/${newList.id}`)
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error generating shopping list:', error);
+      Alert.alert('Error', 'Failed to generate shopping list');
+    } finally {
+      setGeneratingList(false);
+    }
   };
 
   if (loading) {
@@ -155,6 +189,25 @@ export default function RecipeDetailScreen() {
                   <Text style={styles.ingredientText}>{ingredient}</Text>
                 </View>
               ))}
+              
+              {(
+                <TouchableOpacity
+                  style={styles.generateListButton}
+                  onPress={handleGenerateShoppingList}
+                  disabled={generatingList}
+                >
+                  {generatingList ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <>
+                      <Ionicons name="cart-outline" size={20} color="white" />
+                      <Text style={styles.generateListButtonText}>
+                        Generate Shopping List
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={styles.section}>
@@ -351,5 +404,19 @@ const styles = StyleSheet.create({
   },
   animatedContainer: {
     flex: 1,
+  },
+  generateListButton: {
+    backgroundColor: '#428a93',
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  generateListButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginLeft: 8,
   },
 });

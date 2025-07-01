@@ -136,6 +136,42 @@ export const verification = pgTable("verification", {
 });
 
 // ============================================================================
+// SHOPPING LIST TABLES
+// ============================================================================
+
+export const shoppingList = pgTable("shopping_lists", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const shoppingListItem = pgTable("shopping_list_items", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  listId: text("list_id")
+    .notNull()
+    .references(() => shoppingList.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  quantity: text("quantity").notNull(),
+  unit: text("unit"),
+  category: text("category"),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type ShoppingList = InferSelectModel<typeof shoppingList>;
+export type ShoppingListItem = InferSelectModel<typeof shoppingListItem>;
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -159,4 +195,4 @@ export const bookmarksRelations = relations(bookmark, ({ one }) => ({
 // EXPORTS
 // ============================================================================
 
-export const schema = { user, session, account, verification, recipe, bookmark };
+export const schema = { user, session, account, verification, recipe, bookmark, shoppingList, shoppingListItem };
