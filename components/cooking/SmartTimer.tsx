@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: 'bold',
     color: '#fff',
-    fontFamily: 'monospace',
+    fontFamily: 'NanumPenScript-Regular',
   },
   description: {
     fontSize: 14,
@@ -233,12 +233,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#e74c3c',
   },
   buttonText: {
+    color: '#1d7b86',
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
-    marginLeft: 4,
+    fontFamily: 'NanumPenScript-Regular',
   },
   secondaryText: {
     color: '#fcf45a',
+  },
+  timerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
+  },
+  timeDisplay: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#fcf45a',
+    textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
+  },
+  timeLabel: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+    textAlign: 'center',
+    marginTop: 4,
   },
 }); 

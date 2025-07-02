@@ -99,6 +99,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
+    marginBottom: 16,
+    textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
+    marginBottom: 24,
+    textAlign: 'center',
+    lineHeight: 24,
   },
   cameraContainer: {
     flex: 1,
@@ -122,10 +133,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
+    color: '#1d7b86',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fcf45a',
-    marginTop: 4,
+    fontWeight: '600',
+    marginLeft: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   controls: {
     flexDirection: 'row',
@@ -159,5 +171,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  switchButtonText: {
+    color: '#1d7b86',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
 }); 

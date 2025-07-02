@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   description: {
     fontSize: 16,
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   ingredientItem: {
     fontSize: 14,

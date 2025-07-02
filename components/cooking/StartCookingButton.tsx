@@ -117,11 +117,14 @@ const styles = StyleSheet.create({
   },
   smallText: {
     fontSize: 12,
+    fontFamily: 'NanumPenScript-Regular',
   },
   mediumText: {
     fontSize: 14,
+    fontFamily: 'NanumPenScript-Regular',
   },
   largeText: {
     fontSize: 16,
+    fontFamily: 'NanumPenScript-Regular',
   },
 }); 

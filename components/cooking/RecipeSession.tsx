@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginTop: 16,
     marginBottom: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   startSubtitle: {
     fontSize: 16,
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
   },
   recipeInfo: {
     fontSize: 14,
-    color: '#facf45',
+    color: '#fcf45a',
     marginBottom: 24,
   },
   startButton: {
@@ -308,6 +309,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   progressSection: {
     padding: 20,
@@ -317,6 +319,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
   },
   progressBar: {
     height: 8,
@@ -386,6 +389,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 12,
     textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
   },
   currentStepTitle: {
     color: '#fcf45a',
@@ -420,6 +424,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 4,
+    fontFamily: 'NanumPenScript-Regular',
   },
   completedIndicator: {
     backgroundColor: '#27ae60',
@@ -433,6 +438,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'NanumPenScript-Regular',
   },
   completeSection: {
     padding: 20,
@@ -452,6 +458,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   noInstructionsSection: {
     padding: 20,

@@ -130,8 +130,7 @@ export default function RecipesScreen() {
       <View style={styles.backgroundGradient} />
       <HeaderWithProfile 
         title="Recipes" 
-        subtitle={`${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found`} 
-      />
+        />
 
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>

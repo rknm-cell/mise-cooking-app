@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 40,
     marginBottom: 16,
+    fontFamily: 'NanumPenScript-Regular',
   },
   highlight: {
     color: '#fcf45a',
@@ -169,6 +170,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     marginBottom: 4,
+    fontFamily: 'NanumPenScript-Regular',
   },
   featureDescription: {
     fontSize: 14,
@@ -195,6 +197,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginRight: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   footerText: {
     fontSize: 14,
