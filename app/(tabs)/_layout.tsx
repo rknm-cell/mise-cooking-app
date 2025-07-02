@@ -55,6 +55,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="bookmark" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="recipe-session-demo"
+        options={{
+          title: 'Session Demo',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="timer" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
