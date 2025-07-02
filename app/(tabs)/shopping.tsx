@@ -1,26 +1,26 @@
+import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Modal,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import StyledTitle from '../../components/StyledTitle';
 import { ThemedText } from '../../components/ThemedText';
 import { ThemedView } from '../../components/ThemedView';
 import { Colors } from '../../constants/Colors';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-    createShoppingList,
-    deleteShoppingList,
-    getShoppingLists,
-    type ShoppingList
+  createShoppingList,
+  deleteShoppingList,
+  getShoppingLists,
+  type ShoppingList
 } from '../../services/shopping';
 
 export default function ShoppingScreen() {
@@ -146,7 +146,7 @@ export default function ShoppingScreen() {
     <ThemedView style={styles.container}>
       <View style={styles.backgroundGradient} />
       <View style={styles.header}>
-        <StyledTitle title="Shopping Lists" />
+        <HeaderWithProfile title="Shopping Lists" />
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setModalVisible(true)}

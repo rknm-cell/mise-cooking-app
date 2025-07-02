@@ -1,5 +1,6 @@
 "use client";
 
+import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
@@ -253,10 +254,10 @@ export default function RecipeGenerator() {
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundGradient} />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Recipe Generator</Text>
-          <Text style={styles.subtitle}>What do you want to make?</Text>
-        </View>
+        <HeaderWithProfile 
+          title="Recipe Generator" 
+          subtitle="What do you want to make?" 
+        />
 
         <View style={styles.inputContainer}>
           <TextInput

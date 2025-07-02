@@ -1,3 +1,4 @@
+import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -12,7 +13,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import StyledTitle from '../../components/StyledTitle';
 
 interface Recipe {
   id: string;
@@ -128,13 +128,10 @@ export default function RecipesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundGradient} />
-      <View style={styles.header}>
-        <StyledTitle 
-          title="Recipes" 
-          subtitle={`${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found`} 
-          size="medium"
-        />
-      </View>
+      <HeaderWithProfile 
+        title="Recipes" 
+        subtitle={`${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found`} 
+      />
 
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
