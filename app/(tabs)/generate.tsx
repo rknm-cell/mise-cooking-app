@@ -25,6 +25,8 @@ interface RecipeSchema {
   instructions: string[];
   storage: string;
   nutrition: string[];
+  conversationContext?: string;
+  isModification?: boolean;
 }
 
 // Flexible API configuration
@@ -37,6 +39,8 @@ export default function RecipeGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
   const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'none' | 'saved' | 'error'>('none');
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleSubmit = async () => {
@@ -48,6 +52,7 @@ export default function RecipeGenerator() {
     try {
       setGeneration(undefined);
       setIsLoading(true);
+      setSaveStatus('none');
       
       // Start the progress bar animation
       progressAnim.setValue(0);
@@ -77,8 +82,10 @@ export default function RecipeGenerator() {
       const recipeData: RecipeSchema = await response.json();
       setGeneration(recipeData);
       
-      // Update conversation history
-      const assistantMessage = `Generated recipe: ${recipeData.name} - ${recipeData.description}`;
+      // Update conversation history with modification context
+      const assistantMessage = recipeData.isModification 
+        ? `Modified recipe: ${recipeData.name} - ${recipeData.description}`
+        : `Generated recipe: ${recipeData.name} - ${recipeData.description}`;
       setConversationHistory(prev => [
         ...prev,
         { role: 'user', content: userMessage },
@@ -97,12 +104,50 @@ export default function RecipeGenerator() {
   const clearConversation = () => {
     setConversationHistory([]);
     setGeneration(undefined);
+    setSaveStatus('none');
+  };
+
+  const saveRecipe = async (recipe: RecipeSchema) => {
+    if (!recipe) return;
+    
+    setIsSaving(true);
+    setSaveStatus('none');
+    
+    try {
+      const response = await fetch(`${API_BASE}/api/recipes/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recipe),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setSaveStatus('saved');
+        Alert.alert('Success', 'Recipe saved successfully!');
+      } else {
+        setSaveStatus('error');
+        Alert.alert('Error', result.error || 'Failed to save recipe');
+      }
+    } catch (error) {
+      setSaveStatus('error');
+      Alert.alert('Error', 'Failed to save recipe. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderRecipe = (recipe: RecipeSchema) => (
     <View style={styles.recipeContainer}>
       <View style={styles.recipeHeader}>
-        <Text style={styles.recipeTitle}>{recipe.name}</Text>
+        <Text style={styles.recipeTitle}>
+          {recipe.name}
+          {recipe.isModification && (
+            <Text style={styles.modificationBadge}> (Modified)</Text>
+          )}
+        </Text>
         {conversationHistory.length > 0 && (
           <TouchableOpacity style={styles.clearButton} onPress={clearConversation}>
             <Ionicons name="refresh" size={20} color="#fcf45a" />
@@ -110,6 +155,14 @@ export default function RecipeGenerator() {
         )}
       </View>
       <Text style={styles.recipeDescription}>{recipe.description}</Text>
+      
+      {recipe.conversationContext && (
+        <View style={styles.contextContainer}>
+          <Text style={styles.contextText}>
+            💬 {recipe.conversationContext}
+          </Text>
+        </View>
+      )}
       
       <View style={styles.recipeInfo}>
         <Text style={styles.recipeInfoText}>⏱️ {recipe.totalTime}</Text>
@@ -141,6 +194,58 @@ export default function RecipeGenerator() {
           </Text>
         </View>
       )}
+
+      {/* Recipe Action Buttons */}
+      <View style={styles.actionButtonsContainer}>
+        {saveStatus === 'none' && (
+          <>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.saveButton]}
+              onPress={() => saveRecipe(recipe)}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="bookmark" size={16} color="#fff" />
+                  <Text style={styles.saveButtonText}>Save Recipe</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.keepButton]}
+              onPress={() => {
+                Alert.alert(
+                  'Keep Recipe',
+                  'This recipe will be kept in your current session but not saved to your collection. You can always save it later.',
+                  [{ text: 'OK', style: 'default' }]
+                );
+              }}
+            >
+              <Ionicons name="checkmark-circle" size={16} color="#1d7b86" />
+              <Text style={styles.keepButtonText}>Keep for Now</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        
+        {saveStatus === 'saved' && (
+          <View style={styles.savedIndicator}>
+            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+            <Text style={styles.savedText}>Recipe Saved!</Text>
+          </View>
+        )}
+        
+        {saveStatus === 'error' && (
+          <TouchableOpacity
+            style={[styles.actionButton, styles.retryButton]}
+            onPress={() => saveRecipe(recipe)}
+          >
+            <Ionicons name="refresh" size={16} color="#fff" />
+            <Text style={styles.retryButtonText}>Retry Save</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 
@@ -375,5 +480,85 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#fff',
     fontStyle: 'italic',
+  },
+  modificationBadge: {
+    fontSize: 16,
+    color: '#fcf45a',
+    fontWeight: '600',
+  },
+  contextContainer: {
+    marginTop: 8,
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: 'rgba(252, 244, 90, 0.1)',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#fcf45a',
+  },
+  contextText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    lineHeight: 20,
+  },
+  // Action buttons styles
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  saveButton: {
+    backgroundColor: '#fcf45a',
+  },
+  saveButtonText: {
+    color: '#1d7b86',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  keepButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderWidth: 1,
+    borderColor: '#1d7b86',
+  },
+  keepButtonText: {
+    color: '#1d7b86',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  retryButton: {
+    backgroundColor: '#ff6b6b',
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  savedIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+    gap: 8,
+  },
+  savedText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

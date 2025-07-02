@@ -1,0 +1,28 @@
+# Mise Cooking App - Cursor Rules
+
+## Core Documentation
+- **PROJECT_SPEC.md** - Feature requirements and user stories
+- **ENGINEERING_SPEC.md** - Technical architecture and implementation details
+
+## Key Guidelines
+1. Check PROJECT_SPEC.md for feature requirements before making changes
+2. Update ENGINEERING_SPEC.md when technical implementation changes
+3. Follow established patterns in the codebase
+4. Use TypeScript for all components and functions
+5. Test on both iOS and Android platforms
+
+## Architecture
+- Frontend: React Native + Expo with NativeWind styling
+- Backend: Bun + Express.js with PostgreSQL and Drizzle ORM
+- AI: OpenAI GPT-4o-mini for recipe generation
+- Camera: Expo Camera for real-time processing
+
+## File Structure
+- `/app` - Expo Router pages
+- `/components` - Reusable React Native components
+- `/backend` - Express.js server with routes and database
+- `/services` - API service functions
+
+
+
+Keep documentation updated as the codebase evolves. 
