@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import {
   Alert,
@@ -33,11 +34,18 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleClose = () => {
+    router.back();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundGradient} />
       <View style={styles.header}>
         <Text style={styles.title}>Profile</Text>
+        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+          <Ionicons name="close" size={24} color="#fcf45a" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.profileSection}>
@@ -76,11 +84,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fcf45a',
+  },
+  closeButton: {
+    padding: 8,
+    borderRadius: 20,
   },
   profileSection: {
     alignItems: 'center',

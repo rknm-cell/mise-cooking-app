@@ -59,6 +59,57 @@
 - **Recipe Details**: Full recipe view with all information
 - **Recipe Storage**: All recipes saved to PostgreSQL database
 
+### 2.1 Recipe Collections & Landing Page
+- **Featured Collections**
+  - Popular Recipes
+    - Sorted by community ratings and cooking frequency
+    - Updated daily based on user engagement
+  
+  - Seasonal Recipes
+    - Dynamically updated based on current season/month
+    - Local seasonal ingredients highlighted
+    - Holiday-specific collections
+    - Special occasion recipes
+  
+  - Personalized Collections
+    - Based on user's cooking history and preferences
+    - Dietary preferences consideration
+    - Cuisine type preferences
+    - Cooking skill level adaptation
+    - Recently viewed recipes
+    - "Because you cooked X" recommendations
+  
+  - Past Favorites
+    - User's successfully completed recipes
+    - Personal ratings and notes displayed
+    - Cooking frequency indicator
+    - Last cooked date
+    - Personal modifications saved
+  
+- **Collection Features**
+  - Horizontal scrolling card layout
+  - Visual preview with recipe photos
+  - Quick action buttons (bookmark, cook now)
+  - Key information display:
+    - Cooking time
+    - Difficulty level
+    - Rating score
+    - Number of ingredients
+  
+- **Collection Management**
+  - Dynamic updates based on user activity
+  - Cache for offline viewing
+  - Pull-to-refresh functionality
+  - "See All" expansion option
+  - Collection sharing capability
+  
+- **Personalization**
+  - Machine learning-based recipe suggestions
+  - Preference learning from user interactions
+  - Time-of-day appropriate suggestions
+  - Special dietary considerations
+  - Skill level adaptations
+
 ### 3. Bookmarking System
 - **Save Favorites**: Bookmark recipes for later access
 - **User-Specific**: Bookmarks tied to authenticated users
@@ -66,11 +117,32 @@
 - **Persistent Storage**: Bookmarks stored in database
 
 ### 4. Shopping List Management
-- **Create Lists**: Multiple shopping lists per user
-- **Add Items**: Add ingredients with quantities and units
-- **Categorize**: Organize items by categories
-- **Track Progress**: Mark items as completed
-- **CRUD Operations**: Create, read, update, delete lists and items
+- **Unified Shopping List**
+  - Single consolidated list of ingredients for each user
+  - Simple add/remove functionality
+  - Check-off system for purchased items
+  - Clear all/clear completed options
+
+- **Adding from Recipes**
+  - Ingredient selection interface when adding from recipes
+  - Checkbox system to select specific ingredients
+  - Option to select/deselect all
+  - Duplicate ingredient detection and merging
+  - Quantity adjustment for existing items
+
+- **List Features**
+  - Mark items as purchased/unpurchased
+  - Sort by:
+    - Recently added
+    - Purchased status
+    - Alphabetical order
+  - Search/filter within list
+  - Quick delete functionality
+
+- **Storage**
+  - Real-time sync across devices
+  - Offline access to list
+  - Persistent storage in database
 
 ### 5. User Authentication
 - **Sign Up/Sign In**: Email-based authentication
@@ -90,11 +162,54 @@
 - **Performance Target**: 2-second response time (max 10 seconds acceptable)
 
 ### 7. Social Recipe Community
-- **Recipe Sharing**: Users can share photos of their completed dishes
-- **Social Feed**: Browse other users' cooking results for specific recipes
-- **Rating System**: Upvote/downvote recipes with automatic moderation
-- **Recipe Moderation**: Recipes with -1 or lower rating over 24 hours get automatically removed
-- **Community Engagement**: Like, comment, and interact with other users' cooking posts
+- **Recipe Ratings & Reviews**
+  - Upvote/downvote system for recipes
+  - Rating statistics visible on recipe cards
+  - Automatic recipe moderation based on rating threshold
+  - Comments section for each recipe
+  - Ability to reply to comments
+  - Comment moderation system
+
+- **Recipe Photos & Sharing**
+  - Users can share photos of their completed dishes
+  - Multiple photos per recipe allowed
+  - Photo captions and descriptions
+  - Photo gallery view for each recipe
+  - Option to share photos on social media
+  - Photo moderation system
+
+- **User Cooking History**
+  - Track all recipes a user has cooked
+  - Personal rating system (liked/disliked)
+  - Cooking date tracking
+  - Personal notes and modifications
+  - Private vs public cooking history
+  - Cooking statistics and achievements
+
+- **Community Feed**
+  - Chronological feed of community cooking activity
+  - Filter feed by following, trending, or recent
+  - Activity types include:
+    - New recipe photos
+    - Recipe ratings
+    - Recipe comments
+    - Cooking completions
+    - Achievement unlocks
+
+- **Moderation & Quality Control**
+  - Automatic recipe removal if rating drops below threshold
+  - Photo content moderation using AI
+  - Comment moderation system
+  - User reporting functionality
+  - Community guidelines enforcement
+
+- **User Profiles**
+  - Public cooking history
+  - Recipe contribution stats
+  - Favorite recipes
+  - Achievement badges
+  - Following/follower system
+  - Activity feed
 
 ## Database Schema
 
@@ -112,6 +227,9 @@
 11. **Cooking Photos** - User-shared cooking result photos
 12. **Recipe Ratings** - User ratings and votes for recipes
 13. **Community Posts** - Social media posts and interactions
+14. **Recipe Comments** - User comments on recipes
+15. **User Cooking History** - Track user's cooking experiences
+16. **User Followers** - Social following relationships
 
 ### Key Relationships
 - Users can have multiple bookmarks, shopping lists, and cooking sessions
@@ -120,6 +238,9 @@
 - Cooking sessions track progress through recipe steps
 - Users can share multiple photos for each recipe
 - Community posts are linked to recipes and users
+- Users can comment on recipes and reply to other comments
+- Users maintain a history of cooked recipes with personal ratings
+- Users can follow other users and view their public activity
 
 ## API Endpoints
 
@@ -129,20 +250,25 @@
 - `GET /api/recipes/:id` - Get specific recipe
 - `POST /api/recipes` - Save recipe to database
 
+### Recipe Collections
+- `GET /api/collections/popular` - Get trending and highly-rated recipes
+- `GET /api/collections/seasonal` - Get season-appropriate recipes
+- `GET /api/collections/personalized` - Get user-tailored recipe suggestions
+- `GET /api/collections/favorites` - Get user's past favorite recipes
+- `GET /api/collections/recent` - Get recently viewed recipes
+- `GET /api/collections/recommendations` - Get ML-based recommendations
+
 ### Bookmark Management
 - `GET /api/bookmarks/:userId` - Get user's bookmarks
 - `POST /api/bookmarks` - Save bookmark
 - `DELETE /api/bookmarks` - Remove bookmark
 
 ### Shopping List Management
-- `GET /api/shopping-lists` - Get user's shopping lists
-- `POST /api/shopping-lists` - Create new list
-- `PUT /api/shopping-lists/:id` - Update list
-- `DELETE /api/shopping-lists/:id` - Delete list
-- `GET /api/shopping-lists/:id/items` - Get list items
-- `POST /api/shopping-lists/:id/items` - Add item to list
-- `PUT /api/shopping-lists/:id/items/:itemId` - Update item
-- `DELETE /api/shopping-lists/:id/items/:itemId` - Remove item
+- `GET /api/shopping-list` - Get user's shopping list
+- `POST /api/shopping-list/items` - Add items to shopping list
+- `DELETE /api/shopping-list/items/:itemId` - Remove item from list
+- `PUT /api/shopping-list/items/:itemId` - Update item status (purchased/unpurchased)
+- `POST /api/shopping-list/recipe/:recipeId` - Add selected ingredients from recipe
 
 ### Authentication
 - `POST /api/auth/signup` - User registration
@@ -176,13 +302,12 @@
 - **Background**: Gradient overlays with transparency
 
 ### Navigation Structure
-- **Tab Navigation**: 6 main tabs
+- **Tab Navigation**: 5 main tabs
   - Generate (Recipe AI)
   - Recipes (Browse)
   - Cooking Guide (AI Camera)
   - Bookmarks (Saved)
   - Community (Social Feed)
-  - Profile (User)
 
 ### Key UI Components
 - **StyledTitle**: Custom title component with subtitle
@@ -197,6 +322,11 @@
 - **CameraControls**: Floating camera controls (start/stop, switch camera)
 - **CommunityFeed**: Social media-style recipe sharing
 - **CookingProgress**: Visual progress tracking for cooking sessions
+- **CollectionCarousel**: Horizontal scrolling recipe collection
+- **CollectionCard**: Visual collection preview with metadata
+- **SeasonalBanner**: Season-specific collection header
+- **PersonalizedSection**: User-specific collection layout
+- **ProfileGearIcon**: Top-right gear icon for accessing user profile settings and details
 
 ## Security Features
 

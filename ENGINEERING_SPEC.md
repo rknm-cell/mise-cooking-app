@@ -305,7 +305,8 @@ components/
 │   └── ...
 ├── AuthGuard.tsx                  # Authentication wrapper
 ├── BookmarkButton.tsx             # Recipe bookmarking
-├── HapticTab.tsx                  # Haptic feedback
+├── HeaderWithProfile.tsx          # Header with profile icon navigation
+├── HapticTab.tsx                  # Haptic feedback tab button
 ├── ParallaxScrollView.tsx         # Enhanced scrolling
 ├── StyledTitle.tsx                # Custom titles
 ├── ThemedText.tsx                 # Theme-aware text
@@ -340,17 +341,65 @@ app/
 ├── (modal)/
 │   ├── recipe/
 │   │   └── [id].tsx              # Recipe detail modal
-│   └── shopping/
-│       └── [id].tsx              # Shopping list modal
+│   ├── shopping/
+│   │   └── [id].tsx              # Shopping list modal
+│   └── profile.tsx               # User profile modal
 ├── (tabs)/
 │   ├── generate.tsx              # Recipe AI generation
 │   ├── recipes.tsx               # Recipe browsing
 │   ├── camera-test.tsx           # Camera test (MVP)
 │   ├── bookmarks.tsx             # Saved recipes
-│   ├── shopping.tsx              # Shopping lists
-│   └── profile.tsx               # User profile
+│   └── shopping.tsx              # Shopping lists
 └── index.tsx                     # Landing page
 ```
+
+### Profile Navigation System
+
+The profile navigation has been redesigned to improve user experience and screen real estate:
+
+#### HeaderWithProfile Component
+```typescript
+// components/HeaderWithProfile.tsx
+interface HeaderWithProfileProps {
+  title: string;
+  subtitle?: string;
+}
+
+// Features:
+- Consistent header across all tab screens
+- Profile icon in top-right corner
+- Navigation to profile modal
+- Responsive design with app theme colors
+- Haptic feedback on profile icon press
+```
+
+#### Profile Modal Implementation
+```typescript
+// app/(modal)/profile.tsx
+// Features:
+- Modal presentation for better UX
+- Close button for easy dismissal
+- User information display
+- Logout functionality
+- Consistent styling with app theme
+```
+
+#### Tab Layout Updates
+```typescript
+// app/(tabs)/_layout.tsx
+// Changes:
+- Removed profile tab from bottom navigation
+- Reduced tab count from 5 to 4 tabs
+- Cleaner tab bar with better spacing
+- Fixed HapticTab component TypeScript issues
+```
+
+#### Benefits of New Navigation
+1. **Improved UX**: Profile accessible from any screen without tab switching
+2. **Screen Real Estate**: More space for main content with fewer tabs
+3. **Consistency**: Uniform header design across all screens
+4. **Accessibility**: Profile icon is always visible and easily accessible
+5. **Modal Experience**: Profile opens as overlay, maintaining context
 
 ## Camera Implementation (MVP)
 

@@ -1,3 +1,4 @@
+import { HeaderWithProfile } from '@/components/HeaderWithProfile';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -144,12 +145,10 @@ export default function BookmarksScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundGradient} />
-      <View style={styles.header}>
-        <Text style={styles.title}>My Bookmarks</Text>
-        <Text style={styles.subtitle}>
-          {bookmarkedRecipes.length} saved recipe{bookmarkedRecipes.length !== 1 ? 's' : ''}
-        </Text>
-      </View>
+      <HeaderWithProfile 
+        title="My Bookmarks" 
+        subtitle={`${bookmarkedRecipes.length} saved recipe${bookmarkedRecipes.length !== 1 ? 's' : ''}`}
+      />
 
       {bookmarkedRecipes.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -190,23 +189,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#426b70',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
   },
   loadingContainer: {
     flex: 1,

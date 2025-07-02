@@ -19,6 +19,13 @@ export default function ModalLayout() {
           presentation: 'transparentModal',
         }}
       />
+      <Stack.Screen 
+        name="profile" 
+        options={{
+          title: 'Profile',
+          presentation: 'modal',
+        }}
+      />
     </Stack>
   );
 } 
