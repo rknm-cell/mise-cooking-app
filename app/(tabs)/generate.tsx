@@ -25,6 +25,8 @@ interface RecipeSchema {
   instructions: string[];
   storage: string;
   nutrition: string[];
+  conversationContext?: string;
+  isModification?: boolean;
 }
 
 // Flexible API configuration
@@ -77,8 +79,10 @@ export default function RecipeGenerator() {
       const recipeData: RecipeSchema = await response.json();
       setGeneration(recipeData);
       
-      // Update conversation history
-      const assistantMessage = `Generated recipe: ${recipeData.name} - ${recipeData.description}`;
+      // Update conversation history with modification context
+      const assistantMessage = recipeData.isModification 
+        ? `Modified recipe: ${recipeData.name} - ${recipeData.description}`
+        : `Generated recipe: ${recipeData.name} - ${recipeData.description}`;
       setConversationHistory(prev => [
         ...prev,
         { role: 'user', content: userMessage },
@@ -102,7 +106,12 @@ export default function RecipeGenerator() {
   const renderRecipe = (recipe: RecipeSchema) => (
     <View style={styles.recipeContainer}>
       <View style={styles.recipeHeader}>
-        <Text style={styles.recipeTitle}>{recipe.name}</Text>
+        <Text style={styles.recipeTitle}>
+          {recipe.name}
+          {recipe.isModification && (
+            <Text style={styles.modificationBadge}> (Modified)</Text>
+          )}
+        </Text>
         {conversationHistory.length > 0 && (
           <TouchableOpacity style={styles.clearButton} onPress={clearConversation}>
             <Ionicons name="refresh" size={20} color="#fcf45a" />
@@ -110,6 +119,14 @@ export default function RecipeGenerator() {
         )}
       </View>
       <Text style={styles.recipeDescription}>{recipe.description}</Text>
+      
+      {recipe.conversationContext && (
+        <View style={styles.contextContainer}>
+          <Text style={styles.contextText}>
+            💬 {recipe.conversationContext}
+          </Text>
+        </View>
+      )}
       
       <View style={styles.recipeInfo}>
         <Text style={styles.recipeInfoText}>⏱️ {recipe.totalTime}</Text>
@@ -375,5 +392,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#fff',
     fontStyle: 'italic',
+  },
+  modificationBadge: {
+    fontSize: 16,
+    color: '#fcf45a',
+    fontWeight: '600',
+  },
+  contextContainer: {
+    marginTop: 8,
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: 'rgba(252, 244, 90, 0.1)',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#fcf45a',
+  },
+  contextText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    lineHeight: 20,
   },
 });

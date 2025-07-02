@@ -50,14 +50,14 @@ app.get('/api/config', (req: Request, res: Response) => {
 // Recipe generation endpoint
 app.post('/api/generate', async (req: Request, res: Response) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, conversationHistory } = req.body;
     
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Generate recipe using AI
-    const recipe = await generateRecipe(prompt);
+    // Generate recipe using AI with conversation context
+    const recipe = await generateRecipe(prompt, conversationHistory);
     
     if (!recipe) {
       return res.status(500).json({ error: 'Failed to generate recipe' });
