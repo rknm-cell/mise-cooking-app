@@ -147,8 +147,7 @@ export default function BookmarksScreen() {
       <View style={styles.backgroundGradient} />
       <HeaderWithProfile 
         title="My Bookmarks" 
-        subtitle={`${bookmarkedRecipes.length} saved recipe${bookmarkedRecipes.length !== 1 ? 's' : ''}`}
-      />
+            />
 
       {bookmarkedRecipes.length === 0 ? (
         <View style={styles.emptyContainer}>

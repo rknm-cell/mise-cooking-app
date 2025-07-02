@@ -91,7 +91,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fcf45a',
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
   },
   closeButton: {
     padding: 8,

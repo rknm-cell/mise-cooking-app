@@ -322,7 +322,10 @@ components/
 │   ├── RecipeOverlay.tsx          # Recipe instructions panel (future)
 │   ├── SmartTimer.tsx             # AI-powered timer (future)
 │   ├── CameraControls.tsx         # Camera control buttons (future)
-│   └── CookingProgress.tsx        # Progress tracking (future)
+│   ├── CookingProgress.tsx        # Progress tracking (future)
+│   ├── RecipeSession.tsx          # Full cooking session component
+│   ├── SimpleRecipeSession.tsx    # Simplified cooking session
+│   └── StartCookingButton.tsx     # Button to start cooking session
 ├── community/
 │   ├── CommunityFeed.tsx          # Social feed (future)
 │   ├── PhotoGallery.tsx           # Recipe photos (future)
@@ -337,6 +340,7 @@ components/
 ├── HeaderWithProfile.tsx          # Header with profile icon navigation
 ├── HapticTab.tsx                  # Haptic feedback tab button
 ├── ParallaxScrollView.tsx         # Enhanced scrolling
+├── RecipeDetailCard.tsx           # Recipe card with cooking button
 ├── StyledTitle.tsx                # Custom titles
 ├── ThemedText.tsx                 # Theme-aware text
 └── ThemedView.tsx                 # Theme-aware view
@@ -774,3 +778,92 @@ jobs:
 - **Retention**: 70% of users return within 7 days
 
 This engineering specification provides a comprehensive technical foundation for implementing the Mise Cooking app with all planned features, ensuring scalability, security, and performance requirements are met. 
+
+### Recipe Detail Page Styling System
+
+The recipe detail page (`app/(modal)/recipe/[id].tsx`) has been updated to use a consistent card-based design system that matches the RecipeDetailCard component:
+
+#### Design Principles
+```typescript
+// Color Scheme
+const colors = {
+  primary: '#1d7b86',      // Dark teal - main background
+  secondary: '#2d8d8b',    // Medium teal - card backgrounds
+  accent: '#fcf45a',       // Yellow - highlights and icons
+  text: '#1d7b86',         // Dark teal - main text
+  textLight: '#ffffff',    // White - text on dark backgrounds
+  overlay: 'rgba(255, 255, 255, 0.95)' // Card backgrounds
+};
+
+// Card Styling
+const cardStyle = {
+  backgroundColor: '#ffffff',
+  borderRadius: 16,
+  padding: 20,
+  marginBottom: 20,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 12,
+  elevation: 5
+};
+```
+
+#### Layout Structure
+```typescript
+// Recipe Detail Page Layout
+interface RecipeDetailLayout {
+  header: {
+    title: string;           // Recipe name
+    description: string;     // Recipe description
+    metaInfo: {
+      time: string;          // Cooking time
+      servings: number;      // Number of servings
+      steps: number;         // Number of instructions
+    };
+    actions: {
+      startCooking: StartCookingButton; // Primary CTA
+    };
+  };
+  sections: {
+    ingredients: IngredientList;
+    instructions: InstructionList;
+    storage: StorageInfo;
+    nutrition: NutritionInfo;
+  };
+}
+```
+
+#### StartCookingButton Integration
+```typescript
+// StartCookingButton Component
+interface StartCookingButtonProps {
+  recipe: Recipe;
+  size: 'small' | 'medium' | 'large';
+}
+
+// Features:
+- Reusable button component with multiple sizes
+- Navigation to SimpleRecipeSession with recipe data
+- Consistent styling with app theme
+- Recipe data passed via URL parameters
+- Fallback to sample recipe if no data provided
+
+// Navigation Flow:
+Recipe Detail → StartCookingButton → SimpleRecipeSession
+```
+
+#### Styling Updates Applied
+1. **Card-Based Layout**: Each section wrapped in individual cards
+2. **Consistent Typography**: Unified font sizes and weights
+3. **Color Harmony**: Consistent use of app color palette
+4. **Visual Hierarchy**: Clear separation between content types
+5. **Interactive Elements**: Prominent placement of action buttons
+6. **Responsive Design**: Adapts to different screen sizes
+
+#### Benefits of New Design
+1. **Consistency**: Matches RecipeDetailCard component styling
+2. **Readability**: Better contrast and spacing
+3. **Usability**: Clear call-to-action placement
+4. **Maintainability**: Reusable styling patterns
+5. **Accessibility**: Improved text contrast and touch targets

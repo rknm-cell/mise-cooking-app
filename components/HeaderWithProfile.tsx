@@ -43,12 +43,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fcf45a',
+    fontFamily: 'NanumPenScript-Regular',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
     color: '#fcf45a',
     opacity: 0.8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   profileButton: {
     padding: 4,

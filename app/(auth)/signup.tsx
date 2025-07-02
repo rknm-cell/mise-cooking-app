@@ -120,7 +120,7 @@ export default function SignupScreen() {
 
           <View style={styles.form}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={styles.inputLabel}>Full Name</Text>
               <TextInput
                 style={styles.input}
                 value={form.name}
@@ -134,7 +134,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.inputLabel}>Email</Text>
               <TextInput
                 style={styles.input}
                 value={form.email}
@@ -149,7 +149,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.inputLabel}>Password</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
@@ -176,7 +176,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirm Password</Text>
+              <Text style={styles.inputLabel}>Confirm Password</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
@@ -267,12 +267,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
+    textAlign: 'center',
+    fontFamily: 'NanumPenScript-Regular',
   },
   subtitle: {
     fontSize: 16,
     color: '#fff',
+    opacity: 0.8,
+    textAlign: 'center',
     lineHeight: 24,
-    opacity: 0.9,
+    marginBottom: 32,
   },
   form: {
     flex: 1,
@@ -280,20 +284,21 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 20,
   },
-  label: {
+  inputLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
     marginBottom: 8,
+    fontFamily: 'NanumPenScript-Regular',
   },
   input: {
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    color: '#1d7b86',
+    color: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -314,19 +319,20 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     backgroundColor: '#fcf45a',
-    borderRadius: 16,
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 24,
   },
   signupButtonDisabled: {
     opacity: 0.6,
   },
   signupButtonText: {
-    color: '#1d7b86',
     fontSize: 18,
     fontWeight: '600',
+    color: '#1d7b86',
+    fontFamily: 'NanumPenScript-Regular',
   },
   divider: {
     flexDirection: 'row',
@@ -352,5 +358,15 @@ const styles = StyleSheet.create({
     color: '#fcf45a',
     fontSize: 16,
     fontWeight: '500',
+  },
+  loginLink: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  loginText: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
+    fontFamily: 'NanumPenScript-Regular',
   },
 });
