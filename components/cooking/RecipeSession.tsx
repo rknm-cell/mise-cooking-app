@@ -1,251 +1,254 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useRef, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
+    Dimensions,
+    FlatList,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TimerSuggestion, useCookingSession } from '../../contexts/CookingSessionContext';
 import { HeaderWithProfile } from '../HeaderWithProfile';
-import { CookingProgress } from './CookingProgress';
-import { SmartTimer } from './SmartTimer';
 
-interface RecipeSessionProps {
-  recipeId?: string;
-  recipeName?: string;
-}
+const { width: screenWidth } = Dimensions.get('window');
 
-export function RecipeSession({ recipeId, recipeName }: RecipeSessionProps) {
-  const {
-    state: { activeSession, currentTimer },
-    startSession,
-    pauseSession,
-    resumeSession,
-    completeSession,
-    updateProgress,
-    completeStep,
-    setTimer,
-  } = useCookingSession();
+export function RecipeSession() {
+  const params = useLocalSearchParams();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [sessionActive, setSessionActive] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
 
-  const [sessionStarted, setSessionStarted] = useState(false);
+  // Get recipe data from params or use sample recipe as fallback
+  const recipe = params.recipeId ? {
+    id: params.recipeId as string,
+    name: params.recipeName as string || 'Recipe',
+    description: params.recipeDescription as string || '',
+    totalTime: params.recipeTotalTime as string || '30 minutes',
+    servings: parseInt(params.recipeServings as string) || 2,
+    instructions: params.recipeInstructions ? JSON.parse(params.recipeInstructions as string) : []
+  } : null;
 
-  // Simple timer suggestions for demo
-  const demoTimers: TimerSuggestion[] = [
-    {
-      duration: 300, // 5 minutes
-      stage: 'prep',
-      description: 'Preheat oven',
-      trigger: 'manual',
-    },
-    {
-      duration: 600, // 10 minutes
-      stage: 'cooking',
-      description: 'Cook until golden brown',
-      trigger: 'manual',
-    },
-  ];
-
-  const handleStartSession = async () => {
-    if (!recipeId) {
-      Alert.alert('Error', 'Recipe ID is required to start a session');
-      return;
-    }
-
-    try {
-      await startSession(recipeId);
-      setSessionStarted(true);
-      Alert.alert('Success', 'Cooking session started!');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to start cooking session');
-    }
+  const handleStartSession = () => {
+    setSessionActive(true);
+    setCurrentStep(1);
+    setCompletedSteps([]);
   };
 
-  const handlePauseSession = () => {
-    pauseSession();
-    Alert.alert('Session Paused', 'Your cooking session has been paused');
-  };
-
-  const handleResumeSession = () => {
-    resumeSession();
-    Alert.alert('Session Resumed', 'Your cooking session has been resumed');
+  const handleCompleteStep = (stepNumber: number) => {
+    if (!completedSteps.includes(stepNumber)) {
+      setCompletedSteps(prev => [...prev, stepNumber]);
+      
+      // Auto-advance to next step
+      const nextStep = stepNumber + 1;
+      if (nextStep <= getTotalSteps()) {
+        setCurrentStep(nextStep);
+        // Scroll to next step
+        flatListRef.current?.scrollToIndex({
+          index: nextStep - 1,
+          animated: true,
+        });
+      }
+    }
   };
 
   const handleCompleteSession = () => {
-    Alert.alert(
-      'Complete Session',
-      'Are you sure you want to complete this cooking session?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete',
-          style: 'destructive',
-          onPress: () => {
-            completeSession();
-            setSessionStarted(false);
-            Alert.alert('Session Completed', 'Great job! Your cooking session is complete.');
-          },
-        },
-      ]
+    setSessionActive(false);
+    setCurrentStep(1);
+    setCompletedSteps([]);
+  };
+
+  const handleNavigateToRecipes = () => {
+    router.push('/(tabs)/recipes');
+  };
+
+  const getProgress = () => {
+    if (!recipe) return 0;
+    return Math.round((completedSteps.length / recipe.instructions.length) * 100);
+  };
+
+  const getCurrentStepData = () => {
+    if (!recipe) return '';
+    return recipe.instructions[currentStep - 1];
+  };
+
+  const getTotalSteps = () => {
+    if (!recipe) return 0;
+    return recipe.instructions.length;
+  };
+
+  const hasInstructions = () => {
+    return recipe && recipe.instructions && recipe.instructions.length > 0;
+  };
+
+  // Handle case when no recipe is selected
+  if (!recipe) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <HeaderWithProfile title="Recipe Session" subtitle="Choose a recipe" />
+        
+        <View style={styles.noRecipeSection}>
+          <View style={styles.noRecipeCard}>
+            <Ionicons name="restaurant-outline" size={64} color="#fcf45a" />
+            <Text style={styles.noRecipeTitle}>Pick a Recipe</Text>
+            <Text style={styles.noRecipeSubtitle}>
+              Choose a recipe and let's get started cooking!
+            </Text>
+            <TouchableOpacity style={styles.browseRecipesButton} onPress={handleNavigateToRecipes}>
+              <Ionicons name="list" size={20} color="#fff" />
+              <Text style={styles.browseRecipesText}>Browse Recipes</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const renderStep = ({ item, index }: { item: string; index: number }) => {
+    const stepNumber = index + 1;
+    const isCompleted = completedSteps.includes(stepNumber);
+    const isCurrent = stepNumber === currentStep;
+    
+    return (
+      <View style={styles.stepContainer}>
+        <View style={[
+          styles.stepCard,
+          isCurrent && styles.currentStepCard,
+          isCompleted && styles.completedStepCard
+        ]}>
+          <View style={styles.stepHeader}>
+            {isCompleted ? (
+              <Ionicons name="checkmark-circle" size={32} color="#27ae60" />
+            ) : (
+              <View style={styles.stepNumberContainer}>
+                <Text style={[
+                  styles.stepNumber,
+                  isCurrent && styles.currentStepNumber
+                ]}>
+                  {stepNumber}
+                </Text>
+              </View>
+            )}
+          </View>
+          
+          <Text style={[
+            styles.stepTitle,
+            isCurrent && styles.currentStepTitle,
+            isCompleted && styles.completedStepTitle
+          ]}>
+            Step {stepNumber}
+          </Text>
+          
+          <Text style={[
+            styles.stepDescription,
+            isCurrent && styles.currentStepDescription
+          ]}>
+            {item}
+          </Text>
+          
+          {isCurrent && !isCompleted && (
+            <TouchableOpacity 
+              style={styles.completeButton}
+              onPress={() => handleCompleteStep(stepNumber)}
+            >
+              <Ionicons name="checkmark" size={16} color="#fff" />
+              <Text style={styles.completeButtonText}>Complete Step</Text>
+            </TouchableOpacity>
+          )}
+          
+          {isCompleted && (
+            <View style={styles.completedIndicator}>
+              <Text style={styles.completedText}>Completed</Text>
+            </View>
+          )}
+        </View>
+      </View>
     );
   };
 
-  const handleStepComplete = (stepNumber: number) => {
-    completeStep(stepNumber);
-    updateProgress(stepNumber + 1, 'prep');
-    Alert.alert('Step Completed', `Step ${stepNumber} completed!`);
-  };
-
-  const handleStageChange = (stage: string) => {
-    if (activeSession) {
-      updateProgress(activeSession.currentStep, stage);
-      Alert.alert('Stage Changed', `Switched to ${stage} stage`);
-    }
-  };
-
-  const handleTimerComplete = () => {
-    Alert.alert('Timer Complete', 'Timer has finished!');
-    setTimer(null);
-  };
-
-  const handleTimerDismiss = () => {
-    setTimer(null);
-  };
-
-  const handleStartTimer = (timer: TimerSuggestion) => {
-    setTimer(timer);
-  };
+  if (!sessionActive) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <HeaderWithProfile title="Recipe Session" subtitle={recipe.name} />
+        
+        <View style={styles.startSection}>
+          <View style={styles.startCard}>
+            <Ionicons name="restaurant" size={48} color="#fcf45a" />
+            <Text style={styles.startTitle}>Ready to Cook?</Text>
+            <Text style={styles.startSubtitle}>
+              Start a cooking session for {recipe.name}
+            </Text>
+            <Text style={styles.recipeInfo}>
+              {recipe.totalTime} • {recipe.servings} servings
+            </Text>
+            <TouchableOpacity style={styles.startButton} onPress={handleStartSession}>
+              <Ionicons name="play" size={20} color="#fff" />
+              <Text style={styles.startButtonText}>Start Cooking</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.backgroundGradient} />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <HeaderWithProfile 
-          title="Cooking Session" 
-          subtitle={recipeName || "Let's get cooking!"} 
-        />
+      <HeaderWithProfile title="Cooking Session" subtitle={recipe.name} />
 
-        {/* Session Controls */}
-        {!activeSession ? (
-          <View style={styles.startSection}>
-            <View style={styles.startCard}>
-              <Ionicons name="restaurant" size={48} color="#fcf45a" />
-              <Text style={styles.startTitle}>Ready to Cook?</Text>
-              <Text style={styles.startSubtitle}>
-                Start a cooking session to track your progress and manage timers
-              </Text>
-              <TouchableOpacity
-                style={styles.startButton}
-                onPress={handleStartSession}
-              >
-                <Ionicons name="play" size={20} color="#fff" />
-                <Text style={styles.startButtonText}>Start Cooking Session</Text>
-              </TouchableOpacity>
-            </View>
+      {/* Progress */}
+      {hasInstructions() && (
+        <View style={styles.progressSection}>
+          <Text style={styles.progressText}>
+            Step {currentStep} of {getTotalSteps()} ({getProgress()}%)
+          </Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${getProgress()}%` }]} />
           </View>
-        ) : (
-          <>
-            {/* Session Status */}
-            <View style={styles.statusSection}>
-              <View style={styles.statusCard}>
-                <View style={styles.statusHeader}>
-                  <Text style={styles.statusTitle}>Session Status</Text>
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>
-                      {activeSession.status.toUpperCase()}
-                    </Text>
-                  </View>
-                </View>
-                
-                <View style={styles.statusActions}>
-                  {activeSession.status === 'active' ? (
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.pauseButton]}
-                      onPress={handlePauseSession}
-                    >
-                      <Ionicons name="pause" size={20} color="#fff" />
-                      <Text style={styles.actionButtonText}>Pause</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.resumeButton]}
-                      onPress={handleResumeSession}
-                    >
-                      <Ionicons name="play" size={20} color="#fff" />
-                      <Text style={styles.actionButtonText}>Resume</Text>
-                    </TouchableOpacity>
-                  )}
-                  
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.completeButton]}
-                    onPress={handleCompleteSession}
-                  >
-                    <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                    <Text style={styles.actionButtonText}>Complete</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
+        </View>
+      )}
 
-            {/* Cooking Progress */}
-            <CookingProgress
-              session={activeSession}
-              onStepComplete={handleStepComplete}
-              onStageChange={handleStageChange}
-            />
+      {/* Horizontal Steps FlatList */}
+      {hasInstructions() && (
+        <View style={styles.stepsContainer}>
+          <FlatList
+            ref={flatListRef}
+            data={recipe.instructions}
+            renderItem={renderStep}
+            keyExtractor={(_, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled
+            snapToInterval={screenWidth - 40}
+            decelerationRate="fast"
+            contentContainerStyle={styles.flatListContent}
+            onMomentumScrollEnd={(event) => {
+              const index = Math.round(event.nativeEvent.contentOffset.x / (screenWidth - 40));
+              setCurrentStep(index + 1);
+            }}
+          />
+        </View>
+      )}
 
-            {/* Timer Suggestions */}
-            <View style={styles.timersSection}>
-              <Text style={styles.sectionTitle}>Suggested Timers</Text>
-              {demoTimers.map((timer, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.timerSuggestion}
-                  onPress={() => handleStartTimer(timer)}
-                >
-                  <View style={styles.timerInfo}>
-                    <Ionicons name="time" size={20} color="#fcf45a" />
-                    <Text style={styles.timerDescription}>{timer.description}</Text>
-                  </View>
-                  <Text style={styles.timerDuration}>
-                    {Math.floor(timer.duration / 60)}m {timer.duration % 60}s
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+      {/* Complete Session */}
+      {hasInstructions() && completedSteps.length === getTotalSteps() && (
+        <View style={styles.completeSection}>
+          <TouchableOpacity style={styles.completeSessionButton} onPress={handleCompleteSession}>
+            <Ionicons name="trophy" size={20} color="#fff" />
+            <Text style={styles.completeSessionText}>Complete Session</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-            {/* Smart Timer */}
-            {currentTimer && (
-              <SmartTimer
-                timer={currentTimer}
-                onTimerComplete={handleTimerComplete}
-                onDismiss={handleTimerDismiss}
-              />
-            )}
-
-            {/* Simple Demo Info */}
-            <View style={styles.demoSection}>
-              <Text style={styles.sectionTitle}>Cooking Session Features</Text>
-              <View style={styles.demoCard}>
-                <Text style={styles.demoText}>
-                  This is a simple cooking session manager that helps you track your progress
-                  and manage timers while cooking. No AI integration - just clean, simple functionality.
-                </Text>
-                <View style={styles.demoFeatures}>
-                  <Text style={styles.demoFeature}>• Session progress tracking</Text>
-                  <Text style={styles.demoFeature}>• Manual timer management</Text>
-                  <Text style={styles.demoFeature}>• Step completion tracking</Text>
-                  <Text style={styles.demoFeature}>• Stage transitions</Text>
-                  <Text style={styles.demoFeature}>• Session pause/resume</Text>
-                </View>
-              </View>
-            </View>
-          </>
-        )}
-      </ScrollView>
+      {/* No Instructions State */}
+      {!hasInstructions() && (
+        <View style={styles.noInstructionsSection}>
+          <Text style={styles.noInstructionsText}>
+            No cooking instructions available for this recipe.
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -254,17 +257,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1d7b86',
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#426b70',
-  },
-  scrollView: {
-    flex: 1,
   },
   startSection: {
     padding: 20,
@@ -296,6 +288,11 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     textAlign: 'center',
     lineHeight: 24,
+    marginBottom: 8,
+  },
+  recipeInfo: {
+    fontSize: 14,
+    color: '#facf45',
     marginBottom: 24,
   },
   startButton: {
@@ -312,13 +309,41 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  statusSection: {
+  progressSection: {
     padding: 20,
   },
-  statusCard: {
+  progressText: {
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 4,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#fcf45a',
+    borderRadius: 4,
+  },
+  stepsContainer: {
+    flex: 1,
+    marginTop: 20,
+  },
+  flatListContent: {
+    paddingHorizontal: 20,
+  },
+  stepContainer: {
+    width: screenWidth - 40,
+    paddingHorizontal: 10,
+  },
+  stepCard: {
     backgroundColor: '#2d8d8b',
     borderRadius: 16,
-    padding: 20,
+    padding: 24,
+    height: '80%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -328,105 +353,125 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
-  statusHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  currentStepCard: {
+    borderWidth: 3,
+    borderColor: '#fcf45a',
+  },
+  completedStepCard: {
+    backgroundColor: 'rgba(39, 174, 96, 0.2)',
+  },
+  stepHeader: {
     alignItems: 'center',
     marginBottom: 16,
   },
-  statusTitle: {
-    fontSize: 18,
+  stepNumberContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumber: {
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
   },
-  statusBadge: {
-    backgroundColor: '#fcf45a',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+  currentStepNumber: {
+    color: '#fcf45a',
   },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1d7b86',
+  stepTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  statusActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  currentStepTitle: {
+    color: '#fcf45a',
   },
-  actionButton: {
+  completedStepTitle: {
+    color: '#27ae60',
+  },
+  stepDescription: {
+    fontSize: 24,
+    color: '#fff',
+    opacity: 0.8,
+    lineHeight: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+    flex: 1,
+  },
+  currentStepDescription: {
+    opacity: 1,
+  },
+  completeButton: {
+    backgroundColor: '#27ae60',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
-    minWidth: 100,
-    justifyContent: 'center',
+    marginTop: 'auto',
   },
-  pauseButton: {
-    backgroundColor: '#e67e22',
-  },
-  resumeButton: {
-    backgroundColor: '#27ae60',
-  },
-  completeButton: {
-    backgroundColor: '#e74c3c',
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+  completeButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
     marginLeft: 4,
   },
-  timersSection: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 16,
-  },
-  timerSuggestion: {
-    backgroundColor: '#2d8d8b',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  completedIndicator: {
+    backgroundColor: '#27ae60',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    marginTop: 'auto',
   },
-  timerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  timerDescription: {
-    fontSize: 16,
+  completedText: {
     color: '#fff',
-    marginLeft: 12,
-  },
-  timerDuration: {
     fontSize: 14,
-    color: '#fcf45a',
     fontWeight: '600',
   },
-  demoSection: {
+  completeSection: {
     padding: 20,
     paddingBottom: 40,
   },
-  demoCard: {
+  completeSessionButton: {
+    backgroundColor: '#fcf45a',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+  },
+  completeSessionText: {
+    color: '#1d7b86',
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  noInstructionsSection: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  noInstructionsText: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
+    textAlign: 'center',
+  },
+  noRecipeSection: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  noRecipeCard: {
     backgroundColor: '#2d8d8b',
     borderRadius: 16,
-    padding: 20,
+    padding: 32,
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -436,18 +481,33 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
-  demoText: {
-    fontSize: 14,
+  noRecipeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#fff',
-    lineHeight: 20,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 8,
   },
-  demoFeatures: {
-    marginTop: 12,
+  noRecipeSubtitle: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 8,
   },
-  demoFeature: {
-    fontSize: 14,
-    color: '#fcf45a',
-    marginBottom: 4,
+  browseRecipesButton: {
+    backgroundColor: '#fcf45a',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+  },
+  browseRecipesText: {
+    color: '#1d7b86',
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 }); 

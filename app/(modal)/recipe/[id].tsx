@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BookmarkButton from '../../../components/BookmarkButton';
+import { StartCookingButton } from '../../../components/cooking/StartCookingButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { generateShoppingListFromRecipe } from '../../../services/shopping';
 
@@ -168,50 +169,61 @@ export default function RecipeDetailScreen() {
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.recipeContainer}>
-            <Text style={styles.recipeTitle}>{recipe.name}</Text>
-            <Text style={styles.recipeDescription}>{recipe.description}</Text>
-            
-            <View style={styles.recipeInfo}>
-              <View style={styles.infoItem}>
-                <Ionicons name="time-outline" size={20} color="#fcf45a" />
-                <Text style={styles.infoText}>{recipe.totalTime}</Text>
+            {/* Recipe Header Card */}
+            <View style={styles.card}>
+              <View style={styles.header}>
+                <Text style={styles.title}>{recipe.name}</Text>
               </View>
-              <View style={styles.infoItem}>
-                <Ionicons name="people-outline" size={20} color="#fcf45a" />
-                <Text style={styles.infoText}>{recipe.servings} servings</Text>
+                <Text style={styles.description}>{recipe.description}</Text>
+
+              <View style={styles.metaInfo}>
+                <View style={styles.metaItem}>
+                  <Ionicons name="time" size={16} color="#fcf45a" />
+                  <Text style={styles.metaText}>{recipe.totalTime}</Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <Ionicons name="people" size={16} color="#fcf45a" />
+                  <Text style={styles.metaText}>{recipe.servings} servings</Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <Ionicons name="list" size={16} color="#fcf45a" />
+                  <Text style={styles.metaText}>{recipe.instructions.length} steps</Text>
+                </View>
+              </View>
+
+              {/* Start Cooking Button */}
+              <View style={styles.actions}>
+                <StartCookingButton recipe={recipe} size="large" />
               </View>
             </View>
 
-            <View style={styles.section}>
+            {/* Ingredients Card */}
+            <View style={styles.card}>
               <Text style={styles.sectionTitle}>Ingredients</Text>
               {recipe.ingredients.map((ingredient, index) => (
-                <View key={index} style={styles.ingredientItem}>
-                  <View style={styles.bullet} />
-                  <Text style={styles.ingredientText}>{ingredient}</Text>
-                </View>
+                <Text key={index} style={styles.ingredientItem}>• {ingredient}</Text>
               ))}
               
-              {(
-                <TouchableOpacity
-                  style={styles.generateListButton}
-                  onPress={handleGenerateShoppingList}
-                  disabled={generatingList}
-                >
-                  {generatingList ? (
-                    <ActivityIndicator size="small" color="white" />
-                  ) : (
-                    <>
-                      <Ionicons name="cart-outline" size={20} color="white" />
-                      <Text style={styles.generateListButtonText}>
-                        Generate Shopping List
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                style={styles.generateListButton}
+                onPress={handleGenerateShoppingList}
+                disabled={generatingList}
+              >
+                {generatingList ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <>
+                    <Ionicons name="cart-outline" size={20} color="white" />
+                    <Text style={styles.generateListButtonText}>
+                      Generate Shopping List
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
 
-            <View style={styles.section}>
+            {/* Instructions Card */}
+            <View style={styles.card}>
               <Text style={styles.sectionTitle}>Instructions</Text>
               {recipe.instructions.map((instruction, index) => (
                 <View key={index} style={styles.instructionItem}>
@@ -223,18 +235,17 @@ export default function RecipeDetailScreen() {
               ))}
             </View>
 
-            <View style={styles.section}>
+            {/* Storage Card */}
+            <View style={styles.card}>
               <Text style={styles.sectionTitle}>Storage</Text>
               <Text style={styles.storageText}>{recipe.storage}</Text>
             </View>
 
-            <View style={styles.section}>
+            {/* Nutrition Card */}
+            <View style={styles.card}>
               <Text style={styles.sectionTitle}>Nutrition</Text>
               {recipe.nutrition.map((item, index) => (
-                <View key={index} style={styles.nutritionItem}>
-                  <View style={styles.bullet} />
-                  <Text style={styles.nutritionText}>{item}</Text>
-                </View>
+                <Text key={index} style={styles.nutritionItem}>• {item}</Text>
               ))}
             </View>
           </View>
@@ -319,39 +330,11 @@ const styles = StyleSheet.create({
   recipeContainer: {
     padding: 20,
   },
-  recipeTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  recipeDescription: {
-    fontSize: 16,
-    color: '#fff',
-    lineHeight: 24,
-    marginBottom: 20,
-    opacity: 0.9,
-  },
-  recipeInfo: {
-    flexDirection: 'row',
-    marginBottom: 24,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 24,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#fff',
-    marginLeft: 6,
-    opacity: 0.8,
-  },
-  section: {
-    marginBottom: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  card: {
+    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -361,6 +344,37 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1d7b86',
+    marginBottom: 12,
+  },
+  description: {
+    fontSize: 16,
+    color: '#1d7b86',
+    lineHeight: 24,
+    marginBottom: 20,
+    opacity: 0.9,
+  },
+  metaInfo: {
+    flexDirection: 'row',
+    marginBottom: 24,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 24,
+  },
+  metaText: {
+    fontSize: 14,
+    color: '#1d7b86',
+    marginLeft: 6,
+    opacity: 0.8,
+  },
+  actions: {
+    marginBottom: 24,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
@@ -368,23 +382,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   ingredientItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  bullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#fcf45a',
-    marginTop: 8,
-    marginRight: 12,
-  },
-  ingredientText: {
-    flex: 1,
     fontSize: 16,
     color: '#1d7b86',
     lineHeight: 22,
+    marginBottom: 8,
   },
   instructionItem: {
     flexDirection: 'row',
@@ -416,15 +417,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   nutritionItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  nutritionText: {
-    flex: 1,
     fontSize: 16,
     color: '#1d7b86',
     lineHeight: 22,
+    marginBottom: 8,
   },
   animatedContainer: {
     flex: 1,
@@ -436,6 +432,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 16,
   },
   generateListButtonText: {
     fontSize: 16,

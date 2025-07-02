@@ -25,7 +25,7 @@ export function StartCookingButton({ recipe, size = 'medium' }: StartCookingButt
   const handleStartCooking = () => {
     // Navigate to the simple session with recipe data
     router.push({
-      pathname: '/(tabs)/simple-session',
+      pathname: '/(tabs)/recipe-session',
       params: {
         recipeId: recipe.id,
         recipeName: recipe.name,

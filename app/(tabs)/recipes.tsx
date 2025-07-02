@@ -135,7 +135,7 @@ export default function RecipesScreen() {
 
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#fcf45a" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color="#1d7b86" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search recipes..."
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#426b70',
+    backgroundColor: '#1d7b86',
   },
   loadingContainer: {
     flex: 1,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   recipeCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#2d8d8b',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -214,22 +214,22 @@ const styles = StyleSheet.create({
   recipeName: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1d7b86',
+    color: '#fff',
     marginBottom: 8,
   },
   recipeDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
     lineHeight: 20,
     marginBottom: 12,
-  },
+  },    
   recipeMeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   metaText: {
     fontSize: 12,
-    color: '#888',
+    color: '#fff',
   },
   separator: {
     height: 16,

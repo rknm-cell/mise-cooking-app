@@ -33,14 +33,7 @@ export default function TabLayout() {
         },
         headerShown: false,
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
+      
       <Tabs.Screen
         name="recipes"
         options={{
@@ -57,18 +50,11 @@ export default function TabLayout() {
           tabBarButton: (props) => <HapticTab {...props} />,
         }}
       />
+     
       <Tabs.Screen
-        name="recipe-demo"
+        name="recipe-session"
         options={{
-          title: 'Demo',
-          tabBarIcon: ({ color }) => <TabBarIcon name="card" color={color} />,
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
-      <Tabs.Screen
-        name="simple-session"
-        options={{
-          title: 'Simple',
+          title: 'Cooking',
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
           tabBarButton: (props) => <HapticTab {...props} />,
         }}
