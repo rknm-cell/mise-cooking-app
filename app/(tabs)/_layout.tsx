@@ -1,12 +1,19 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { useColorScheme } from 'react-native';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { HapticTab } from '../../components/HapticTab';
+import { Colors } from '../../constants/Colors';
+
+/**
+ * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+ */
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof Ionicons>['name'];
+  color: string;
+}) {
+  return <Ionicons size={28} style={{ marginBottom: -3 }} {...props} />;
+}
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -15,51 +22,56 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
+        tabBarStyle: {
+          backgroundColor: '#1d7b86',
+          borderTopColor: '#2d8d8b',
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        },
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
       }}>
-   
       <Tabs.Screen
-        name="generate"
+        name="index"
         options={{
-          title: 'Generate',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="restaurant" color={color} />,
+          title: 'Home',
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarButton: (props) => <HapticTab {...props} />,
         }}
       />
       <Tabs.Screen
         name="recipes"
         options={{
           title: 'Recipes',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="book" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="restaurant" color={color} />,
+          tabBarButton: (props) => <HapticTab {...props} />,
         }}
       />
+      <Tabs.Screen
+        name="generate"
+        options={{
+          title: 'Generate',
+          tabBarIcon: ({ color }) => <TabBarIcon name="sparkles" color={color} />,
+          tabBarButton: (props) => <HapticTab {...props} />,
+        }}
+      />
+      
       <Tabs.Screen
         name="shopping"
         options={{
           title: 'Shopping',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="cart" color={color} />,
+          tabBarButton: (props) => <HapticTab {...props} />,
         }}
       />
       <Tabs.Screen
         name="bookmarks"
         options={{
           title: 'Bookmarks',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bookmark" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="recipe-session-demo"
-        options={{
-          title: 'Session Demo',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="timer" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="bookmark" color={color} />,
+          tabBarButton: (props) => <HapticTab {...props} />,
         }}
       />
     </Tabs>
