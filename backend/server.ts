@@ -63,18 +63,8 @@ app.post('/api/generate', async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Failed to generate recipe' });
     }
 
-    // Try to save to Supabase database
-    try {
-      await db.insert(schema.recipe).values({
-        ...recipe,
-        createdAt: new Date(),
-      });
-      console.log('Recipe saved to Supabase database');
-    } catch (dbError) {
-      console.warn('Supabase database not available, recipe not saved:', dbError);
-      // Continue without saving to database
-    }
-
+    // Return recipe without saving to database - let user decide
+    console.log('Recipe generated successfully, waiting for user to save');
     res.json(recipe);
   } catch (error) {
     console.error('Error generating recipe:', error);
@@ -143,6 +133,33 @@ app.post('/api/recipes', async (req: Request, res: Response) => {
     });
     
     res.json({ success: true, recipe: recipeData });
+  } catch (error) {
+    console.error('Error saving recipe to Supabase:', error);
+    res.status(500).json({ error: 'Failed to save recipe' });
+  }
+});
+
+// Save generated recipe to database (user-initiated)
+app.post('/api/recipes/save', async (req: Request, res: Response) => {
+  try {
+    const recipeData = req.body;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
+    }
+
+    // Validate required recipe fields
+    if (!recipeData.id || !recipeData.name || !recipeData.description) {
+      return res.status(400).json({ error: 'Missing required recipe fields' });
+    }
+
+    const result = await db.insert(schema.recipe).values({
+      ...recipeData,
+      createdAt: new Date(),
+    });
+    
+    console.log('Recipe saved to database by user:', recipeData.name);
+    res.json({ success: true, recipe: recipeData, message: 'Recipe saved successfully!' });
   } catch (error) {
     console.error('Error saving recipe to Supabase:', error);
     res.status(500).json({ error: 'Failed to save recipe' });

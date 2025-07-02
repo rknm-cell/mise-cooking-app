@@ -4,7 +4,6 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { saveRecipe } from "../db/queries";
 
 // Enhanced recipe generation with conversation context
 export async function generateRecipe(
@@ -29,19 +28,26 @@ export async function generateRecipe(
     
     const result = await generateObject({
       model: openai("gpt-4o-mini"),
-      system: `You are a professional chef and recipe assistant. When providing recipes, always follow this structured format and consider the conversation context.
+      system: `You are a Michelin-starred professional chef and recipe assistant specializing in complex, restaurant-quality recipes. When providing recipes, follow this structured format and consider the conversation context.
 
 If the user is asking for modifications to a previous recipe, adapt the recipe accordingly while maintaining the structured format.
 
 Recipe structure requirements:
-1. Name - Clear, descriptive recipe name
-2. Description - Brief overview of the dish
-3. Time - Total prep + cooking time
-4. Servings - Number of servings
-5. Ingredients - List with precise measurements
-6. Instructions - Step-by-step cooking instructions
-7. Storage - How to store leftovers
-8. Nutrition - Key nutritional information
+1. Name - Clear, descriptive recipe name with cuisine type
+2. Description - Detailed overview including dish origin, flavor profile, and texture notes
+3. Time - Breakdown of prep time, cooking time, and resting/marinating time if needed
+4. Servings - Number of restaurant-style portions
+5. Ingredients - List with precise measurements, including:
+   - High-quality, restaurant-grade ingredients
+   - Specialty ingredients with suggested substitutes
+   - Mise en place grouping for complex preparations
+6. Instructions - Professional step-by-step cooking instructions including:
+   - Advanced cooking techniques with detailed explanations
+   - Temperature control specifics
+   - Visual/tactile cues for doneness
+   - Plating guidelines
+7. Storage - Professional storage methods with temperature guidelines
+8. Nutrition - Detailed nutritional information
 
 Keep responses clear, precise, and easy to follow. Include helpful cooking tips and explain any technical terms. If asked about a specific cuisine or dietary requirement, adapt the recipe accordingly.
 
@@ -75,25 +81,10 @@ If the user is modifying a previous recipe, note what changes were made in the d
         .join('; ')}`;
     }
     
-    const {id, name, description, totalTime, servings, ingredients, instructions, storage, nutrition, conversationContext, isModification } = recipe;
-    
-    // Save to database and handle the response
-    const saveResult = await saveRecipe({
-      id: id,
-      name: name,
-      description: description,
-      totalTime: totalTime,
-      servings: servings,
-      ingredients: ingredients,
-      instructions: instructions,
-      storage: storage,
-      nutrition: nutrition,
-    });
-    
-    console.log("saveResult: ", saveResult);
-    console.log("recipe: ", recipe.name);
-    if (isModification) {
-      console.log("Modification context: ", conversationContext);
+    // Remove automatic database saving - let user decide
+    console.log("Recipe generated: ", recipe.name);
+    if (recipe.isModification) {
+      console.log("Modification context: ", recipe.conversationContext);
     }
 
     return recipe;

@@ -1,226 +1,28 @@
 # Mise Cooking App - Cursor Rules
 
-## Project Context
-This is the Mise Cooking app - an AI-powered recipe generation and cooking guidance React Native application built with Expo, Bun backend, PostgreSQL, and OpenAI integration.
+## Core Documentation
+- **PROJECT_SPEC.md** - Feature requirements and user stories
+- **ENGINEERING_SPEC.md** - Technical architecture and implementation details
 
-## Core Documentation References
-ALWAYS reference these documents when making architectural decisions or significant changes:
+## Key Guidelines
+1. Check PROJECT_SPEC.md for feature requirements before making changes
+2. Update ENGINEERING_SPEC.md when technical implementation changes
+3. Follow established patterns in the codebase
+4. Use TypeScript for all components and functions
+5. Test on both iOS and Android platforms
 
-1. **PROJECT_SPEC.md** - Contains feature requirements, user stories, and business logic
-2. **ENGINEERING_SPEC.md** - Contains technical architecture, database schema, and API specifications
+## Architecture
+- Frontend: React Native + Expo with NativeWind styling
+- Backend: Bun + Express.js with PostgreSQL and Drizzle ORM
+- AI: OpenAI GPT-4o-mini for recipe generation
+- Camera: Expo Camera for real-time processing
 
-## Code Changes and Documentation Updates
+## File Structure
+- `/app` - Expo Router pages
+- `/components` - Reusable React Native components
+- `/backend` - Express.js server with routes and database
+- `/services` - API service functions
 
-### When Making Code Changes:
-1. **Check Project Spec First** - Ensure changes align with feature requirements in PROJECT_SPEC.md
-2. **Verify Engineering Spec** - Confirm technical implementation matches ENGINEERING_SPEC.md
-3. **Update Engineering Spec** - If code changes deviate from engineering spec, update ENGINEERING_SPEC.md to reflect current implementation
 
-### Required Updates to Engineering Spec:
-- Database schema changes
-- New API endpoints
-- Component architecture modifications
-- Technology stack additions/removals
-- Performance optimizations
-- Security implementations
 
-### Documentation Update Process:
-1. Make code changes
-2. Update ENGINEERING_SPEC.md to reflect current implementation
-3. Update README.md if public-facing changes occur
-4. Add comments in code referencing relevant spec sections
-
-## Architecture Guidelines
-
-### Frontend (React Native + Expo)
-- Follow Expo Router file-based routing patterns
-- Use TypeScript for all components and functions
-- Implement proper error boundaries and loading states
-- Follow the established component structure in `/components`
-- Use NativeWind for styling (Tailwind CSS for React Native)
-
-### Backend (Bun + Express)
-- Follow RESTful API patterns defined in engineering spec
-- Use Drizzle ORM for database operations
-- Implement proper error handling and validation
-- Follow the established route structure in `/backend/routes`
-
-### Database
-- All schema changes must be documented in ENGINEERING_SPEC.md
-- Use Drizzle migrations for database changes
-- Follow the established table relationships and indexes
-
-## AI Integration Guidelines
-
-### OpenAI Integration
-- Use GPT-4o-mini for recipe generation
-- Implement conversation context for follow-up requests
-- Follow rate limiting and error handling patterns
-
-### Computer Vision
-- Use Google Cloud Vision API for image analysis
-- Implement fallback to on-device detection when needed
-- Follow the 5-second interval pattern for real-time analysis
-
-## Testing and Quality Assurance
-
-### Before Committing Changes:
-1. Verify changes align with PROJECT_SPEC.md requirements
-2. Update ENGINEERING_SPEC.md if technical implementation changes
-3. Test on both iOS and Android platforms
-4. Ensure camera functionality works (when applicable)
-5. Verify API endpoints return expected responses
-
-### Code Review Checklist:
-- [ ] Changes align with project specifications
-- [ ] Engineering spec updated if needed
-- [ ] TypeScript types are properly defined
-- [ ] Error handling is implemented
-- [ ] Performance considerations addressed
-- [ ] Security best practices followed
-
-## Feature Development Phases
-
-### Phase 1 (Current) - Core Features
-- User authentication
-- AI recipe generation
-- Recipe management
-- Bookmarking system
-- Shopping lists
-- Basic camera integration
-
-### Phase 2 (Future) - AI Cooking Guide
-- Real-time camera analysis
-- Cooking stage detection
-- Smart timers
-- Voice guidance
-
-### Phase 3 (Future) - Social Features
-- Community recipe sharing
-- Rating system
-- Social feed
-- Photo sharing
-
-## Common Patterns and Conventions
-
-### File Naming:
-- Components: PascalCase (e.g., `RecipeCard.tsx`)
-- Pages: kebab-case (e.g., `camera-test.tsx`)
-- Utilities: camelCase (e.g., `useAuth.ts`)
-
-### Component Structure:
-```typescript
-// Import statements
-import React from 'react';
-import { View, Text } from 'react-native';
-
-// Type definitions
-interface ComponentProps {
-  // Props definition
-}
-
-// Component implementation
-export default function ComponentName({ prop }: ComponentProps) {
-  // Implementation
-}
-
-// Styles
-const styles = StyleSheet.create({
-  // Style definitions
-});
-```
-
-### API Response Patterns:
-```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-```
-
-## Error Handling Standards
-
-### Frontend:
-- Use try-catch blocks for async operations
-- Implement proper loading states
-- Show user-friendly error messages
-- Log errors for debugging
-
-### Backend:
-- Return consistent error response format
-- Implement proper HTTP status codes
-- Log errors with context
-- Validate input data
-
-## Performance Guidelines
-
-### Frontend:
-- Implement proper memoization (useMemo, useCallback)
-- Use React.memo for expensive components
-- Optimize image loading and caching
-- Minimize re-renders
-
-### Backend:
-- Implement database query optimization
-- Use proper indexing strategies
-- Implement caching where appropriate
-- Monitor API response times
-
-## Security Considerations
-
-### Authentication:
-- Use JWT tokens for session management
-- Implement proper token validation
-- Secure password hashing
-- Rate limiting on auth endpoints
-
-### Data Protection:
-- Validate all user inputs
-- Sanitize data before database operations
-- Implement proper CORS policies
-- Use HTTPS in production
-
-## Deployment and Environment
-
-### Development:
-- Use local PostgreSQL database
-- Configure environment variables properly
-- Use Expo development builds for full features
-
-### Production:
-- Deploy backend to Railway
-- Use production PostgreSQL instance
-- Configure proper environment variables
-- Implement monitoring and logging
-
-## Communication Guidelines
-
-### When Suggesting Changes:
-1. Reference specific sections of PROJECT_SPEC.md or ENGINEERING_SPEC.md
-2. Explain the rationale for changes
-3. Consider impact on existing features
-4. Propose testing strategies
-
-### When Implementing Features:
-1. Follow the phased approach outlined in project spec
-2. Maintain consistency with existing codebase
-3. Update documentation as you go
-4. Consider backward compatibility
-
-## Emergency Procedures
-
-### If Breaking Changes Are Needed:
-1. Document the reason for breaking changes
-2. Update both PROJECT_SPEC.md and ENGINEERING_SPEC.md
-3. Create migration plan for existing data
-4. Communicate changes to team members
-
-### If Specs Are Out of Sync:
-1. Identify discrepancies between code and specs
-2. Determine which is the source of truth
-3. Update specs to match current implementation
-4. Document the reconciliation process
-
-Remember: The PROJECT_SPEC.md and ENGINEERING_SPEC.md are living documents that should always reflect the current state of the application. Keep them updated as the codebase evolves. 
+Keep documentation updated as the codebase evolves. 
