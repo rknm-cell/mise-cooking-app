@@ -58,6 +58,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="recipe-demo"
+        options={{
+          title: 'Demo',
+          tabBarIcon: ({ color }) => <TabBarIcon name="card" color={color} />,
+          tabBarButton: (props) => <HapticTab {...props} />,
+        }}
+      />
+      <Tabs.Screen
         name="simple-session"
         options={{
           title: 'Simple',

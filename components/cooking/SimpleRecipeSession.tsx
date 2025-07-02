@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
     Dimensions,
@@ -15,10 +16,21 @@ import { HeaderWithProfile } from '../HeaderWithProfile';
 const { width: screenWidth } = Dimensions.get('window');
 
 export function SimpleRecipeSession() {
+  const params = useLocalSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [sessionActive, setSessionActive] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+
+  // Get recipe data from params or use sample recipe as fallback
+  const recipe = params.recipeId ? {
+    id: params.recipeId as string,
+    name: params.recipeName as string || 'Recipe',
+    description: params.recipeDescription as string || '',
+    totalTime: params.recipeTotalTime as string || '30 minutes',
+    servings: parseInt(params.recipeServings as string) || 2,
+    instructions: params.recipeInstructions ? JSON.parse(params.recipeInstructions as string) : []
+  } : sampleRecipe;
 
   const handleStartSession = () => {
     setSessionActive(true);
@@ -50,19 +62,19 @@ export function SimpleRecipeSession() {
   };
 
   const getProgress = () => {
-    return Math.round((completedSteps.length / sampleRecipe.instructions.length) * 100);
+    return Math.round((completedSteps.length / recipe.instructions.length) * 100);
   };
 
   const getCurrentStepData = () => {
-    return sampleRecipe.instructions[currentStep - 1];
+    return recipe.instructions[currentStep - 1];
   };
 
   const getTotalSteps = () => {
-    return sampleRecipe.instructions.length;
+    return recipe.instructions.length;
   };
 
   const hasInstructions = () => {
-    return sampleRecipe.instructions && sampleRecipe.instructions.length > 0;
+    return recipe.instructions && recipe.instructions.length > 0;
   };
 
   const renderStep = ({ item, index }: { item: string; index: number }) => {
@@ -130,17 +142,17 @@ export function SimpleRecipeSession() {
   if (!sessionActive) {
     return (
       <SafeAreaView style={styles.container}>
-        <HeaderWithProfile title="Simple Recipe Session" subtitle={sampleRecipe.name} />
+        <HeaderWithProfile title="Simple Recipe Session" subtitle={recipe.name} />
         
         <View style={styles.startSection}>
           <View style={styles.startCard}>
             <Ionicons name="restaurant" size={48} color="#fcf45a" />
             <Text style={styles.startTitle}>Ready to Cook?</Text>
             <Text style={styles.startSubtitle}>
-              Start a simple cooking session for {sampleRecipe.name}
+              Start a simple cooking session for {recipe.name}
             </Text>
             <Text style={styles.recipeInfo}>
-              {sampleRecipe.totalTime} • {sampleRecipe.servings} servings
+              {recipe.totalTime} • {recipe.servings} servings
             </Text>
             <TouchableOpacity style={styles.startButton} onPress={handleStartSession}>
               <Ionicons name="play" size={20} color="#fff" />
@@ -154,7 +166,7 @@ export function SimpleRecipeSession() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <HeaderWithProfile title="Cooking Session" subtitle={sampleRecipe.name} />
+      <HeaderWithProfile title="Cooking Session" subtitle={recipe.name} />
 
       {/* Progress */}
       {hasInstructions() && (
@@ -173,7 +185,7 @@ export function SimpleRecipeSession() {
         <View style={styles.stepsContainer}>
           <FlatList
             ref={flatListRef}
-            data={sampleRecipe.instructions}
+            data={recipe.instructions}
             renderItem={renderStep}
             keyExtractor={(_, index) => index.toString()}
             horizontal
