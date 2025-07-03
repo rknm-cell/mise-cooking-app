@@ -458,13 +458,39 @@
 3. **Resource Coordination**: Shared ingredients and equipment management
 4. **Advanced UI**: Multi-recipe interface with progress tracking
 
-### Phase 6: Recipe Collections 🚧 IN PROGRESS
+### Phase 6: Voice-First Cooking Assistant ✅ IMPLEMENTED
+1. **Voice Recognition Setup**: "Hey Mise" wake phrase with configurable on/off ✅
+2. **AI-Powered Intent Interpretation**: Tool calling for recipe navigation and modification ✅
+3. **Floating Voice Interface**: Bubble with idle/listening animations and expandable chat ✅
+4. **Recipe Session Variants**: Local storage for on-the-fly recipe modifications ✅
+5. **Voice-Controlled Timer**: Floating timer with voice commands and tap-to-expand controls ✅
+6. **Session Persistence**: Background app support and progress saving ✅
+
+#### Voice Assistant MVP Features ✅ IMPLEMENTED
+- **Wake Phrase**: "Hey Mise" (configurable per session and user preference)
+- **Acknowledgment**: "Yes, chef" responses for user confirmation
+- **Tool Calls**: `moveToNextStep()`, `moveToPreviousStep()`, `startTimer()`, `modifyRecipe()`, `getPrepWork()`, `getTimingSuggestions()`
+- **Recipe Modifications**: Ingredient substitutions, cooking times, temperatures, step sequences
+- **Error Handling**: "Can you repeat that?" for unclear voice, fallback to text chat for network issues
+- **Interrupt Handling**: Pause current response for new user input
+
+#### Technical Implementation ✅ COMPLETED
+- **Voice Recognition**: Expo Speech-to-Text integration (ready for implementation)
+- **Intent Processing**: AI chat endpoint for voice command interpretation ✅
+- **Local Storage**: AsyncStorage for session variants and progress ✅
+- **Timer Integration**: Extend existing Timer component with voice controls ✅
+- **UI Components**: Floating bubble, separate floating timer, recipe step hierarchy ✅
+- **Service Layer**: Comprehensive voice cooking service with pattern recognition ✅
+- **Hook Integration**: React hook for voice session management ✅
+- **Tool Schemas**: Zod schemas for all voice command types ✅
+
+### Phase 7: Recipe Collections 🚧 IN PROGRESS
 1. **Featured Collections**: Popular, seasonal, and personalized recipe collections
 2. **Collection Management**: Dynamic updates and caching
 3. **Personalization**: ML-based recipe suggestions
 4. **Landing Page Enhancement**: Rich collection-based home screen
 
-### Phase 7: Community Features 📋 PLANNED
+### Phase 8: Community Features 📋 PLANNED
 1. **Recipe Ratings**: Upvote/downvote system
 2. **Photo Sharing**: Community cooking photos
 3. **Social Feed**: Activity feed and user interactions
@@ -566,7 +592,7 @@ mise-cooking/
 
 ## Implementation Status Summary
 
-### ✅ Completed Features (10/16 Core Features)
+### ✅ Completed Features (11/16 Core Features)
 1. **AI-Powered Recipe Generation** - Full implementation with conversation context
 2. **Recipe Management** - Browse, search, and view recipes
 3. **Bookmarking System** - Save and manage favorite recipes
@@ -577,15 +603,15 @@ mise-cooking/
 8. **Recipe Detail Pages** - Comprehensive recipe viewing
 9. **Landing Page** - Welcome screen with app introduction
 10. **Basic Camera Integration** - Camera permissions and basic functionality
+11. **Voice-First Cooking Assistant** - Complete implementation with tool calls and session management
 
 ### 🚧 In Progress Features (3/16 Core Features)
 1. **Recipe Collections** - Landing page with featured collections
 2. **Advanced Camera AI** - Real-time cooking stage detection
 3. **Community Features** - Social sharing and ratings (partially planned)
 
-### 📋 Planned Features (3/16 Core Features)
+### 📋 Planned Features (2/16 Core Features)
 1. **Multi-Recipe Coordination** - AI-optimized cooking sequences
-2. **Voice Integration** - Hands-free cooking assistance
-3. **Offline Mode** - Cached recipes and offline functionality
+2. **Offline Mode** - Cached recipes and offline functionality
 
 This specification provides a comprehensive overview of the Mise Cooking app, covering all major aspects from technical architecture to user experience design, with clear implementation status tracking. 

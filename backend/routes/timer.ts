@@ -50,7 +50,8 @@ router.post('/create', async (req: Request, res: Response) => {
       stage: stage || `Step ${stepNumber || 1}`,
       recipeId,
       stepNumber,
-      isRunning: false,
+      isRunning: true,
+      startTime: new Date(),
       timeLeft: duration,
     };
 
@@ -61,7 +62,7 @@ router.post('/create', async (req: Request, res: Response) => {
       duration,
       description,
       stage: timer.stage,
-      message: `Timer created for ${description} (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
+      message: `Timer started for ${description} (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
       action: "created" as const,
     };
 
