@@ -48,9 +48,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontFamily: 'NanumPenScript-Regular, Arial, sans-serif',
-    color: '#fcf45a',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
     textAlign: 'center',
+    marginBottom: 8,
   },
   titleLarge: {
     fontSize: 64,
@@ -62,9 +64,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   subtitle: {
-    fontFamily: 'NanumPenScript-Regular, Arial, sans-serif',
-    color: '#fcf45a',
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
     textAlign: 'center',
+    lineHeight: 24,
   },
   subtitleLarge: {
     fontSize: 32,

@@ -11,6 +11,7 @@ import * as schema from './db/schema.js';
 import { signIn, signUp } from './models/users.js';
 import cookingChatRoutes from './routes/cooking-chat.js';
 import shoppingRoutes from './routes/shopping.js';
+import timerRoutes from './routes/timer.js';
 
 import { generateRecipe } from './utils/recipe.js';
 
@@ -332,6 +333,9 @@ app.get('/api/auth/me', async (req: Request, res: Response) => {
 
 // Shopping list routes
 app.use('/api/shopping', shoppingRoutes);
+
+// Timer routes
+app.use('/api/timer', timerRoutes);
 
 // Cooking chat routes
 app.use('/api', cookingChatRoutes);

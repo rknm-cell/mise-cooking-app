@@ -2,23 +2,33 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeaderWithProfile } from '../navigation/HeaderWithProfile';
+import { CookingChat } from './CookingChat';
+import { Timer } from './Timer';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+interface ActiveTimer {
+  id: string;
+  duration: number;
+  description: string;
+  stage: string;
+}
 
 export function RecipeSession() {
   const params = useLocalSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [sessionActive, setSessionActive] = useState(false);
+  const [activeTimers, setActiveTimers] = useState<ActiveTimer[]>([]);
   const flatListRef = useRef<FlatList>(null);
 
   // Get recipe data from params or use sample recipe as fallback
@@ -58,6 +68,25 @@ export function RecipeSession() {
     setSessionActive(false);
     setCurrentStep(1);
     setCompletedSteps([]);
+    setActiveTimers([]);
+  };
+
+  const handleCreateTimer = (timer: { duration: number; description: string; stage: string }) => {
+    const newTimer: ActiveTimer = {
+      id: Date.now().toString(),
+      duration: timer.duration,
+      description: timer.description,
+      stage: timer.stage,
+    };
+    setActiveTimers(prev => [...prev, newTimer]);
+  };
+
+  const handleTimerComplete = (timerId: string) => {
+    setActiveTimers(prev => prev.filter(timer => timer.id !== timerId));
+  };
+
+  const handleTimerStop = (timerId: string) => {
+    setActiveTimers(prev => prev.filter(timer => timer.id !== timerId));
   };
 
   const handleNavigateToRecipes = () => {
@@ -231,6 +260,23 @@ export function RecipeSession() {
         </View>
       )}
 
+      {/* Active Timers */}
+      {activeTimers.length > 0 && (
+        <View style={styles.timersSection}>
+          <Text style={styles.timersTitle}>Active Timers</Text>
+          {activeTimers.map((timer) => (
+            <Timer
+              key={timer.id}
+              duration={timer.duration}
+              description={timer.description}
+              stage={timer.stage}
+              onComplete={() => handleTimerComplete(timer.id)}
+              onStop={() => handleTimerStop(timer.id)}
+            />
+          ))}
+        </View>
+      )}
+
       {/* Complete Session */}
       {hasInstructions() && completedSteps.length === getTotalSteps() && (
         <View style={styles.completeSection}>
@@ -248,6 +294,20 @@ export function RecipeSession() {
             No cooking instructions available for this recipe.
           </Text>
         </View>
+      )}
+
+      {/* Cooking Chat Assistant */}
+      {sessionActive && hasInstructions() && (
+        <CookingChat
+          recipeId={recipe.id}
+          recipeName={recipe.name}
+          recipeDescription={recipe.description}
+          currentStep={currentStep}
+          totalSteps={getTotalSteps()}
+          currentStepDescription={getCurrentStepData()}
+          completedSteps={completedSteps}
+          onTimerCreate={handleCreateTimer}
+        />
       )}
     </SafeAreaView>
   );
@@ -281,7 +341,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginTop: 16,
     marginBottom: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   startSubtitle: {
     fontSize: 16,
@@ -309,7 +368,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   progressSection: {
     padding: 20,
@@ -319,7 +377,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
   },
   progressBar: {
     height: 8,
@@ -345,8 +402,8 @@ const styles = StyleSheet.create({
   stepCard: {
     backgroundColor: '#2d8d8b',
     borderRadius: 16,
-    padding: 24,
-    height: '80%',
+    padding: 16,
+    height: '60%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -365,18 +422,18 @@ const styles = StyleSheet.create({
   },
   stepHeader: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   stepNumberContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepNumber: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -384,12 +441,11 @@ const styles = StyleSheet.create({
     color: '#fcf45a',
   },
   stepTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 12,
+    marginBottom: 8,
     textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
   },
   currentStepTitle: {
     color: '#fcf45a',
@@ -398,11 +454,11 @@ const styles = StyleSheet.create({
     color: '#27ae60',
   },
   stepDescription: {
-    fontSize: 24,
+    fontSize: 18,
     color: '#fff',
     opacity: 0.8,
-    lineHeight: 24,
-    marginBottom: 20,
+    lineHeight: 22,
+    marginBottom: 16,
     textAlign: 'center',
     flex: 1,
   },
@@ -414,31 +470,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 8,
     marginTop: 'auto',
   },
   completeButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,
-    fontFamily: 'NanumPenScript-Regular',
   },
   completedIndicator: {
     backgroundColor: '#27ae60',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 'auto',
   },
   completedText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
-    fontFamily: 'NanumPenScript-Regular',
   },
   completeSection: {
     padding: 20,
@@ -458,7 +512,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   noInstructionsSection: {
     padding: 20,
@@ -516,5 +569,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+  },
+  timersSection: {
+    padding: 20,
+    paddingBottom: 10,
+  },
+  timersTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 12,
+    textAlign: 'center',
   },
 }); 

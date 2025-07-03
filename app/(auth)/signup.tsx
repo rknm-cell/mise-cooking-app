@@ -2,15 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -263,12 +263,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
   },
   subtitle: {
     fontSize: 16,
@@ -289,7 +288,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     marginBottom: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -329,10 +327,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   signupButtonText: {
+    color: '#1d7b86',
     fontSize: 18,
     fontWeight: '600',
-    color: '#1d7b86',
-    fontFamily: 'NanumPenScript-Regular',
   },
   divider: {
     flexDirection: 'row',
@@ -367,6 +364,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     opacity: 0.8,
-    fontFamily: 'NanumPenScript-Regular',
+  },
+  buttonText: {
+    color: '#1d7b86',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  linkText: {
+    color: '#fcf45a',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

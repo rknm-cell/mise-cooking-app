@@ -51,11 +51,11 @@ export function StartCookingButton({ recipe, size = 'medium' }: StartCookingButt
   const getTextStyle = () => {
     switch (size) {
       case 'small':
-        return styles.smallText;
+        return styles.buttonTextSmall;
       case 'large':
-        return styles.largeText;
+        return styles.buttonTextLarge;
       default:
-        return styles.mediumText;
+        return styles.buttonText;
     }
   };
 
@@ -112,19 +112,20 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#1d7b86',
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  buttonTextSmall: {
+    color: '#1d7b86',
+    fontSize: 16,
     fontWeight: '600',
     marginLeft: 6,
   },
-  smallText: {
-    fontSize: 12,
-    fontFamily: 'NanumPenScript-Regular',
-  },
-  mediumText: {
-    fontSize: 14,
-    fontFamily: 'NanumPenScript-Regular',
-  },
-  largeText: {
-    fontSize: 16,
-    fontFamily: 'NanumPenScript-Regular',
+  buttonTextLarge: {
+    color: '#1d7b86',
+    fontSize: 20,
+    fontWeight: '600',
+    marginLeft: 10,
   },
 }); 

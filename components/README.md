@@ -147,7 +147,8 @@ import { Recipe, ComponentSize, LoadingState } from '../components';
 - **Background**: Gradient overlays with transparency
 
 ### Typography
-- **Primary Font**: `NanumPenScript-Regular`
+- **Primary Font**: `NanumPenScript-Regular` (used only for screen titles)
+- **System Font**: Default system font for all other text elements
 - **Fallback**: `Arial, sans-serif`
 - **Size Variants**: `small`, `medium`, `large`
 
