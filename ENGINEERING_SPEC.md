@@ -201,6 +201,60 @@ CREATE TABLE community_posts (
   likes_count INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Recipe Collections (PLANNED)
+CREATE TABLE recipe_collections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR NOT NULL,
+  type VARCHAR NOT NULL, -- 'popular', 'seasonal', 'personalized', etc.
+  user_id TEXT REFERENCES users(id), -- For personalized collections
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Collection-Recipe Relationship (PLANNED)
+CREATE TABLE collection_recipes (
+  collection_id UUID REFERENCES recipe_collections(id),
+  recipe_id VARCHAR REFERENCES recipes(id),
+  PRIMARY KEY (collection_id, recipe_id)
+);
+
+-- Recipe Ratings (PLANNED)
+CREATE TABLE recipe_ratings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL REFERENCES users(id),
+  recipe_id VARCHAR NOT NULL REFERENCES recipes(id),
+  rating INTEGER NOT NULL CHECK (rating IN (-1, 1)),
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, recipe_id)
+);
+
+-- Recipe Comments (PLANNED)
+CREATE TABLE recipe_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL REFERENCES users(id),
+  recipe_id VARCHAR NOT NULL REFERENCES recipes(id),
+  parent_comment_id UUID REFERENCES recipe_comments(id),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- User Cooking History (PLANNED)
+CREATE TABLE user_cooking_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL REFERENCES users(id),
+  recipe_id VARCHAR NOT NULL REFERENCES recipes(id),
+  cooked_at TIMESTAMP DEFAULT NOW(),
+  rating INTEGER,
+  notes TEXT
+);
+
+-- User Followers (PLANNED)
+CREATE TABLE user_followers (
+  user_id TEXT NOT NULL REFERENCES users(id),
+  follower_id TEXT NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (user_id, follower_id)
+);
 ```
 
 ### Indexes for Performance
@@ -478,6 +532,22 @@ interface CreatePostRequest {
 }
 ```
 
+### Recipe Collections Endpoints (PLANNED)
+- `GET /api/collections/popular` - Get trending and highly-rated recipes
+- `GET /api/collections/seasonal` - Get season-appropriate recipes
+- `GET /api/collections/personalized` - Get user-tailored recipe suggestions
+- `GET /api/collections/favorites` - Get user's past favorite recipes
+- `GET /api/collections/recent` - Get recently viewed recipes
+- `GET /api/collections/recommendations` - Get ML-based recommendations
+
+### Community & Social Endpoints (PLANNED)
+- `GET /api/recipes/:id/photos` - Get recipe community photos
+- `POST /api/recipes/:id/photos` - Share cooking photo
+- `POST /api/recipes/:id/rate` - Rate recipe (upvote/downvote)
+- `GET /api/community/feed` - Get social feed
+- `POST /api/community/posts` - Create community post
+- `PUT /api/community/posts/:id/like` - Like/unlike post
+
 ## Frontend Architecture
 
 ### Component Structure
@@ -750,7 +820,7 @@ interface CookingContext {
   currentStepDescription?: string;
   completedSteps: number[];
   
-  // Conversation management
+ // Conversation management
   conversationHistory: Array<{role: 'user' | 'assistant', content: string}>;
   maxHistoryLength: number; // Default: 10 messages for chat continuity
 }
@@ -1004,24 +1074,35 @@ jobs:
 
 ## Success Metrics
 
-### Technical KPIs
-- **Uptime**: 99.9% availability
-- **Performance**: 95% of requests under 2 seconds
-- **Error Rate**: < 1% of requests result in errors
-- **AI Accuracy**: > 85% correct stage detection
-- **AI Chat Response Time**: 95% of responses under 3 seconds
-- **AI Chat Accuracy**: > 90% helpful cooking advice
+### User Engagement
+- Daily/Monthly Active Users
+- Recipe generation frequency
+- Bookmark save rate
+- Shopping list usage
+- Cooking session completion rate
+- Community photo sharing activity
+- Recipe rating participation
+- Offline usage rate
 
-### Business KPIs
-- **User Engagement**: 60% of users complete cooking sessions
-- **Feature Adoption**: 40% of users try AI cooking guide
-- **Community Growth**: 25% of users share cooking photos
-- **Retention**: 70% of users return within 7 days
+### Technical Performance
+- API response times
+- App load times
+- Error rates
+- Database query performance
+- AI analysis response time (target: 2 seconds)
+- Camera processing performance
+- Multi-recipe optimization accuracy
+
+### Business Metrics
+- User retention rates
+- Feature adoption rates
+- User satisfaction scores
+- Platform stability
 
 ## Implementation Status
 
 ### Completed Features ✅
-1. **Recipe Generation**: Full AI-powered recipe generation with conversation context
+1. **AI-Powered Recipe Generation**: Full AI-powered recipe generation with conversation context
 2. **Recipe Management**: Browse, search, and view recipes with detailed information
 3. **Bookmarking System**: Save and manage favorite recipes
 4. **Shopping List Management**: Unified shopping list with aggregation across multiple lists
@@ -1030,18 +1111,103 @@ jobs:
 7. **Profile Navigation**: Header-based profile access with modal presentation
 8. **Recipe Detail Pages**: Comprehensive recipe viewing with cooking integration
 9. **Landing Page**: Welcome screen with app introduction
-10. **Camera Integration**: Basic camera functionality for future AI features
+10. **Basic Camera Integration**: Camera permissions and basic functionality
 
 ### In Progress 🚧
-1. **Recipe Collections**: Landing page with featured collections
-2. **Community Features**: Social sharing and ratings
-3. **Advanced Camera AI**: Real-time cooking stage detection
+1. **Voice-First Cooking Assistant**: MVP with voice recognition, wake phrase, tool calling, and session persistence
+2. **Recipe Collections**: Landing page with featured, seasonal, and personalized collections; dynamic updates and caching
+3. **Advanced Camera AI**: Real-time cooking stage detection (on-device and cloud)
+4. **Community Features**: Social sharing, ratings, comments, and feed (partially planned/implemented)
 
 ### Planned Features 📋
-1. **Multi-Recipe Coordination**: AI-optimized cooking sequences
-2. **Voice Integration**: Hands-free cooking assistance
-3. **Offline Mode**: Cached recipes and offline functionality
-4. **Advanced Analytics**: Cooking patterns and preferences tracking
+1. **Multi-Recipe Coordination**: AI-optimized cooking sequences and parallel cooking support
+2. **Offline Mode**: Cached recipes and shopping lists for offline functionality
+3. **Advanced Analytics**: Cooking patterns and preferences tracking
+
+## Offline Mode (PLANNED)
+
+The app will support offline mode by caching recipes and shopping lists using AsyncStorage. Key strategies:
+- Recipes and shopping lists are cached locally after first load or update.
+- On app launch, the app checks for network connectivity and loads cached data if offline.
+- Mutations (e.g., adding to shopping list) are queued and synced when back online.
+- IndexedDB or SQLite may be used for more robust offline storage in the future.
+- UI will indicate offline status and show only available features.
+
+## Voice-First Cooking Assistant (IN PROGRESS)
+
+- **Wake Phrase**: "Hey Mise" (configurable per session and user preference)
+- **Voice Recognition**: Expo Speech-to-Text integration
+- **Tool Calling**: AI interprets voice commands and triggers actions with comprehensive tool schemas
+- **Session Persistence**: Progress and modifications are saved locally for background/restore
+- **Floating Voice Interface**: Bubble with idle/listening animations and expandable chat
+- **Error Handling**: Fallback to text chat for network issues, "Can you repeat that?" for unclear voice
+- **Interrupt Handling**: Pause current response for new user input
+- **Timer Integration**: Floating timer with voice commands and tap-to-expand controls
+
+#### Implemented Tool Calls
+1. **Timer Management** (`startTimer`): Set cooking timers via voice commands
+2. **Step Navigation** (`moveToStep`): Navigate between recipe steps
+3. **Recipe Modification** (`modifyRecipe`): Modify ingredients, times, temperatures
+4. **Prep Work Guidance** (`getPrepWork`): Get preparation instructions
+5. **Timing Suggestions** (`getTimingSuggestions`): Get timing coordination help
+
+#### Voice Command Examples
+- **Timer**: "Hey Mise, set timer for 5 minutes"
+- **Navigation**: "Hey Mise, next step"
+- **Modification**: "Hey Mise, substitute basil with parsley"
+- **Prep Work**: "Hey Mise, what do I need to prepare?"
+- **Timing**: "Hey Mise, how long should this take?"
+
+#### Technical Implementation
+- **Service Layer**: `services/voice-cooking.ts` - Voice command processing and tool calling
+- **Hook**: `hooks/useVoiceCooking.ts` - React hook for voice session management
+- **Backend**: Enhanced `/api/cooking-chat` endpoint with comprehensive tool schemas
+- **Pattern Recognition**: Regex-based command detection with confidence scoring
+- **Session Management**: Local storage for voice session persistence
+
+## Recipe Collections (IN PROGRESS)
+
+- **Dynamic Updates**: Collections update based on user activity, season, and engagement
+- **Caching**: Collections are cached for offline viewing
+- **Personalization**: ML-based suggestions using user cooking history and preferences
+- **UI**: Horizontal scrolling carousels, collection cards, and "See All" expansion
+- **Backend**: Endpoints for each collection type, with query optimization for performance
+
+## Community Features (PLANNED/IN PROGRESS)
+
+- **Ratings & Reviews**: Upvote/downvote system, rating stats on recipe cards, moderation
+- **Comments**: Threaded comments, reply system, moderation tools
+- **Photo Sharing**: Multiple photos per recipe, captions, gallery view, moderation
+- **Social Feed**: Chronological feed, filter by following/trending/recent, activity types (photos, ratings, comments, completions)
+- **User Profiles**: Public cooking history, stats, badges, following/follower system
+- **Moderation**: AI-powered content filtering, user reporting, guideline enforcement
+
+## Success Metrics
+
+### User Engagement
+- Daily/Monthly Active Users
+- Recipe generation frequency
+- Bookmark save rate
+- Shopping list usage
+- Cooking session completion rate
+- Community photo sharing activity
+- Recipe rating participation
+- Offline usage rate
+
+### Technical Performance
+- API response times
+- App load times
+- Error rates
+- Database query performance
+- AI analysis response time (target: 2 seconds)
+- Camera processing performance
+- Multi-recipe optimization accuracy
+
+### Business Metrics
+- User retention rates
+- Feature adoption rates
+- User satisfaction scores
+- Platform stability
 
 This engineering specification provides a comprehensive technical foundation for implementing the Mise Cooking app with all planned features, ensuring scalability, security, and performance requirements are met.
 

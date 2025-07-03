@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
+    Alert,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -17,11 +18,11 @@ interface TimerProps {
 
 export function Timer({ duration, description, stage, onComplete, onStop }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(true); // Start automatically
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: number | null = null;
 
     if (isRunning && !isPaused && timeLeft > 0) {
       interval = setInterval(() => {

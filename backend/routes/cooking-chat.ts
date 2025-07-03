@@ -5,10 +5,33 @@ import { z } from "zod";
 
 const router = express.Router();
 
-// --- Timer Tool Function Schema for AI ---
+// --- Tool Function Schemas for AI ---
 const setTimerSchema = z.object({
   duration: z.number().describe("Duration of the timer in seconds"),
   description: z.string().describe("What the timer is for"),
+});
+
+const moveToStepSchema = z.object({
+  action: z.enum(["next", "previous", "specific"]).describe("Navigation action"),
+  stepNumber: z.number().optional().describe("Specific step number (only for 'specific' action)"),
+  reason: z.string().describe("Why this navigation is happening"),
+});
+
+const modifyRecipeSchema = z.object({
+  modificationType: z.enum(["ingredient", "time", "temperature", "technique", "quantity"]).describe("Type of modification"),
+  target: z.string().describe("What is being modified (ingredient name, step number, etc.)"),
+  newValue: z.string().describe("The new value or instruction"),
+  reason: z.string().describe("Why this modification is needed"),
+});
+
+const getPrepWorkSchema = z.object({
+  prepType: z.enum(["ingredients", "equipment", "timing", "techniques"]).describe("Type of prep work needed"),
+  focus: z.string().describe("Specific focus area for prep work"),
+});
+
+const getTimingSuggestionsSchema = z.object({
+  timingType: z.enum(["step", "overall", "parallel", "resting"]).describe("Type of timing guidance needed"),
+  context: z.string().describe("Current cooking context"),
 });
 
 // --- Chat Request/Response Schemas ---
@@ -24,7 +47,10 @@ const chatRequestSchema = z.object({
   conversationHistory: z.array(z.object({
     role: z.enum(["user", "assistant"]),
     content: z.string()
-  })).optional()
+  })).optional(),
+  // Voice-specific fields
+  isVoiceCommand: z.boolean().optional(),
+  wakePhrase: z.string().optional(),
 });
 
 const chatResponseSchema = z.object({
@@ -32,15 +58,37 @@ const chatResponseSchema = z.object({
   suggestions: z.array(z.string()).optional(),
   quickActions: z.array(z.string()).optional(),
   context: z.string().optional(),
+  // Tool action responses
   timerAction: z.object({
     action: z.enum(["create", "start", "stop"]),
     duration: z.number().optional(),
     description: z.string().optional(),
     stage: z.string().optional(),
   }).optional(),
+  navigationAction: z.object({
+    action: z.enum(["next", "previous", "specific"]),
+    stepNumber: z.number().optional(),
+    reason: z.string(),
+  }).optional(),
+  modificationAction: z.object({
+    type: z.enum(["ingredient", "time", "temperature", "technique", "quantity"]),
+    target: z.string(),
+    newValue: z.string(),
+    reason: z.string(),
+  }).optional(),
+  prepWorkAction: z.object({
+    type: z.enum(["ingredients", "equipment", "timing", "techniques"]),
+    focus: z.string(),
+    suggestions: z.array(z.string()),
+  }).optional(),
+  timingAction: z.object({
+    type: z.enum(["step", "overall", "parallel", "resting"]),
+    context: z.string(),
+    suggestions: z.array(z.string()),
+  }).optional(),
 });
 
-// --- Main Chat Endpoint with Tool Calling ---
+// --- Main Chat Endpoint with Comprehensive Tool Calling ---
 router.post('/cooking-chat', async (req: Request, res: Response) => {
   try {
     // Validate request
@@ -54,59 +102,228 @@ router.post('/cooking-chat', async (req: Request, res: Response) => {
       totalSteps,
       currentStepDescription,
       completedSteps = [],
-      conversationHistory = []
+      conversationHistory = [],
+      isVoiceCommand = false,
+      wakePhrase
     } = validatedData;
 
-    // System prompt with tool description
-    const systemPrompt = `You are Mise, an intelligent cooking assistant. If the user asks for a timer, call the setTimer function with the correct duration in seconds and a short description. You can understand time expressions like '5 minutes', 'an hour', 'hour and a half', 'half an hour', '90 minutes', '2 hours', '1.5 hours', etc.`;
+    // Enhanced system prompt with all tool descriptions
+    const systemPrompt = `You are Mise, an intelligent cooking assistant with voice-first capabilities. You can perform the following actions:
+
+1. TIMER MANAGEMENT: If the user asks for a timer, call the setTimer function with duration in seconds and description. Understand time expressions like '5 minutes', 'an hour', 'hour and a half', 'half an hour', '90 minutes', '2 hours', '1.5 hours', etc.
+
+2. STEP NAVIGATION: If the user wants to move to the next step, previous step, or a specific step, call the moveToStep function. This includes commands like "next step", "go back", "move to step 3", etc.
+
+3. RECIPE MODIFICATION: If the user wants to modify the recipe (ingredients, times, temperatures, techniques), call the modifyRecipe function. This includes substitutions, time adjustments, temperature changes, etc.
+
+4. PREP WORK GUIDANCE: If the user asks about preparation work, call the getPrepWork function. This includes ingredient prep, equipment setup, timing prep, technique prep, etc.
+
+5. TIMING SUGGESTIONS: If the user asks about timing or scheduling, call the getTimingSuggestions function. This includes step timing, overall timing, parallel cooking, resting times, etc.
+
+For voice commands, respond with "Yes, chef" before executing the action. Be concise but helpful.`;
 
     // Conversation context
     const conversationContext = buildConversationContext(conversationHistory, message);
 
-    // --- AI Tool Calling ---
-    const result = await generateObject({
-      model: openai("gpt-4o-mini"),
-      schema: setTimerSchema,
-      system: systemPrompt,
-      prompt: conversationContext,
-      maxTokens: 200,
-      temperature: 0.2,
-    });
-
-    if (result.object && result.object.duration && result.object.description) {
-      // AI called the setTimer tool
-      const timerResponse = await createTimer({
-        duration: result.object.duration,
-        description: result.object.description,
-        stage: `Step ${currentStep || 1}`,
-        recipeId,
-        stepNumber: currentStep,
+    // Determine which tool to call based on the message content
+    const messageLower = message.toLowerCase();
+    
+    // Timer detection
+    if (messageLower.includes('timer') || messageLower.includes('set timer') || 
+        messageLower.includes('cook for') || messageLower.includes('boil for') || 
+        messageLower.includes('simmer for') || messageLower.includes('bake for') ||
+        /\d+\s*(minute|hour|second)/.test(messageLower)) {
+      
+      const result = await generateObject({
+        model: openai("gpt-4o-mini"),
+        schema: setTimerSchema,
+        system: systemPrompt,
+        prompt: conversationContext,
+        maxTokens: 200,
+        temperature: 0.2,
       });
-      return res.json({
-        response: `I've set a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}). The timer will appear in your cooking session.`,
-        timerAction: {
-          action: "create",
+
+      if (result.object && result.object.duration && result.object.description) {
+        const timerResponse = await createTimer({
           duration: result.object.duration,
           description: result.object.description,
           stage: `Step ${currentStep || 1}`,
-        },
-      });
-    } else {
-      // Fallback to regular AI response
-      const fallback = await generateText({
+          recipeId,
+          stepNumber: currentStep,
+        });
+
+        const response = isVoiceCommand 
+          ? `Yes, chef. I've started a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}).`
+          : `I've started a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}). The timer is now running in your cooking session.`;
+
+        return res.json({
+          response,
+          timerAction: {
+            action: "create",
+            duration: result.object.duration,
+            description: result.object.description,
+            stage: `Step ${currentStep || 1}`,
+          },
+        });
+      }
+    }
+
+    // Step navigation detection
+    if (messageLower.includes('next step') || messageLower.includes('move to next') ||
+        messageLower.includes('previous step') || messageLower.includes('go back') ||
+        messageLower.includes('step') && /\d+/.test(messageLower)) {
+      
+      const result = await generateObject({
         model: openai("gpt-4o-mini"),
+        schema: moveToStepSchema,
+        system: systemPrompt,
+        prompt: conversationContext,
+        maxTokens: 200,
+        temperature: 0.2,
+      });
+
+      if (result.object) {
+        const response = isVoiceCommand 
+          ? `Yes, chef. ${result.object.reason}`
+          : result.object.reason;
+
+        return res.json({
+          response,
+          navigationAction: {
+            action: result.object.action,
+            stepNumber: result.object.stepNumber,
+            reason: result.object.reason,
+          },
+        });
+      }
+    }
+
+    // Recipe modification detection
+    if (messageLower.includes('substitute') || messageLower.includes('replace') ||
+        messageLower.includes('change') || messageLower.includes('modify') ||
+        messageLower.includes('instead of') || messageLower.includes('alternative')) {
+      
+      const result = await generateObject({
+        model: openai("gpt-4o-mini"),
+        schema: modifyRecipeSchema,
         system: systemPrompt,
         prompt: conversationContext,
         maxTokens: 300,
         temperature: 0.3,
       });
-      return res.json({
-        response: fallback.text.trim(),
-        suggestions: [],
-        quickActions: ["What's next?","How long?","Substitute?","Help!","Technique"],
-        context: "cooking_assistance"
-      });
+
+      if (result.object) {
+        const response = isVoiceCommand 
+          ? `Yes, chef. ${result.object.reason}`
+          : result.object.reason;
+
+        return res.json({
+          response,
+          modificationAction: {
+            type: result.object.modificationType,
+            target: result.object.target,
+            newValue: result.object.newValue,
+            reason: result.object.reason,
+          },
+        });
+      }
     }
+
+    // Prep work detection
+    if (messageLower.includes('prep') || messageLower.includes('prepare') ||
+        messageLower.includes('setup') || messageLower.includes('get ready') ||
+        messageLower.includes('what do i need')) {
+      
+      const result = await generateObject({
+        model: openai("gpt-4o-mini"),
+        schema: getPrepWorkSchema,
+        system: systemPrompt,
+        prompt: conversationContext,
+        maxTokens: 200,
+        temperature: 0.3,
+      });
+
+      if (result.object) {
+        // Generate prep work suggestions
+        const prepSuggestions = await generatePrepWorkSuggestions(
+          result.object.prepType,
+          result.object.focus,
+          currentStepDescription,
+          recipeName
+        );
+
+        const response = isVoiceCommand 
+          ? `Yes, chef. Here's what you need to prepare: ${prepSuggestions.join(', ')}`
+          : `Here's what you need to prepare: ${prepSuggestions.join(', ')}`;
+
+        return res.json({
+          response,
+          prepWorkAction: {
+            type: result.object.prepType,
+            focus: result.object.focus,
+            suggestions: prepSuggestions,
+          },
+        });
+      }
+    }
+
+    // Timing suggestions detection
+    if (messageLower.includes('how long') || messageLower.includes('timing') ||
+        messageLower.includes('when') || messageLower.includes('schedule') ||
+        messageLower.includes('time management')) {
+      
+      const result = await generateObject({
+        model: openai("gpt-4o-mini"),
+        schema: getTimingSuggestionsSchema,
+        system: systemPrompt,
+        prompt: conversationContext,
+        maxTokens: 200,
+        temperature: 0.3,
+      });
+
+      if (result.object) {
+        // Generate timing suggestions
+        const timingSuggestions = await generateTimingSuggestions(
+          result.object.timingType,
+          result.object.context,
+          currentStep,
+          totalSteps
+        );
+
+        const response = isVoiceCommand 
+          ? `Yes, chef. Here's the timing: ${timingSuggestions.join(', ')}`
+          : `Here's the timing guidance: ${timingSuggestions.join(', ')}`;
+
+        return res.json({
+          response,
+          timingAction: {
+            type: result.object.timingType,
+            context: result.object.context,
+            suggestions: timingSuggestions,
+          },
+        });
+      }
+    }
+
+    // Fallback to regular AI response
+    const fallback = await generateText({
+      model: openai("gpt-4o-mini"),
+      system: systemPrompt,
+      prompt: conversationContext,
+      maxTokens: 300,
+      temperature: 0.3,
+    });
+
+    const response = isVoiceCommand 
+      ? `Yes, chef. ${fallback.text.trim()}`
+      : fallback.text.trim();
+
+    return res.json({
+      response,
+      suggestions: [],
+      quickActions: ["What's next?","How long?","Substitute?","Help!","Technique"],
+      context: "cooking_assistance"
+    });
   } catch (error) {
     console.error('Error in cooking chat:', error);
     res.status(500).json({ 
@@ -229,6 +446,76 @@ function buildConversationContext(history: Array<{role: string, content: string}
     .join('\n');
 
   return `${context}\n\nUser: ${currentMessage}`;
+}
+
+// Helper function to generate prep work suggestions
+async function generatePrepWorkSuggestions(
+  prepType: string,
+  focus: string,
+  currentStepDescription?: string,
+  recipeName?: string
+): Promise<string[]> {
+  try {
+    const systemPrompt = `You are a cooking expert. Based on the prep type and focus, provide 3-4 specific, actionable prep work suggestions. Keep them concise and practical.
+
+Prep type: ${prepType}
+Focus: ${focus}
+Current step: ${currentStepDescription || 'Not specified'}
+Recipe: ${recipeName || 'Not specified'}
+
+Provide suggestions as a simple list, one per line.`;
+
+    const result = await generateText({
+      model: openai("gpt-4o-mini"),
+      system: systemPrompt,
+      prompt: "Generate prep work suggestions:",
+      maxTokens: 200,
+      temperature: 0.3,
+    });
+
+    return result.text
+      .split('\n')
+      .filter(line => line.trim().length > 0)
+      .map(line => line.replace(/^\d+\.\s*/, '').trim());
+  } catch (error) {
+    console.error('Error generating prep work suggestions:', error);
+    return ['Gather all ingredients', 'Prepare cooking equipment', 'Read through the recipe'];
+  }
+}
+
+// Helper function to generate timing suggestions
+async function generateTimingSuggestions(
+  timingType: string,
+  context: string,
+  currentStep?: number,
+  totalSteps?: number
+): Promise<string[]> {
+  try {
+    const systemPrompt = `You are a cooking expert. Based on the timing type and context, provide 3-4 specific timing suggestions. Keep them concise and practical.
+
+Timing type: ${timingType}
+Context: ${context}
+Current step: ${currentStep || 'Not specified'}
+Total steps: ${totalSteps || 'Not specified'}
+
+Provide suggestions as a simple list, one per line.`;
+
+    const result = await generateText({
+      model: openai("gpt-4o-mini"),
+      system: systemPrompt,
+      prompt: "Generate timing suggestions:",
+      maxTokens: 200,
+      temperature: 0.3,
+    });
+
+    return result.text
+      .split('\n')
+      .filter(line => line.trim().length > 0)
+      .map(line => line.replace(/^\d+\.\s*/, '').trim());
+  } catch (error) {
+    console.error('Error generating timing suggestions:', error);
+    return ['Start prep work early', 'Monitor cooking times closely', 'Allow for resting periods'];
+  }
 }
 
 export default router; 
