@@ -9,6 +9,7 @@ import { db } from './db/index.js';
 import { getBookmarks, removeBookmark, saveBookmark } from './db/queries.js';
 import * as schema from './db/schema.js';
 import { signIn, signUp } from './models/users.js';
+import cookingChatRoutes from './routes/cooking-chat.js';
 import shoppingRoutes from './routes/shopping.js';
 
 import { generateRecipe } from './utils/recipe.js';
@@ -331,6 +332,9 @@ app.get('/api/auth/me', async (req: Request, res: Response) => {
 
 // Shopping list routes
 app.use('/api/shopping', shoppingRoutes);
+
+// Cooking chat routes
+app.use('/api', cookingChatRoutes);
 
 // 404 handler
 app.use('*', (req: Request, res: Response) => {

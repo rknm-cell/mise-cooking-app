@@ -161,6 +161,39 @@
 - **Fallback System**: Manual step progression when AI analysis fails
 - **Performance Target**: 2-second response time (max 10 seconds acceptable)
 
+#### 6.1 AI Chat Assistant for Recipe Sessions
+- **Context-Aware Guidance**: AI understands current recipe step and offers relevant tips
+- **Real-Time Problem Solving**: Immediate assistance for cooking issues and questions
+- **Ingredient Substitutions**: Smart suggestions for missing ingredients with quantity adjustments
+- **Cooking Technique Explanations**: Step-by-step guidance for unfamiliar techniques
+- **Voice-First Interaction**: Hands-free operation with voice commands and responses
+- **Progressive Skill Adaptation**: Adjusts explanations based on user's cooking experience level
+
+##### AI Assistant Features
+- **Floating Chat Interface**: Non-intrusive chat bubble in bottom-right corner
+- **Quick Action Buttons**: Common questions like "What's next?", "How long?", "Substitute?"
+- **Contextual Suggestions**: Proactive tips based on current step and cooking progress
+- **Troubleshooting Mode**: Step-by-step solutions for common cooking problems
+- **Session Setup Guidance**: Pre-cooking tips, prep work suggestions, and timing advice
+- **Step Transition Support**: Confirmation of completion and next step preparation
+- **Multitasking Suggestions**: AI-optimized cooking sequences and timing coordination
+
+##### AI Assistant UI/UX Design
+- **Chat Bubble States**: Idle, active, listening, and suggestion modes with visual feedback
+- **Expandable Chat Panel**: Slides up from bottom, takes 40% screen height when active
+- **Message Types**: AI suggestions (left-aligned), user questions (right-aligned), system messages
+- **Voice Integration**: Prominent microphone button, animated listening states, voice playback
+- **Responsive Layout**: Adapts to portrait/landscape modes and different screen sizes
+- **Accessibility**: Voice-first design, haptic feedback, high contrast message bubbles
+- **Non-Disruptive**: Maintains focus on cooking steps, easy to ignore when not needed
+
+##### AI Assistant Conversation Examples
+- **Ingredient Help**: "I don't have fresh basil" → AI suggests dried basil, spinach, or alternatives
+- **Technique Guidance**: "How do I properly dice an onion?" → Step-by-step explanation
+- **Problem Solving**: "My sauce is separating" → Immediate troubleshooting steps
+- **Timing Questions**: "How do I know when the pasta is al dente?" → Visual and tactile cues
+- **Substitution Requests**: "What can I use instead of white wine?" → Multiple options with ratios
+
 ### 7. Social Recipe Community
 - **Recipe Ratings & Reviews**
   - Upvote/downvote system for recipes
