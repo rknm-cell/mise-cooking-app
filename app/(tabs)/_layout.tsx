@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
 
-import { HapticTab } from '../../components/HapticTab';
+import { HapticTab } from '../../components';
 import { Colors } from '../../constants/Colors';
 
 /**

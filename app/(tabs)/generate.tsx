@@ -1,6 +1,6 @@
 "use client";
 
-import { HeaderWithProfile } from '@/components/HeaderWithProfile';
+import { HeaderWithProfile } from '@/components';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
