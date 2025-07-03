@@ -1,4 +1,4 @@
-import { HeaderWithProfile } from '@/components/HeaderWithProfile';
+import { HeaderWithProfile } from '@/components';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -12,8 +12,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { ThemedText } from '../../components/ThemedText';
-import { ThemedView } from '../../components/ThemedView';
+import { ThemedText, ThemedView } from '../../components';
 import { Colors } from '../../constants/Colors';
 import { useAuth } from '../../contexts/AuthContext';
 import {

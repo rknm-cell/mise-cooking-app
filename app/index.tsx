@@ -9,7 +9,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import StyledTitle from '../components/StyledTitle';
+import { StyledTitle } from '../components';
 
 const { width, height } = Dimensions.get('window');
 

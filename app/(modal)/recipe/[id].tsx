@@ -12,8 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BookmarkButton from '../../../components/BookmarkButton';
-import { StartCookingButton } from '../../../components/cooking/StartCookingButton';
+import { BookmarkButton, StartCookingButton } from '../../../components';
 import { useAuth } from '../../../contexts/AuthContext';
 import { generateShoppingListFromRecipe } from '../../../services/shopping';
 

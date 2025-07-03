@@ -2,26 +2,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Modal,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import StyledTitle from '../../../components/StyledTitle';
-import { ThemedText } from '../../../components/ThemedText';
-import { ThemedView } from '../../../components/ThemedView';
+import { StyledTitle, ThemedText, ThemedView } from '../../../components';
 import { Colors } from '../../../constants/Colors';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
-    addShoppingListItem,
-    deleteShoppingListItem,
-    getShoppingListItems,
-    updateShoppingListItem,
-    type ShoppingListItem
+  addShoppingListItem,
+  deleteShoppingListItem,
+  getShoppingListItems,
+  updateShoppingListItem,
+  type ShoppingListItem
 } from '../../../services/shopping';
 
 export default function ShoppingListDetailScreen() {
