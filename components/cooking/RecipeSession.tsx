@@ -10,7 +10,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { HeaderWithProfile } from '../HeaderWithProfile';
+import { HeaderWithProfile } from '../navigation/HeaderWithProfile';
 
 const { width: screenWidth } = Dimensions.get('window');
 
