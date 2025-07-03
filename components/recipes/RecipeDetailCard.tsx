@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { StartCookingButton } from '../cooking/StartCookingButton';
 
@@ -82,17 +82,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   description: {
     fontSize: 16,
     color: '#fff',
     opacity: 0.8,
     lineHeight: 24,
+    marginBottom: 16,
   },
   metaInfo: {
     flexDirection: 'row',
@@ -120,7 +120,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   ingredientItem: {
     fontSize: 14,

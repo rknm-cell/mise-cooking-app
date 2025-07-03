@@ -99,17 +99,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 16,
-    textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     color: '#fff',
     opacity: 0.8,
-    marginBottom: 24,
     textAlign: 'center',
     lineHeight: 24,
+    marginBottom: 16,
   },
   cameraContainer: {
     flex: 1,
@@ -134,10 +132,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#1d7b86',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   controls: {
     flexDirection: 'row',
@@ -177,6 +174,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
 }); 

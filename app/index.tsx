@@ -2,11 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyledTitle } from '../components';
@@ -123,7 +123,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 40,
     marginBottom: 16,
-    fontFamily: 'NanumPenScript-Regular',
   },
   highlight: {
     color: '#fcf45a',
@@ -170,7 +169,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     marginBottom: 4,
-    fontFamily: 'NanumPenScript-Regular',
   },
   featureDescription: {
     fontSize: 14,
@@ -197,12 +195,32 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginRight: 8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   footerText: {
     fontSize: 14,
     color: '#fff',
     textAlign: 'center',
     opacity: 0.7,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#fff',
+    opacity: 0.8,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  buttonText: {
+    color: '#1d7b86',
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });

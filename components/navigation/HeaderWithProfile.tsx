@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fcf45a',
     opacity: 0.8,
-    fontFamily: 'NanumPenScript-Regular',
   },
   profileButton: {
     padding: 4,

@@ -2,11 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 8,
-    textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
   },
   closeButton: {
     padding: 8,

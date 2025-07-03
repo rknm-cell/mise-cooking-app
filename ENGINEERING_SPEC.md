@@ -61,6 +61,30 @@ This document outlines the technical implementation details for the Mise Cooking
 - **API Endpoint**: `/api/generate` with conversation history support
 - **Error Handling**: Graceful fallbacks and user-friendly error messages
 
+### AI Chat Assistant Backend
+- **AI Service**: OpenAI GPT-4o-mini with context-aware cooking assistance
+- **Context Management**: Recipe-aware prompt building with current step context
+- **Conversation History**: Maintains chat history for continuity within sessions
+- **API Endpoints**: 
+  - `/api/cooking-chat` - Main chat with full context
+  - `/api/cooking-chat/suggestions` - Step-specific suggestions
+  - `/api/cooking-chat/substitutions` - Ingredient alternatives
+- **Response Formatting**: Structured responses optimized for mobile display
+- **Performance**: 300 token limit with 0.3 temperature for consistent advice
+
+### AI Chat Assistant Frontend
+- **Component**: `CookingChat` - Floating chat interface for recipe sessions
+- **UI Design**: Expandable chat panel with bubble interface
+- **Features**:
+  - Floating chat bubble in bottom-right corner
+  - Expandable chat panel (40% screen height when active)
+  - Real-time message exchange with AI assistant
+  - Context-aware responses based on current recipe step
+  - Conversation history within session
+  - Loading states and error handling
+- **Integration**: Seamlessly integrated into RecipeSession component
+- **Testing**: Dedicated test screen (`cooking-chat-test.tsx`) for development
+
 #### Development Tools
 - **Package Manager**: npm (frontend), Bun (backend)
 - **Linting**: ESLint with Expo config
@@ -232,7 +256,7 @@ interface CreateRecipeRequest {
 }
 ```
 
-### Cooking Guide Endpoints (New)
+### Cooking Guide & AI Chat Endpoints
 ```typescript
 // POST /api/cooking-sessions
 interface CreateSessionRequest {
@@ -274,6 +298,46 @@ interface OptimizeRequest {
     sharedIngredients?: string[];
     equipment?: string[];
   };
+}
+
+// AI Chat Assistant Endpoints
+// POST /api/cooking-chat
+interface CookingChatRequest {
+  message: string;
+  recipeId?: string;
+  recipeName?: string;
+  recipeDescription?: string;
+  currentStep?: number;
+  totalSteps?: number;
+  currentStepDescription?: string;
+  completedSteps?: number[];
+  conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>;
+}
+
+interface CookingChatResponse {
+  response: string;
+  suggestions?: string[];
+  quickActions?: string[];
+  context?: string;
+}
+
+// POST /api/cooking-chat/suggestions
+interface SuggestionsRequest {
+  currentStepDescription: string;
+}
+
+interface SuggestionsResponse {
+  suggestions: string[];
+}
+
+// POST /api/cooking-chat/substitutions
+interface SubstitutionsRequest {
+  ingredient: string;
+  recipeContext?: string;
+}
+
+interface SubstitutionsResponse {
+  substitutions: string[];
 }
 ```
 
@@ -541,6 +605,41 @@ interface ConversationContext {
 }
 ```
 
+### AI Chat Assistant with Cooking Context
+```typescript
+interface CookingChatService {
+  // Main chat endpoint with full recipe context
+  sendMessage(request: CookingChatRequest): Promise<CookingChatResponse>;
+  
+  // Contextual suggestions for current step
+  getSuggestions(stepDescription: string): Promise<string[]>;
+  
+  // Ingredient substitution recommendations
+  getSubstitutions(ingredient: string, context?: string): Promise<string[]>;
+}
+
+interface CookingContext {
+  // Recipe information for context-aware responses
+  recipeName?: string;
+  recipeDescription?: string;
+  currentStep?: number;
+  totalSteps?: number;
+  currentStepDescription?: string;
+  completedSteps: number[];
+  
+  // Conversation management
+  conversationHistory: Array<{role: 'user' | 'assistant', content: string}>;
+  maxHistoryLength: number; // Default: 10 messages for chat continuity
+}
+
+interface SystemPromptBuilder {
+  // Builds context-aware system prompts for AI
+  buildCookingPrompt(context: CookingContext): string;
+  buildSuggestionsPrompt(stepDescription: string): string;
+  buildSubstitutionsPrompt(ingredient: string, context?: string): string;
+}
+```
+
 ### Tiered AI System
 ```typescript
 interface AIService {
@@ -591,6 +690,7 @@ interface ParallelStep {
 ### Response Time Targets
 - **Recipe Generation**: 10 seconds (with progress animation)
 - **AI Analysis**: 2 seconds (max 10 seconds acceptable)
+- **AI Chat Responses**: 3 seconds (max 8 seconds acceptable)
 - **API Endpoints**: < 500ms for standard operations
 - **Image Upload**: < 5 seconds for high-quality photos
 - **App Launch**: < 3 seconds cold start
@@ -601,6 +701,12 @@ interface ParallelStep {
 - **Progress Feedback**: 10-second animated progress bar during generation
 - **Modification Detection**: Real-time flagging of recipe modifications
 - **Database Integration**: Automatic recipe saving with error handling
+
+### AI Chat Performance
+- **Context Management**: Maintains last 10 messages for conversation continuity
+- **Response Optimization**: 300 token limit with 0.3 temperature for consistent advice
+- **Prompt Engineering**: Dynamic system prompts based on recipe and step context
+- **Quick Actions**: Pre-defined action buttons for common cooking questions
 
 ### Scalability Targets
 - **Concurrent Users**: 10,000+ simultaneous cooking sessions
@@ -631,6 +737,9 @@ interface JWTPayload {
 const rateLimits = {
   'api/generate': { windowMs: 15 * 60 * 1000, max: 50 }, // 50 requests per 15 min
   'api/cooking-sessions/analyze': { windowMs: 60 * 1000, max: 12 }, // 12 per minute
+  'api/cooking-chat': { windowMs: 60 * 1000, max: 20 }, // 20 chat messages per minute
+  'api/cooking-chat/suggestions': { windowMs: 60 * 1000, max: 10 }, // 10 suggestions per minute
+  'api/cooking-chat/substitutions': { windowMs: 60 * 1000, max: 15 }, // 15 substitutions per minute
   'api/community/posts': { windowMs: 15 * 60 * 1000, max: 10 }, // 10 posts per 15 min
 };
 
@@ -639,6 +748,13 @@ const rateLimits = {
 - **Token Limit Enforcement**: Limits conversation context to 4 messages
 - **Input Validation**: Validates recipe prompts and conversation data
 - **Error Handling**: Graceful degradation when AI service is unavailable
+
+### AI Chat Security
+- **Context Validation**: Sanitizes recipe and step context data
+- **Token Limit Enforcement**: Limits chat responses to 300 tokens
+- **Input Validation**: Validates chat messages and conversation history
+- **Rate Limiting**: Prevents abuse with per-endpoint rate limits
+- **Error Handling**: Graceful fallbacks for AI service unavailability
 ```
 
 ### Data Protection
@@ -770,6 +886,8 @@ jobs:
 - **Performance**: 95% of requests under 2 seconds
 - **Error Rate**: < 1% of requests result in errors
 - **AI Accuracy**: > 85% correct stage detection
+- **AI Chat Response Time**: 95% of responses under 3 seconds
+- **AI Chat Accuracy**: > 90% helpful cooking advice
 
 ### Business KPIs
 - **User Engagement**: 60% of users complete cooking sessions

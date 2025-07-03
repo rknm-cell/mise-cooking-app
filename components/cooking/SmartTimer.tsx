@@ -94,8 +94,8 @@ export function SmartTimer({ timer, onTimerComplete, onDismiss }: SmartTimerProp
       </View>
 
       <View style={styles.timerDisplay}>
-        <Text style={styles.timeText}>{formatTime(timeLeft)}</Text>
-        <Text style={styles.description}>{timer.description}</Text>
+        <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+        <Text style={styles.subtitle}>{timer.description}</Text>
       </View>
 
       <View style={styles.progressBar}>
@@ -182,18 +182,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  timeText: {
+  timerText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#fff',
-    fontFamily: 'NanumPenScript-Regular',
+    color: '#fcf45a',
+    textAlign: 'center',
   },
-  description: {
-    fontSize: 14,
+  subtitle: {
+    fontSize: 16,
     color: '#fff',
     opacity: 0.8,
     textAlign: 'center',
-    marginTop: 8,
+    lineHeight: 24,
+    marginBottom: 16,
   },
   progressBar: {
     height: 6,
@@ -236,7 +237,6 @@ const styles = StyleSheet.create({
     color: '#1d7b86',
     fontSize: 14,
     fontWeight: '600',
-    fontFamily: 'NanumPenScript-Regular',
   },
   secondaryText: {
     color: '#fcf45a',
@@ -247,14 +247,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
   },
   timeDisplay: {
     fontSize: 48,
     fontWeight: 'bold',
     color: '#fcf45a',
     textAlign: 'center',
-    fontFamily: 'NanumPenScript-Regular',
   },
   timeLabel: {
     fontSize: 14,
@@ -262,5 +260,18 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     textAlign: 'center',
     marginTop: 4,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  timerLabel: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.8,
+    textAlign: 'center',
+    marginTop: 8,
   },
 }); 

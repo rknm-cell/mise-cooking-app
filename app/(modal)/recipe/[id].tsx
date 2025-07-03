@@ -418,18 +418,17 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#1d7b86',
-    marginBottom: 12,
-    fontFamily: 'NanumPenScript-Regular',
+    color: '#fff',
+    marginBottom: 8,
   },
   description: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
+    opacity: 0.8,
     lineHeight: 24,
-    marginBottom: 20,
-    opacity: 0.9,
+    marginBottom: 16,
   },
   metaInfo: {
     flexDirection: 'row',
@@ -454,7 +453,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1d7b86',
     marginBottom: 12,
-    fontFamily: 'NanumPenScript-Regular',
   },
   ingredientItem: {
     fontSize: 16,

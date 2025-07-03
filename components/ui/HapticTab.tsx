@@ -8,8 +8,17 @@ export function HapticTab({ children, onPress, disabled, ...props }: BottomTabBa
     onPress?.(event);
   };
 
+  // Only pass essential props to avoid type conflicts
+  const touchableProps = {
+    onPress: handlePress,
+    disabled: disabled ?? false,
+    style: props.style,
+    accessibilityLabel: props.accessibilityLabel,
+    accessibilityRole: props.accessibilityRole,
+  };
+
   return (
-    <TouchableOpacity onPress={handlePress} disabled={disabled} {...props}>
+    <TouchableOpacity {...touchableProps}>
       {children}
     </TouchableOpacity>
   );
