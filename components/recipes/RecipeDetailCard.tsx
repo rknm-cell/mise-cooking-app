@@ -5,7 +5,7 @@ import {
     Text,
     View,
 } from 'react-native';
-import { StartCookingButton } from './cooking/StartCookingButton';
+import { StartCookingButton } from '../cooking/StartCookingButton';
 
 interface Recipe {
   id: string;

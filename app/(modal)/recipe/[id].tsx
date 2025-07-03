@@ -14,7 +14,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookmarkButton, StartCookingButton } from '../../../components';
 import { useAuth } from '../../../contexts/AuthContext';
-import { generateShoppingListFromRecipe } from '../../../services/shopping';
 
 interface Recipe {
   id: string;
@@ -43,6 +42,8 @@ export default function RecipeDetailScreen() {
   const [scaleAnim] = useState(new Animated.Value(0));
   const [opacityAnim] = useState(new Animated.Value(0));
   const [generatingList, setGeneratingList] = useState(false);
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
 
   const fetchRecipe = async () => {
     if (!id) {
@@ -95,16 +96,34 @@ export default function RecipeDetailScreen() {
   const handleGenerateShoppingList = async () => {
     if (!recipe) return;
     
+    if (!showCheckboxes) {
+      // First press: show checkboxes with all ingredients pre-selected
+      setShowCheckboxes(true);
+      setSelectedIngredients(new Set(recipe.ingredients.map((_, index) => index)));
+      return;
+    }
+    
+    // Second press: generate shopping list with selected ingredients
     const token = await getToken();
     if (!token) return;
 
     setGeneratingList(true);
     try {
       const listName = `Shopping for ${recipe.name}`;
-      const newList = await generateShoppingListFromRecipe(token, recipe.id, listName);
+      
+      // Create shopping list manually with selected ingredients
+      const { createShoppingList, addShoppingListItem } = await import('../../../services/shopping');
+      const newList = await createShoppingList(token, listName);
+      
+      // Add selected ingredients to the list
+      const selectedIngredientList = Array.from(selectedIngredients).map(index => recipe.ingredients[index]);
+      for (const ingredient of selectedIngredientList) {
+        await addShoppingListItem(token, newList.id, ingredient, '1', undefined, 'Ingredients');
+      }
+      
       Alert.alert(
         'Success!', 
-        `Shopping list "${listName}" created with ${recipe.ingredients.length} items!`,
+        `Shopping list "${listName}" created with ${selectedIngredients.size} items!`,
         [
           { text: 'OK' },
           { 
@@ -113,12 +132,30 @@ export default function RecipeDetailScreen() {
           }
         ]
       );
+      // Reset to initial state
+      setShowCheckboxes(false);
+      setSelectedIngredients(new Set());
     } catch (error) {
       console.error('Error generating shopping list:', error);
       Alert.alert('Error', 'Failed to generate shopping list');
     } finally {
       setGeneratingList(false);
     }
+  };
+
+  const handleIngredientToggle = (index: number) => {
+    const newSelected = new Set(selectedIngredients);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedIngredients(newSelected);
+  };
+
+  const handleCancelSelection = () => {
+    setShowCheckboxes(false);
+    setSelectedIngredients(new Set());
   };
 
   if (loading) {
@@ -195,30 +232,67 @@ export default function RecipeDetailScreen() {
                 <StartCookingButton recipe={recipe} size="large" />
               </View>
             </View>
-
+{/*The ingredients card should have a checkbox next to each ingredient that is conditionally
+rendered when the generate shopping list button is pressed. The checkboxes should be rendered prechecked and 
+ when the button is pressed again, the checked items should be added
+to the shopping list */}
             {/* Ingredients Card */}
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Ingredients</Text>
               {recipe.ingredients.map((ingredient, index) => (
-                <Text key={index} style={styles.ingredientItem}>• {ingredient}</Text>
+                <TouchableOpacity
+                  key={index}
+                  style={styles.ingredientItemContainer}
+                  onPress={() => showCheckboxes && handleIngredientToggle(index)}
+                  disabled={!showCheckboxes}
+                >
+                  {showCheckboxes && (
+                    <View style={styles.checkbox}>
+                      <Ionicons
+                        name={selectedIngredients.has(index) ? "checkbox" : "square-outline"}
+                        size={20}
+                        color={selectedIngredients.has(index) ? "#fcf45a" : "#1d7b86"}
+                      />
+                    </View>
+                  )}
+                  <Text style={[
+                    styles.ingredientItem,
+                    showCheckboxes && styles.ingredientItemWithCheckbox
+                  ]}>
+                    {!showCheckboxes && '• '}{ingredient}
+                  </Text>
+                </TouchableOpacity>
               ))}
               
-              <TouchableOpacity
-                style={styles.generateListButton}
-                onPress={handleGenerateShoppingList}
-                disabled={generatingList}
-              >
-                {generatingList ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <>
-                    <Ionicons name="cart-outline" size={20} color="white" />
-                    <Text style={styles.generateListButtonText}>
-                      Generate Shopping List
-                    </Text>
-                  </>
+              <View style={styles.buttonContainer}>
+                {showCheckboxes && (
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={handleCancelSelection}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
                 )}
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.generateListButton,
+                    showCheckboxes && styles.generateListButtonSelected
+                  ]}
+                  onPress={handleGenerateShoppingList}
+                  disabled={generatingList}
+                >
+                  {generatingList ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <>
+                      <Ionicons name="cart-outline" size={20} color="white" />
+                      <Text style={styles.generateListButtonText}>
+                        {showCheckboxes ? `Add ${selectedIngredients.size} Items` : 'Generate Shopping List'}
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Instructions Card */}
@@ -440,5 +514,39 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1d7b86',
     marginLeft: 8,
+  },
+  ingredientItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  checkbox: {
+    marginRight: 12,
+    padding: 4,
+  },
+  ingredientItemWithCheckbox: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  cancelButton: {
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1d7b86',
+    backgroundColor: 'transparent',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1d7b86',
+  },
+  generateListButtonSelected: {
+    flex: 1,
+    marginLeft: 12,
   },
 });

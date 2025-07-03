@@ -1,5 +1,5 @@
 "server-only";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "./index";
 import * as schema from "./schema";
 
@@ -141,6 +141,28 @@ export async function getShoppingListItems(listId: string): Promise<schema.Shopp
     return items || [];
   } catch (error) {
     console.error(`Error fetching shopping list items: `, error);
+    return [];
+  }
+}
+
+export async function getAllShoppingListItems(userId: string): Promise<schema.ShoppingListItem[]> {
+  try {
+    // First get all shopping lists for the user
+    const lists = await getShoppingLists(userId);
+    const listIds = lists.map(list => list.id);
+    
+    if (listIds.length === 0) {
+      return [];
+    }
+    
+    // Then get all items from all lists
+    const items = await db.select()
+      .from(schema.shoppingListItem)
+      .where(inArray(schema.shoppingListItem.listId, listIds));
+    
+    return items || [];
+  } catch (error) {
+    console.error(`Error fetching all shopping list items: `, error);
     return [];
   }
 }

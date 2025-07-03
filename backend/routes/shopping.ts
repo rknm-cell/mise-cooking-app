@@ -5,11 +5,21 @@ import {
     deleteShoppingList,
     deleteShoppingListItem,
     generateShoppingListFromRecipe,
+    getAllShoppingListItems,
     getShoppingListItems,
     getShoppingLists,
     updateShoppingListItem,
 } from '../db/queries.js';
 import { verifyToken } from '../middleware/auth.js';
+
+// Extend the Request interface to include user
+interface AuthenticatedRequest extends express.Request {
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+  };
+}
 
 const router = express.Router();
 
@@ -17,7 +27,7 @@ const router = express.Router();
 router.use(verifyToken);
 
 // Get all shopping lists for user
-router.get('/lists', async (req, res) => {
+router.get('/lists', async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -33,7 +43,7 @@ router.get('/lists', async (req, res) => {
 });
 
 // Create new shopping list
-router.post('/lists', async (req, res) => {
+router.post('/lists', async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user?.id;
     const { name } = req.body;
@@ -156,7 +166,7 @@ router.delete('/items/:itemId', async (req, res) => {
 });
 
 // Generate shopping list from recipe
-router.post('/generate-from-recipe', async (req, res) => {
+router.post('/generate-from-recipe', async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user?.id;
     const { recipeId, listName } = req.body;
@@ -178,6 +188,22 @@ router.post('/generate-from-recipe', async (req, res) => {
   } catch (error) {
     console.error('Error generating shopping list from recipe:', error);
     res.status(500).json({ error: 'Failed to generate shopping list' });
+  }
+});
+
+// Get all shopping list items for user across all lists
+router.get('/all-items', async (req: AuthenticatedRequest, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const items = await getAllShoppingListItems(userId);
+    res.json({ success: true, items });
+  } catch (error) {
+    console.error('Error fetching all shopping list items:', error);
+    res.status(500).json({ error: 'Failed to fetch shopping list items' });
   }
 });
 
