@@ -6,7 +6,7 @@ import * as schema from "./schema";
 config({ path: '.env' }); // or .env.local
 
 const client = postgres(process.env.DATABASE_URL!, {
-  ssl: 'require',
+  ssl: { rejectUnauthorized: false },
   max: 1,
 });
 

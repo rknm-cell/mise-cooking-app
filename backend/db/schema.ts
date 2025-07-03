@@ -16,7 +16,7 @@ import { z } from "zod/v4";
 // RECIPE TABLES
 // ============================================================================
 
-export const recipe = pgTable("Recipe", {
+export const recipe = pgTable("recipe", {
   id: varchar("id").primaryKey().notNull(),
   name: varchar("name").notNull(),
   description: varchar("description").notNull(),
