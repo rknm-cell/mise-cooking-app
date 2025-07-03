@@ -12,14 +12,23 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeaderWithProfile } from '../navigation/HeaderWithProfile';
 import { CookingChat } from './CookingChat';
+import { Timer } from './Timer';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+interface ActiveTimer {
+  id: string;
+  duration: number;
+  description: string;
+  stage: string;
+}
 
 export function RecipeSession() {
   const params = useLocalSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [sessionActive, setSessionActive] = useState(false);
+  const [activeTimers, setActiveTimers] = useState<ActiveTimer[]>([]);
   const flatListRef = useRef<FlatList>(null);
 
   // Get recipe data from params or use sample recipe as fallback
@@ -59,6 +68,25 @@ export function RecipeSession() {
     setSessionActive(false);
     setCurrentStep(1);
     setCompletedSteps([]);
+    setActiveTimers([]);
+  };
+
+  const handleCreateTimer = (timer: { duration: number; description: string; stage: string }) => {
+    const newTimer: ActiveTimer = {
+      id: Date.now().toString(),
+      duration: timer.duration,
+      description: timer.description,
+      stage: timer.stage,
+    };
+    setActiveTimers(prev => [...prev, newTimer]);
+  };
+
+  const handleTimerComplete = (timerId: string) => {
+    setActiveTimers(prev => prev.filter(timer => timer.id !== timerId));
+  };
+
+  const handleTimerStop = (timerId: string) => {
+    setActiveTimers(prev => prev.filter(timer => timer.id !== timerId));
   };
 
   const handleNavigateToRecipes = () => {
@@ -232,6 +260,23 @@ export function RecipeSession() {
         </View>
       )}
 
+      {/* Active Timers */}
+      {activeTimers.length > 0 && (
+        <View style={styles.timersSection}>
+          <Text style={styles.timersTitle}>Active Timers</Text>
+          {activeTimers.map((timer) => (
+            <Timer
+              key={timer.id}
+              duration={timer.duration}
+              description={timer.description}
+              stage={timer.stage}
+              onComplete={() => handleTimerComplete(timer.id)}
+              onStop={() => handleTimerStop(timer.id)}
+            />
+          ))}
+        </View>
+      )}
+
       {/* Complete Session */}
       {hasInstructions() && completedSteps.length === getTotalSteps() && (
         <View style={styles.completeSection}>
@@ -261,6 +306,7 @@ export function RecipeSession() {
           totalSteps={getTotalSteps()}
           currentStepDescription={getCurrentStepData()}
           completedSteps={completedSteps}
+          onTimerCreate={handleCreateTimer}
         />
       )}
     </SafeAreaView>
@@ -523,5 +569,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 8,
+  },
+  timersSection: {
+    padding: 20,
+    paddingBottom: 10,
+  },
+  timersTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 12,
+    textAlign: 'center',
   },
 }); 

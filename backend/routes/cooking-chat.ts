@@ -1,11 +1,17 @@
 import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
+import { generateObject, generateText } from "ai";
 import express, { Request, Response } from 'express';
 import { z } from "zod";
 
 const router = express.Router();
 
-// Schema for chat request
+// --- Timer Tool Function Schema for AI ---
+const setTimerSchema = z.object({
+  duration: z.number().describe("Duration of the timer in seconds"),
+  description: z.string().describe("What the timer is for"),
+});
+
+// --- Chat Request/Response Schemas ---
 const chatRequestSchema = z.object({
   message: z.string().min(1, "Message is required"),
   recipeId: z.string().optional(),
@@ -21,15 +27,20 @@ const chatRequestSchema = z.object({
   })).optional()
 });
 
-// Schema for chat response
 const chatResponseSchema = z.object({
   response: z.string(),
   suggestions: z.array(z.string()).optional(),
   quickActions: z.array(z.string()).optional(),
-  context: z.string().optional()
+  context: z.string().optional(),
+  timerAction: z.object({
+    action: z.enum(["create", "start", "stop"]),
+    duration: z.number().optional(),
+    description: z.string().optional(),
+    stage: z.string().optional(),
+  }).optional(),
 });
 
-// POST /api/cooking-chat - Main chat endpoint
+// --- Main Chat Endpoint with Tool Calling ---
 router.post('/cooking-chat', async (req: Request, res: Response) => {
   try {
     // Validate request
@@ -46,32 +57,56 @@ router.post('/cooking-chat', async (req: Request, res: Response) => {
       conversationHistory = []
     } = validatedData;
 
-    // Build context-aware system prompt
-    const systemPrompt = buildSystemPrompt({
-      recipeName,
-      recipeDescription,
-      currentStep,
-      totalSteps,
-      currentStepDescription,
-      completedSteps,
-    });
+    // System prompt with tool description
+    const systemPrompt = `You are Mise, an intelligent cooking assistant. If the user asks for a timer, call the setTimer function with the correct duration in seconds and a short description. You can understand time expressions like '5 minutes', 'an hour', 'hour and a half', 'half an hour', '90 minutes', '2 hours', '1.5 hours', etc.`;
 
-    // Build conversation context
+    // Conversation context
     const conversationContext = buildConversationContext(conversationHistory, message);
 
-    // Generate AI response
-    const result = await generateText({
+    // --- AI Tool Calling ---
+    const result = await generateObject({
       model: openai("gpt-4o-mini"),
+      schema: setTimerSchema,
       system: systemPrompt,
       prompt: conversationContext,
-      maxTokens: 300,
-      temperature: 0.3, // Lower temperature for more consistent, factual responses
+      maxTokens: 200,
+      temperature: 0.2,
     });
 
-    // Parse and structure the response
-    const response = await parseAIResponse(result.text);
-
-    res.json(response);
+    if (result.object && result.object.duration && result.object.description) {
+      // AI called the setTimer tool
+      const timerResponse = await createTimer({
+        duration: result.object.duration,
+        description: result.object.description,
+        stage: `Step ${currentStep || 1}`,
+        recipeId,
+        stepNumber: currentStep,
+      });
+      return res.json({
+        response: `I've set a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}). The timer will appear in your cooking session.`,
+        timerAction: {
+          action: "create",
+          duration: result.object.duration,
+          description: result.object.description,
+          stage: `Step ${currentStep || 1}`,
+        },
+      });
+    } else {
+      // Fallback to regular AI response
+      const fallback = await generateText({
+        model: openai("gpt-4o-mini"),
+        system: systemPrompt,
+        prompt: conversationContext,
+        maxTokens: 300,
+        temperature: 0.3,
+      });
+      return res.json({
+        response: fallback.text.trim(),
+        suggestions: [],
+        quickActions: ["What's next?","How long?","Substitute?","Help!","Technique"],
+        context: "cooking_assistance"
+      });
+    }
   } catch (error) {
     console.error('Error in cooking chat:', error);
     res.status(500).json({ 
@@ -153,50 +188,32 @@ router.post('/cooking-chat/substitutions', async (req: Request, res: Response) =
   }
 });
 
-// Helper function to build system prompt
-function buildSystemPrompt(context: {
-  recipeName?: string;
-  recipeDescription?: string;
-  currentStep?: number;
-  totalSteps?: number;
-  currentStepDescription?: string;
-  completedSteps: number[];
+// Helper function to create timer via API
+async function createTimer(timerData: {
+  duration: number;
+  description: string;
+  stage: string;
+  recipeId?: string;
+  stepNumber?: number;
 }) {
-  const {
-    recipeName,
-    recipeDescription,
-    currentStep,
-    totalSteps,
-    currentStepDescription,
-    completedSteps,
-  } = context;
+  try {
+    const response = await fetch(`http://localhost:8080/api/timer/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(timerData),
+    });
 
-  let prompt = `You are Mise, an intelligent cooking assistant helping someone cook a recipe. `;
+    if (!response.ok) {
+      throw new Error('Failed to create timer');
+    }
 
-  if (recipeName) {
-    prompt += `\nRecipe: ${recipeName}`;
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating timer:', error);
+    throw error;
   }
-
-  if (recipeDescription) {
-    prompt += `\nDescription: ${recipeDescription}`;
-  }
-
-  if (currentStep && totalSteps) {
-    prompt += `\nCurrent progress: Step ${currentStep} of ${totalSteps}`;
-  }
-
-  if (currentStepDescription) {
-    prompt += `\nCurrent step: ${currentStepDescription}`;
-  }
-
-  if (completedSteps.length > 0) {
-    prompt += `\nCompleted steps: ${completedSteps.join(', ')}`;
-  }
-
-
-  prompt += `\n\nProvide helpful, concise cooking advice. Keep responses under 150 words. Be encouraging and practical. If the user is having trouble, offer specific solutions. If they're asking about timing, give clear visual or tactile cues.`;
-
-  return prompt;
 }
 
 // Helper function to build conversation context
@@ -212,28 +229,6 @@ function buildConversationContext(history: Array<{role: string, content: string}
     .join('\n');
 
   return `${context}\n\nUser: ${currentMessage}`;
-}
-
-// Helper function to parse AI response
-async function parseAIResponse(text: string) {
-  // Extract quick actions (common patterns)
-  const quickActions = [
-    "What's next?",
-    "How long?",
-    "Substitute?",
-    "Help!",
-    "Technique"
-  ];
-
-  // Simple response parsing
-  const response = {
-    response: text.trim(),
-    suggestions: [],
-    quickActions,
-    context: "cooking_assistance"
-  };
-
-  return response;
 }
 
 export default router; 

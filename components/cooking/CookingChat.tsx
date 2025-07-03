@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -20,6 +20,16 @@ interface Message {
   timestamp: Date;
 }
 
+interface Timer {
+  id: string;
+  duration: number;
+  stage: string;
+  description: string;
+  timeLeft: number;
+  isRunning: boolean;
+  isPaused: boolean;
+}
+
 interface CookingChatProps {
   recipeId?: string;
   recipeName?: string;
@@ -28,6 +38,7 @@ interface CookingChatProps {
   totalSteps?: number;
   currentStepDescription?: string;
   completedSteps?: number[];
+  onTimerCreate?: (timer: { duration: number; description: string; stage: string }) => void;
 }
 
 export function CookingChat({
@@ -38,11 +49,24 @@ export function CookingChat({
   totalSteps,
   currentStepDescription,
   completedSteps = [],
+  onTimerCreate,
 }: CookingChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
+
+  // Auto-scroll to bottom when messages change or chat opens
+  useEffect(() => {
+    if (isExpanded && messages.length > 0) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [messages, isExpanded]);
+
+
 
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
@@ -55,6 +79,7 @@ export function CookingChat({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageText = inputText.trim();
     setInputText('');
     setIsLoading(true);
 
@@ -94,6 +119,15 @@ export function CookingChat({
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Handle timer action if present
+      if (data.timerAction && data.timerAction.action === 'create') {
+        onTimerCreate?.({
+          duration: data.timerAction.duration,
+          description: data.timerAction.description,
+          stage: data.timerAction.stage,
+        });
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       Alert.alert('Error', 'Failed to send message. Please try again.');
@@ -118,37 +152,47 @@ export function CookingChat({
       </Text>
     </View>
   );
-
+// instead of an icon to access the chat, use an input field where a user cant type in the field and when they send the message, the chat opens up, 
+ // the input field should have the style of the chat message input field
+ 
   if (!isExpanded) {
     return (
-      <TouchableOpacity
-        style={styles.chatBubble}
-        onPress={() => setIsExpanded(true)}
-      >
-        <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
-      </TouchableOpacity>
+        <View style={styles.inputContainer}>
+            <TextInput
+                style={styles.textInput}
+                value={inputText}
+                onChangeText={setInputText}
+                placeholder="Ask Mise for cooking help..."
+                placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                onFocus={() => setIsExpanded(true)}
+            />
+            <TouchableOpacity
+                style={styles.sendButton}
+                onPress={() => setIsExpanded(true)}
+            >
+                <Ionicons name="send" size={20} color="#fff" />
+            </TouchableOpacity>
+        </View>
+      
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Cooking Assistant</Text>
-        <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => setIsExpanded(false)}
-        >
-          <Ionicons name="close" size={20} color="#fff" />
+      <TouchableOpacity style={styles.header} onPress={() => setIsExpanded(false)}>
+        <Text style={styles.headerTitle}>Mise Chat</Text>
+        
+         
         </TouchableOpacity>
-      </View>
+      
 
       <FlatList
+        ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
         keyExtractor={item => item.id}
         style={styles.messagesList}
         contentContainerStyle={styles.messagesContent}
-        inverted
       />
 
       {isLoading && (
@@ -170,6 +214,7 @@ export function CookingChat({
           placeholderTextColor="rgba(255, 255, 255, 0.6)"
           multiline
           maxLength={500}
+          onFocus={() => setIsExpanded(true)}
         />
         <TouchableOpacity
           style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
@@ -234,6 +279,8 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   headerTitle: {
+    textAlign: 'center',
+    flex: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
@@ -246,6 +293,8 @@ const styles = StyleSheet.create({
   },
   messagesContent: {
     padding: 16,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
   },
   messageContainer: {
     marginBottom: 12,
