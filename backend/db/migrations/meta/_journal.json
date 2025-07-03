@@ -15,6 +15,13 @@
       "when": 1751388826283,
       "tag": "0001_massive_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751389000000,
+      "tag": "0002_rename_recipe_table",
+      "breakpoints": true
     }
   ]
 }
