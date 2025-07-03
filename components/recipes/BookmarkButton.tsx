@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
-import { addBookmark, removeBookmark } from '../services/bookmarks';
+import { useAuth } from '../../contexts/AuthContext';
+import { addBookmark, removeBookmark } from '../../services/bookmarks';
 
 interface BookmarkButtonProps {
   recipeId: string;
