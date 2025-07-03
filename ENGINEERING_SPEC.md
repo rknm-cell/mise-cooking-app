@@ -34,6 +34,14 @@ This document outlines the technical implementation details for the Mise Cooking
 - **Icons**: Expo Vector Icons (Ionicons)
 - **Language**: TypeScript 5.8.3
 
+### Recipe Generation Frontend
+- **UI Framework**: React Native with custom styling
+- **Animation**: Animated API for progress bars and transitions
+- **State Management**: Local state with conversation history
+- **User Experience**: Real-time feedback with progress indicators
+- **Responsive Design**: Adaptive layout for different screen sizes
+- **Theme Integration**: Consistent with app color scheme (#fcf45a yellow accent)
+
 #### Backend
 - **Runtime**: Bun (JavaScript runtime)
 - **Framework**: Express.js 4.18.2
@@ -45,6 +53,13 @@ This document outlines the technical implementation details for the Mise Cooking
 - **Real-time Processing**: WebSocket for live camera feed
 - **Security**: Helmet, CORS, Rate limiting
 - **Deployment**: Railway
+
+### Recipe Generation Backend
+- **AI Service**: OpenAI GPT-4o-mini with structured output via Zod schemas
+- **Conversation Management**: Context-aware prompt building with history
+- **Database Integration**: Automatic recipe saving with error handling
+- **API Endpoint**: `/api/generate` with conversation history support
+- **Error Handling**: Graceful fallbacks and user-friendly error messages
 
 #### Development Tools
 - **Package Manager**: npm (frontend), Bun (backend)
@@ -178,10 +193,24 @@ interface SignoutRequest {
 
 ### Recipe Management Endpoints
 ```typescript
-// POST /api/generate
+// POST /api/generate - Enhanced with conversation context
 interface GenerateRequest {
   prompt: string;
   conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>;
+}
+
+interface GenerateResponse {
+  id: string;
+  name: string;
+  description: string;
+  totalTime: string;
+  servings: number;
+  ingredients: string[];
+  instructions: string[];
+  storage: string;
+  nutrition: string[];
+  conversationContext?: string; // Tracks modification context
+  isModification?: boolean; // Flags if this is a recipe modification
 }
 
 // GET /api/recipes
@@ -317,6 +346,17 @@ components/
 └── ThemedView.tsx                 # Theme-aware view
 ```
 
+### Recipe Generation Components
+```
+app/(tabs)/generate.tsx            # Main recipe generation screen
+├── Conversation Management        # Maintains chat history
+├── Progress Animation             # Animated progress bar during generation
+├── Modification Detection         # Flags and displays recipe modifications
+├── Context Display                # Shows conversation context
+├── Recipe Rendering               # Displays generated recipes with styling
+└── Clear Conversation             # Reset conversation history
+```
+
 ### State Management
 ```typescript
 // Context Providers
@@ -324,7 +364,8 @@ contexts/
 ├── AuthContext.tsx                # User authentication
 ├── CookingSessionContext.tsx      # Active cooking session
 ├── CameraContext.tsx              # Camera state
-└── CommunityContext.tsx           # Social features
+├── CommunityContext.tsx           # Social features
+└── RecipeGenerationContext.tsx    # Recipe generation state (future)
 
 // Custom Hooks
 hooks/
@@ -333,7 +374,30 @@ hooks/
 ├── useThemeColor.ts               # Color theming
 ├── useCookingSession.ts           # Cooking session management
 ├── useCamera.ts                   # Camera functionality
-└── useAI.ts                       # AI integration
+├── useAI.ts                       # AI integration
+└── useRecipeGeneration.ts         # Recipe generation with conversation (future)
+```
+
+### Recipe Generation State
+```typescript
+interface RecipeGenerationState {
+  // Current generation state
+  generation: RecipeSchema | undefined;
+  isLoading: boolean;
+  input: string;
+  
+  // Conversation management
+  conversationHistory: Array<{role: 'user' | 'assistant', content: string}>;
+  
+  // UI state
+  progressAnim: Animated.Value; // Progress bar animation
+  modificationBadge: boolean;   // Shows modification indicator
+  
+  // Actions
+  handleSubmit: () => Promise<void>;
+  clearConversation: () => void;
+  updateInput: (text: string) => void;
+}
 ```
 
 ### Navigation Structure
@@ -448,6 +512,35 @@ interface CameraTestProps {
 
 ## AI Integration Architecture
 
+### Recipe Generation with Conversation Context
+```typescript
+interface RecipeGenerationService {
+  generateRecipe(
+    prompt: string, 
+    conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>
+  ): Promise<{
+    id: string;
+    name: string;
+    description: string;
+    totalTime: string;
+    servings: number;
+    ingredients: string[];
+    instructions: string[];
+    storage: string;
+    nutrition: string[];
+    conversationContext?: string;
+    isModification?: boolean;
+  }>;
+}
+
+interface ConversationContext {
+  // Maintains conversation history for context-aware recipe generation
+  messages: Array<{role: 'user' | 'assistant', content: string}>;
+  maxHistoryLength: number; // Default: 4 messages to avoid token limits
+  modificationDetection: boolean; // Flags recipe modifications
+}
+```
+
 ### Tiered AI System
 ```typescript
 interface AIService {
@@ -496,11 +589,18 @@ interface ParallelStep {
 ## Performance Requirements
 
 ### Response Time Targets
+- **Recipe Generation**: 10 seconds (with progress animation)
 - **AI Analysis**: 2 seconds (max 10 seconds acceptable)
 - **API Endpoints**: < 500ms for standard operations
 - **Image Upload**: < 5 seconds for high-quality photos
 - **App Launch**: < 3 seconds cold start
 - **Navigation**: < 200ms between screens
+
+### Recipe Generation Performance
+- **Conversation Context**: Maintains last 4 messages to avoid token limits
+- **Progress Feedback**: 10-second animated progress bar during generation
+- **Modification Detection**: Real-time flagging of recipe modifications
+- **Database Integration**: Automatic recipe saving with error handling
 
 ### Scalability Targets
 - **Concurrent Users**: 10,000+ simultaneous cooking sessions
@@ -533,6 +633,12 @@ const rateLimits = {
   'api/cooking-sessions/analyze': { windowMs: 60 * 1000, max: 12 }, // 12 per minute
   'api/community/posts': { windowMs: 15 * 60 * 1000, max: 10 }, // 10 posts per 15 min
 };
+
+### Recipe Generation Security
+- **Conversation Validation**: Sanitizes conversation history to prevent injection
+- **Token Limit Enforcement**: Limits conversation context to 4 messages
+- **Input Validation**: Validates recipe prompts and conversation data
+- **Error Handling**: Graceful degradation when AI service is unavailable
 ```
 
 ### Data Protection
