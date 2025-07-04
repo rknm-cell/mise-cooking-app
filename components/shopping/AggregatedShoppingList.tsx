@@ -23,22 +23,20 @@ interface AggregatedShoppingListProps {
 }
 
 export default function AggregatedShoppingList({ onRefresh }: AggregatedShoppingListProps) {
-  const { getToken } = useAuth();
+  const { user } = useAuth();
   const [aggregatedItems, setAggregatedItems] = useState<AggregatedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchAllItems = async () => {
-    const token = await getToken();
-    if (!token) return;
+    if (!user?.id) return;
     
     try {
-      const allItems = await getAllShoppingListItems(token);
+      const allItems = await getAllShoppingListItems(user.id);
       const aggregated = aggregateShoppingItems(allItems);
       setAggregatedItems(aggregated);
     } catch (error) {
       console.error('Error fetching all shopping items:', error);
-      Alert.alert('Error', 'Failed to load shopping items');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -50,13 +48,12 @@ export default function AggregatedShoppingList({ onRefresh }: AggregatedShopping
   }, []);
 
   const handleToggleItem = async (item: AggregatedItem) => {
-    const token = await getToken();
-    if (!token) return;
+    if (!user?.id) return;
 
     try {
       // Update all items with the same name and unit
       const updatePromises = item.itemIds.map(itemId =>
-        updateShoppingListItem(token, itemId, { isCompleted: !item.isCompleted })
+        updateShoppingListItem(itemId, { isCompleted: !item.isCompleted })
       );
       
       await Promise.all(updatePromises);

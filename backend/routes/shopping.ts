@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import {
     addShoppingListItem,
     createShoppingList,
@@ -10,7 +10,6 @@ import {
     getShoppingLists,
     updateShoppingListItem,
 } from '../db/queries.js';
-import { verifyToken } from '../middleware/auth.js';
 
 // Extend the Request interface to include user
 interface AuthenticatedRequest extends express.Request {
@@ -23,33 +22,33 @@ interface AuthenticatedRequest extends express.Request {
 
 const router = express.Router();
 
-// Apply auth middleware to all routes
-router.use(verifyToken);
+// No auth middleware - like bookmarks
+// router.use(verifyToken);
 
-// Get all shopping lists for user
-router.get('/lists', async (req: AuthenticatedRequest, res) => {
+// Get all shopping lists for user - like bookmarks
+router.get('/lists/:userId', async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+    const { userId } = req.params;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
     }
 
     const lists = await getShoppingLists(userId);
-    res.json({ success: true, lists });
+    res.json(lists || []);
   } catch (error) {
     console.error('Error fetching shopping lists:', error);
     res.status(500).json({ error: 'Failed to fetch shopping lists' });
   }
 });
 
-// Create new shopping list
-router.post('/lists', async (req: AuthenticatedRequest, res) => {
+// Create new shopping list - like bookmarks
+router.post('/lists', async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    const { name } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+    const { userId, name } = req.body;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
     }
 
     if (!name || typeof name !== 'string') {
@@ -165,14 +164,13 @@ router.delete('/items/:itemId', async (req, res) => {
   }
 });
 
-// Generate shopping list from recipe
-router.post('/generate-from-recipe', async (req: AuthenticatedRequest, res) => {
+// Generate shopping list from recipe - like bookmarks
+router.post('/generate-from-recipe', async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    const { recipeId, listName } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+    const { userId, recipeId, listName } = req.body;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
     }
 
     if (!recipeId || typeof recipeId !== 'string') {
@@ -191,16 +189,17 @@ router.post('/generate-from-recipe', async (req: AuthenticatedRequest, res) => {
   }
 });
 
-// Get all shopping list items for user across all lists
-router.get('/all-items', async (req: AuthenticatedRequest, res) => {
+// Get all shopping list items for user across all lists - like bookmarks
+router.get('/all-items/:userId', async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
+    const { userId } = req.params;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
     }
 
     const items = await getAllShoppingListItems(userId);
-    res.json({ success: true, items });
+    res.json(items || []);
   } catch (error) {
     console.error('Error fetching all shopping list items:', error);
     res.status(500).json({ error: 'Failed to fetch shopping list items' });

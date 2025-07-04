@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { config } from 'dotenv';
 import { eq } from 'drizzle-orm';
@@ -9,7 +10,6 @@ import { db } from './db/index.js';
 import { getBookmarks, removeBookmark, saveBookmark } from './db/queries.js';
 import * as schema from './db/schema.js';
 import { auth } from './lib/auth.js';
-import { signIn, signUp } from './models/users.js';
 import cookingChatRoutes from './routes/cooking-chat.js';
 import shoppingRoutes from './routes/shopping.js';
 import timerRoutes from './routes/timer.js';
@@ -23,17 +23,36 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(helmet());
-app.use(cors({
-  origin: [
-    'http://localhost:8082', 
-    'http://localhost:8080',
-    'http://192.168.1.165:8081', 
-    'http://192.168.1.165:8080',
-    'exp://192.168.1.165:8081'
-  ],
+// CORS configuration
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:8082', 
+      'http://localhost:8080',
+      'http://192.168.1.165:8081', 
+      'http://192.168.1.165:8080',
+      'exp://192.168.1.165:8081',
+      // Production origins
+      'https://mise-cooking-app-production.up.railway.app',
+      'https://expo.dev',
+      'https://expo.io'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(morgan('combined'));
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -245,12 +264,27 @@ app.get('/api/health', (req: Request, res: Response) => {
     status: 'OK', 
     message: 'Mise Cooking API is running',
     database: process.env.DATABASE_URL ? 'Configured' : 'Not configured',
+    environment: process.env.NODE_ENV || 'development',
+    cors: 'Configured',
     timestamp: new Date().toISOString()
   });
 });
 
+// Simple test endpoint (no database required)
+app.get('/api/test', (req: Request, res: Response) => {
+  res.json({ 
+    message: 'API is working!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
-// Auth endpoints - Updated to use Better Auth session management
+
+
+
+
+
+// Custom authentication endpoints with session management
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -259,20 +293,34 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Name, email, and password are required' });
     }
 
-    const result = await signUp(name, email, password);
+    // Use better-auth to create user
+    const result = await auth.api.signUpEmail({
+      body: { name, email, password },
+    });
+
+    // Create a simple session token
+    const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    if (result.success && result.user) {
-      // Better Auth handles session automatically through cookies
-      res.status(201).json({ 
-        message: result.message,
-        user: result.user
-      });
-    } else {
-      res.status(400).json({ error: result.message });
-    }
+    // Set session cookie
+    res.cookie('session_token', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(201).json({ 
+      message: "Signed up successfully",
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+      }
+    });
   } catch (error) {
     console.error('Error in signup:', error);
-    res.status(500).json({ error: 'Failed to create account' });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create account';
+    res.status(400).json({ error: errorMessage });
   }
 });
 
@@ -284,20 +332,34 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const result = await signIn(email, password);
+    // Use better-auth to sign in
+    const result = await auth.api.signInEmail({
+      body: { email, password },
+    });
+
+    // Create a simple session token
+    const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    if (result.success && result.user) {
-      // Better Auth handles session automatically through cookies
-      res.json({ 
-        message: result.message,
-        user: result.user
-      });
-    } else {
-      res.status(401).json({ error: result.message });
-    }
+    // Set session cookie
+    res.cookie('session_token', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.json({ 
+      message: "Signed in successfully",
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+      }
+    });
   } catch (error) {
     console.error('Error in login:', error);
-    res.status(500).json({ error: 'Failed to authenticate' });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to authenticate';
+    res.status(401).json({ error: errorMessage });
   }
 });
 
