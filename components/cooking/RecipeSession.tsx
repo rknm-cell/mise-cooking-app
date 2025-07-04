@@ -10,9 +10,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ttsService } from '../../services/text-to-speech';
 import { HeaderWithProfile } from '../navigation/HeaderWithProfile';
 import { CookingChat } from './CookingChat';
 import { Timer } from './Timer';
+import { TTSControls } from './TTSControls';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -41,15 +43,31 @@ export function RecipeSession() {
     instructions: params.recipeInstructions ? JSON.parse(params.recipeInstructions as string) : []
   } : null;
 
-  const handleStartSession = () => {
+  const handleStartSession = async () => {
     setSessionActive(true);
     setCurrentStep(1);
     setCompletedSteps([]);
+    
+    // Speak session start announcement
+    if (recipe) {
+      try {
+        await ttsService.speakSessionStart(recipe.name);
+      } catch (error) {
+        console.error('Error speaking session start:', error);
+      }
+    }
   };
 
-  const handleCompleteStep = (stepNumber: number) => {
+  const handleCompleteStep = async (stepNumber: number) => {
     if (!completedSteps.includes(stepNumber)) {
       setCompletedSteps(prev => [...prev, stepNumber]);
+      
+      // Speak step completion
+      try {
+        await ttsService.speakStepComplete(stepNumber);
+      } catch (error) {
+        console.error('Error speaking step completion:', error);
+      }
       
       // Auto-advance to next step
       const nextStep = stepNumber + 1;
@@ -64,7 +82,14 @@ export function RecipeSession() {
     }
   };
 
-  const handleCompleteSession = () => {
+  const handleCompleteSession = async () => {
+    // Speak session completion
+    try {
+      await ttsService.speakSessionComplete();
+    } catch (error) {
+      console.error('Error speaking session completion:', error);
+    }
+    
     setSessionActive(false);
     setCurrentStep(1);
     setCompletedSteps([]);
@@ -81,7 +106,17 @@ export function RecipeSession() {
     setActiveTimers(prev => [...prev, newTimer]);
   };
 
-  const handleTimerComplete = (timerId: string) => {
+  const handleTimerComplete = async (timerId: string) => {
+    // Find the timer to get its description
+    const timer = activeTimers.find(t => t.id === timerId);
+    if (timer) {
+      try {
+        await ttsService.speakTimerNotification(timer.description);
+      } catch (error) {
+        console.error('Error speaking timer notification:', error);
+      }
+    }
+    
     setActiveTimers(prev => prev.filter(timer => timer.id !== timerId));
   };
 
@@ -238,6 +273,15 @@ export function RecipeSession() {
         </View>
       )}
 
+      {/* TTS Controls */}
+      {hasInstructions() && sessionActive && (
+        <TTSControls
+          currentStep={currentStep}
+          stepDescription={getCurrentStepData()}
+          totalSteps={getTotalSteps()}
+        />
+      )}
+
       {/* Horizontal Steps FlatList */}
       {hasInstructions() && (
         <View style={styles.stepsContainer}>
@@ -246,11 +290,7 @@ export function RecipeSession() {
             data={recipe.instructions}
             renderItem={renderStep}
             keyExtractor={(_, index) => index.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            snapToInterval={screenWidth - 40}
-            decelerationRate="fast"
+            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.flatListContent}
             onMomentumScrollEnd={(event) => {
               const index = Math.round(event.nativeEvent.contentOffset.x / (screenWidth - 40));
