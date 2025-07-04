@@ -434,9 +434,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Mise Cooking API server running on port ${PORT}`);
-  console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📱 Health check: http://0.0.0.0:${PORT}/api/health`);
   console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Supabase configured' : 'No database configured'}`);
 });
 
