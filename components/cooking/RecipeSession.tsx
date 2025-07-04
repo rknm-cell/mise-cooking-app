@@ -1,9 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Dimensions,
-  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,7 +14,7 @@ import { CookingChat } from './CookingChat';
 import { Timer } from './Timer';
 import { TTSControls } from './TTSControls';
 
-const { width: screenWidth } = Dimensions.get('window');
+
 
 interface ActiveTimer {
   id: string;
@@ -31,7 +29,6 @@ export function RecipeSession() {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [sessionActive, setSessionActive] = useState(false);
   const [activeTimers, setActiveTimers] = useState<ActiveTimer[]>([]);
-  const flatListRef = useRef<FlatList>(null);
 
   // Get recipe data from params or use sample recipe as fallback
   const recipe = params.recipeId ? {
@@ -73,11 +70,6 @@ export function RecipeSession() {
       const nextStep = stepNumber + 1;
       if (nextStep <= getTotalSteps()) {
         setCurrentStep(nextStep);
-        // Scroll to next step
-        flatListRef.current?.scrollToIndex({
-          index: nextStep - 1,
-          animated: true,
-        });
       }
     }
   };
@@ -151,7 +143,7 @@ export function RecipeSession() {
   if (!recipe) {
     return (
       <SafeAreaView style={styles.container}>
-        <HeaderWithProfile title="Recipe Session" subtitle="Choose a recipe" />
+        <HeaderWithProfile title="Recipe Session" />
         
         <View style={styles.noRecipeSection}>
           <View style={styles.noRecipeCard}>
@@ -170,63 +162,49 @@ export function RecipeSession() {
     );
   }
 
-  const renderStep = ({ item, index }: { item: string; index: number }) => {
-    const stepNumber = index + 1;
-    const isCompleted = completedSteps.includes(stepNumber);
-    const isCurrent = stepNumber === currentStep;
+  const renderCurrentStep = () => {
+    if (!recipe || !hasInstructions()) return null;
+    
+    const currentStepData = recipe.instructions[currentStep - 1];
+    const canGoBack = currentStep > 1;
+    const canGoForward = currentStep < getTotalSteps();
     
     return (
-      <View style={styles.stepContainer}>
-        <View style={[
-          styles.stepCard,
-          isCurrent && styles.currentStepCard,
-          isCompleted && styles.completedStepCard
-        ]}>
-          <View style={styles.stepHeader}>
-            {isCompleted ? (
-              <Ionicons name="checkmark-circle" size={32} color="#27ae60" />
-            ) : (
-              <View style={styles.stepNumberContainer}>
-                <Text style={[
-                  styles.stepNumber,
-                  isCurrent && styles.currentStepNumber
-                ]}>
-                  {stepNumber}
-                </Text>
+      <View style={styles.currentStepContainer}>
+        <View style={styles.currentStepCard}>
+          {/* Back Navigation Overlay */}
+          <TouchableOpacity 
+            style={[styles.navOverlay, styles.navOverlayLeft]}
+            onPress={() => canGoBack && setCurrentStep(currentStep - 1)}
+            disabled={!canGoBack}
+          >
+            {canGoBack && (
+              <View style={styles.navButton}>
+                <Ionicons name="chevron-back" size={24} color="#fcf45a" />
               </View>
             )}
+          </TouchableOpacity>
+          
+          {/* Step Content */}
+          <View style={styles.stepContent}>
+            <Text style={styles.stepNumber}>Step {currentStep}</Text>
+            <Text style={styles.stepDescription}>
+              {currentStepData}
+            </Text>
           </View>
           
-          <Text style={[
-            styles.stepTitle,
-            isCurrent && styles.currentStepTitle,
-            isCompleted && styles.completedStepTitle
-          ]}>
-            Step {stepNumber}
-          </Text>
-          
-          <Text style={[
-            styles.stepDescription,
-            isCurrent && styles.currentStepDescription
-          ]}>
-            {item}
-          </Text>
-          
-          {isCurrent && !isCompleted && (
-            <TouchableOpacity 
-              style={styles.completeButton}
-              onPress={() => handleCompleteStep(stepNumber)}
-            >
-              <Ionicons name="checkmark" size={16} color="#fff" />
-              <Text style={styles.completeButtonText}>Complete Step</Text>
-            </TouchableOpacity>
-          )}
-          
-          {isCompleted && (
-            <View style={styles.completedIndicator}>
-              <Text style={styles.completedText}>Completed</Text>
-            </View>
-          )}
+          {/* Forward Navigation Overlay */}
+          <TouchableOpacity 
+            style={[styles.navOverlay, styles.navOverlayRight]}
+            onPress={() => canGoForward && setCurrentStep(currentStep + 1)}
+            disabled={!canGoForward}
+          >
+            {canGoForward && (
+              <View style={styles.navButton}>
+                <Ionicons name="chevron-forward" size={24} color="#fcf45a" />
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -261,17 +239,7 @@ export function RecipeSession() {
     <SafeAreaView style={styles.container}>
       <HeaderWithProfile title="Cooking Session" subtitle={recipe.name} />
 
-      {/* Progress */}
-      {hasInstructions() && (
-        <View style={styles.progressSection}>
-          <Text style={styles.progressText}>
-            Step {currentStep} of {getTotalSteps()} ({getProgress()}%)
-          </Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${getProgress()}%` }]} />
-          </View>
-        </View>
-      )}
+
 
       {/* TTS Controls */}
       {hasInstructions() && sessionActive && (
@@ -282,23 +250,8 @@ export function RecipeSession() {
         />
       )}
 
-      {/* Horizontal Steps FlatList */}
-      {hasInstructions() && (
-        <View style={styles.stepsContainer}>
-          <FlatList
-            ref={flatListRef}
-            data={recipe.instructions}
-            renderItem={renderStep}
-            keyExtractor={(_, index) => index.toString()}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.flatListContent}
-            onMomentumScrollEnd={(event) => {
-              const index = Math.round(event.nativeEvent.contentOffset.x / (screenWidth - 40));
-              setCurrentStep(index + 1);
-            }}
-          />
-        </View>
-      )}
+      {/* Current Step Display */}
+      {hasInstructions() && renderCurrentStep()}
 
       {/* Active Timers */}
       {activeTimers.length > 0 && (
@@ -409,41 +362,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-  progressSection: {
-    padding: 20,
-  },
-  progressText: {
-    fontSize: 16,
-    color: '#fff',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#fcf45a',
-    borderRadius: 4,
-  },
-  stepsContainer: {
+
+  currentStepContainer: {
     flex: 1,
+    padding: 20,
     marginTop: 20,
   },
-  flatListContent: {
-    paddingHorizontal: 20,
-  },
-  stepContainer: {
-    width: screenWidth - 40,
-    paddingHorizontal: 10,
-  },
-  stepCard: {
+  currentStepCard: {
     backgroundColor: '#2d8d8b',
     borderRadius: 16,
-    padding: 16,
-    height: '60%',
+    padding: 24,
+    flex: 1,
+    position: 'relative',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -453,46 +383,46 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
-  currentStepCard: {
-    borderWidth: 3,
-    borderColor: '#fcf45a',
-  },
-  completedStepCard: {
-    backgroundColor: 'rgba(39, 174, 96, 0.2)',
-  },
-  stepHeader: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  stepNumberContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  stepContent: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  navOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  navOverlayLeft: {
+    left: 0,
+  },
+  navOverlayRight: {
+    right: 0,
+  },
+  navButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(252, 244, 90, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#fcf45a',
+  },
   stepNumber: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
-  },
-  currentStepNumber: {
     color: '#fcf45a',
-  },
-  stepTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
+    marginBottom: 16,
     textAlign: 'center',
   },
-  currentStepTitle: {
-    color: '#fcf45a',
-  },
-  completedStepTitle: {
-    color: '#27ae60',
-  },
+
+
+
   stepDescription: {
     fontSize: 18,
     color: '#fff',
@@ -501,9 +431,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
     flex: 1,
-  },
-  currentStepDescription: {
-    opacity: 1,
   },
   completeButton: {
     backgroundColor: '#27ae60',
@@ -520,19 +447,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,
-  },
-  completedIndicator: {
-    backgroundColor: '#27ae60',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 'auto',
-  },
-  completedText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
   },
   completeSection: {
     padding: 20,

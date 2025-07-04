@@ -1,17 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { API_CONFIG } from '../../constants/Config';
 
 interface Message {
   id: string;
@@ -84,7 +85,7 @@ export function CookingChat({
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/cooking-chat', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/cooking-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,12 +167,7 @@ export function CookingChat({
                 placeholderTextColor="rgba(255, 255, 255, 0.6)"
                 onFocus={() => setIsExpanded(true)}
             />
-            <TouchableOpacity
-                style={styles.sendButton}
-                onPress={() => setIsExpanded(true)}
-            >
-                <Ionicons name="send" size={20} color="#fff" />
-            </TouchableOpacity>
+            
         </View>
       
     );

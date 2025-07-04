@@ -120,7 +120,7 @@ router.post('/cooking-chat', async (req: Request, res: Response) => {
 
 5. TIMING SUGGESTIONS: If the user asks about timing or scheduling, call the getTimingSuggestions function. This includes step timing, overall timing, parallel cooking, resting times, etc.
 
-For voice commands, respond with "Yes, chef" before executing the action. Be concise but helpful.`;
+For voice commands, respond with a brief acknowledgment before executing the action. Be concise but helpful.`;
 
     // Conversation context
     const conversationContext = buildConversationContext(conversationHistory, message);
@@ -153,7 +153,7 @@ For voice commands, respond with "Yes, chef" before executing the action. Be con
         });
 
         const response = isVoiceCommand 
-          ? `Yes, chef. I've started a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}).`
+          ? `I've started a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}).`
           : `I've started a timer for ${result.object.description} (${Math.floor(result.object.duration / 60)}:${(result.object.duration % 60).toString().padStart(2, '0')}). The timer is now running in your cooking session.`;
 
         return res.json({
@@ -184,7 +184,7 @@ For voice commands, respond with "Yes, chef" before executing the action. Be con
 
       if (result.object) {
         const response = isVoiceCommand 
-          ? `Yes, chef. ${result.object.reason}`
+          ? `${result.object.reason}`
           : result.object.reason;
 
         return res.json({
@@ -214,7 +214,7 @@ For voice commands, respond with "Yes, chef" before executing the action. Be con
 
       if (result.object) {
         const response = isVoiceCommand 
-          ? `Yes, chef. ${result.object.reason}`
+          ? `${result.object.reason}`
           : result.object.reason;
 
         return res.json({
@@ -253,7 +253,7 @@ For voice commands, respond with "Yes, chef" before executing the action. Be con
         );
 
         const response = isVoiceCommand 
-          ? `Yes, chef. Here's what you need to prepare: ${prepSuggestions.join(', ')}`
+          ? `Here's what you need to prepare: ${prepSuggestions.join(', ')}`
           : `Here's what you need to prepare: ${prepSuggestions.join(', ')}`;
 
         return res.json({
@@ -291,7 +291,7 @@ For voice commands, respond with "Yes, chef" before executing the action. Be con
         );
 
         const response = isVoiceCommand 
-          ? `Yes, chef. Here's the timing: ${timingSuggestions.join(', ')}`
+          ? `Here's the timing: ${timingSuggestions.join(', ')}`
           : `Here's the timing guidance: ${timingSuggestions.join(', ')}`;
 
         return res.json({
@@ -315,7 +315,7 @@ For voice commands, respond with "Yes, chef" before executing the action. Be con
     });
 
     const response = isVoiceCommand 
-      ? `Yes, chef. ${fallback.text.trim()}`
+      ? `${fallback.text.trim()}`
       : fallback.text.trim();
 
     return res.json({

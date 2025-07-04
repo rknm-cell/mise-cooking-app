@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useReducer } from 'react';
+import { API_CONFIG } from '../constants/Config';
 
 // Simplified types without AI integration
 export interface CookingSession {
@@ -155,9 +156,7 @@ export function CookingSessionProvider({ children }: CookingSessionProviderProps
   const [state, dispatch] = useReducer(cookingSessionReducer, initialState);
 
   // API base URL
-  const API_BASE = __DEV__ 
-    ? 'http://localhost:8080' 
-    : 'https://mise-cooking-app-production.up.railway.app';
+  const API_BASE = API_CONFIG.BASE_URL;
 
   const startSession = async (recipeId: string) => {
     try {

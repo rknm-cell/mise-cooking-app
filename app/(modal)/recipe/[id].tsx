@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookmarkButton, StartCookingButton } from '../../../components';
+import { API_CONFIG } from '../../../constants/Config';
 import { useAuth } from '../../../contexts/AuthContext';
 
 interface Recipe {
@@ -28,10 +29,8 @@ interface Recipe {
   createdAt: string;
 }
 
-// Flexible API configuration
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080'  // Local development
-  : 'https://mise-cooking-app-production.up.railway.app'; // Production
+// Use centralized API configuration
+const API_BASE = API_CONFIG.BASE_URL;
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

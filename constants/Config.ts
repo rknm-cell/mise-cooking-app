@@ -1,9 +1,24 @@
+import { Platform } from 'react-native';
+
 // API Configuration
+
+// Utility function to get the correct IP address for development
+const getDevelopmentBaseUrl = (): string => {
+  // For Android simulators, we need to use the actual IP address instead of localhost
+  // This is because Android simulators run in a different network namespace
+  if (__DEV__) {
+    // Try to get the local IP address from environment or use a fallback
+    // For now, we'll use a common development IP that should work
+    return 'http://192.168.1.165:8080'; // Update this to your actual IP
+  }
+  return 'http://localhost:8080';
+};
+
 export const API_CONFIG = {
   // Development environment uses localhost
   // Production environment uses Railway deployment
   BASE_URL: __DEV__ 
-    ? 'http://localhost:8080'  // Local development
+    ? getDevelopmentBaseUrl()  // Local development with correct IP
     : 'https://mise-cooking-app-production.up.railway.app', // Production
   
   // API Key will be fetched from backend
@@ -19,6 +34,21 @@ export const API_CONFIG = {
     SIGNUP: '/api/auth/signup',
     LOGIN: '/api/auth/login',
   }
+};
+
+// Font Configuration
+export const FONT_CONFIG = {
+  // Primary font for titles and headings
+  PRIMARY: 'NanumPenScript-Regular',
+  // Fallback fonts for better compatibility
+  FALLBACK: Platform.OS === 'ios' ? 'System' : 'sans-serif',
+  // Combined font family for better cross-platform support
+  PRIMARY_WITH_FALLBACK: 'NanumPenScript-Regular, System, sans-serif',
+};
+
+// Feature flags
+export const FEATURE_FLAGS = {
+  TTS_ENABLED: false, // Disable TTS for deployment
 };
 
 // Export API_BASE_URL for backward compatibility

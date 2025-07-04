@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { API_BASE_URL } from '../constants/Config';
 
@@ -15,7 +14,6 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
-  getToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,30 +32,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuthStatus = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (token) {
-        // Verify token with backend
-        try {
-          const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            // Token is invalid, remove it
-            await AsyncStorage.removeItem('authToken');
-            setUser(null);
-          }
-        } catch (networkError) {
-          console.error('Network error checking auth status:', networkError);
-          // If there's a network error, we'll keep the token but set user to null
-          // This allows the app to work offline
-          setUser(null);
-        }
+      // Check session with backend using cookies
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        credentials: 'include', // Include cookies
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
       } else {
         setUser(null);
       }
@@ -71,64 +53,75 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', // Include cookies
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const data = await response.json();
       
-      if (response.ok && data.token) {
-        await AsyncStorage.setItem('authToken', data.token);
+      if (response.ok && data.user) {
         setUser(data.user);
         return true;
       }
       return false;
     } catch (error) {
       console.error('Login error:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Login request timed out');
+      }
       return false;
     }
   };
 
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
+        credentials: 'include', // Include cookies
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       const data = await response.json();
       
-      if (response.ok && data.token) {
-        await AsyncStorage.setItem('authToken', data.token);
+      if (response.ok && data.user) {
         setUser(data.user);
         return true;
       }
       return false;
     } catch (error) {
       console.error('Signup error:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Signup request timed out');
+      }
       return false;
     }
   };
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem('authToken');
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include', // Include cookies
+      });
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
-    }
-  };
-
-  const getToken = async (): Promise<string | null> => {
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-      return token;
-    } catch (error) {
-      console.error('Error getting token:', error);
-      return null;
     }
   };
 
@@ -143,7 +136,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signup,
     logout,
     checkAuthStatus,
-    getToken,
   };
 
   return (

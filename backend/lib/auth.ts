@@ -13,6 +13,22 @@ export const auth = betterAuth({
   basePath: "/auth",
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false, // Set to true for production
+    passwordMinLength: 6,
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
+  },
+  // Security settings
+  csrf: {
+    enabled: true,
+  },
+  // Rate limiting
+  rateLimit: {
+    enabled: true,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 requests per windowMs
   },
   // Remove Next.js specific plugins for Express
   // plugins: [nextCookies()],

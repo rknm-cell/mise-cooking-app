@@ -3,16 +3,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { API_CONFIG } from '../../constants/Config';
 
 interface Recipe {
   id: string;
@@ -34,10 +35,8 @@ export default function RecipesScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Flexible API configuration
-  const API_BASE = __DEV__ 
-    ? 'http://localhost:8080'  // Local development
-    : 'https://mise-cooking-app-production.up.railway.app'; // Production
+  // Use centralized API configuration
+  const API_BASE = API_CONFIG.BASE_URL;
 
   const fetchRecipes = async () => {
     try {
@@ -98,8 +97,8 @@ export default function RecipesScreen() {
           {item.description}
         </Text>
         <View style={styles.recipeMeta}>
-          <Text style={styles.metaText}>⏱️ {item.totalTime}</Text>
-          <Text style={styles.metaText}>👥 {item.servings} servings</Text>
+          <Text style={styles.metaText}>{item.totalTime}</Text>
+          <Text style={styles.metaText}>{item.servings} servings</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -1,5 +1,7 @@
+import { API_CONFIG } from '../constants/Config';
+
 // Flexible API configuration
-const API_BASE = 'http://localhost:8080'  
+const API_BASE = API_CONFIG.BASE_URL;
 
 export interface Bookmark {
   userId: string;

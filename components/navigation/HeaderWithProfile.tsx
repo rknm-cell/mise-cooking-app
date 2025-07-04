@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FONT_CONFIG } from '../../constants/Config';
 
 interface HeaderWithProfileProps {
   title: string;
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fcf45a',
-    fontFamily: 'NanumPenScript-Regular',
+    fontFamily: Platform.OS === 'android' ? FONT_CONFIG.PRIMARY_WITH_FALLBACK : FONT_CONFIG.PRIMARY,
     marginBottom: 4,
   },
   subtitle: {

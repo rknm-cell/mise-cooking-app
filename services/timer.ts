@@ -1,8 +1,9 @@
 // Timer service for frontend API calls
 
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080' 
-  : 'https://mise-cooking-app-production.up.railway.app';
+import { API_CONFIG } from '../constants/Config';
+
+// Flexible API configuration
+const API_BASE = API_CONFIG.BASE_URL;
 
 export interface TimerData {
   id: string;

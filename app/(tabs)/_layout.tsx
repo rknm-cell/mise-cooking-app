@@ -59,14 +59,7 @@ export default function TabLayout() {
           tabBarButton: (props) => <HapticTab {...props} />,
         }}
       />
-      <Tabs.Screen
-        name="cooking-chat-test"
-        options={{
-          title: 'Chat Test',
-          tabBarIcon: ({ color }) => <TabBarIcon name="chatbubble" color={color} />,
-          tabBarButton: (props) => <HapticTab {...props} />,
-        }}
-      />
+    
       <Tabs.Screen
         name="shopping"
         options={{

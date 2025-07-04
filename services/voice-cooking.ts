@@ -1,8 +1,9 @@
 // Voice-first cooking assistant service
 
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080' 
-  : 'https://mise-cooking-app-production.up.railway.app';
+import { API_CONFIG } from '../constants/Config';
+
+// Flexible API configuration
+const API_BASE = API_CONFIG.BASE_URL;
 
 export interface VoiceCookingRequest {
   message: string;
@@ -230,17 +231,17 @@ export function generateVoiceAcknowledgment(actionType: string, isVoiceCommand: 
   if (!isVoiceCommand) return '';
   
   const acknowledgments = {
-    timer: "Yes, chef. Timer set.",
-    navigation: "Yes, chef. Moving to step.",
-    modification: "Yes, chef. Recipe modified.",
-    prep: "Yes, chef. Prep work ready.",
-    timing: "Yes, chef. Timing guidance.",
-    help: "Yes, chef. Here's help.",
-    technique: "Yes, chef. Technique guidance.",
-    general: "Yes, chef."
+    timer: "Timer set.",
+    navigation: "Moving to step.",
+    modification: "Recipe modified.",
+    prep: "Prep work ready.",
+    timing: "Timing guidance.",
+    help: "Here's help.",
+    technique: "Technique guidance.",
+    general: "Understood."
   };
   
-  return acknowledgments[actionType as keyof typeof acknowledgments] || "Yes, chef.";
+  return acknowledgments[actionType as keyof typeof acknowledgments] || "Understood.";
 }
 
 // Voice command examples for testing
