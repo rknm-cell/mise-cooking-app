@@ -2,13 +2,13 @@
 
 import { relations, type InferSelectModel } from "drizzle-orm";
 import {
-  boolean,
-  integer,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  varchar,
+    boolean,
+    integer,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+    varchar,
 } from "drizzle-orm/pg-core";
 import { z } from "zod/v4";
 

@@ -19,38 +19,20 @@ import { generateRecipe } from './utils/recipe.js';
 config();
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = Number(process.env.PORT) || 8080;
 
 // Middleware
 app.use(helmet());
-// CORS configuration
-const corsOptions = {
-  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:8082', 
-      'http://localhost:8080',
-      'http://192.168.1.165:8081', 
-      'http://192.168.1.165:8080',
-      'exp://192.168.1.165:8081',
-      // Production origins
-      'https://mise-cooking-app-production.up.railway.app',
-      'https://expo.dev',
-      'https://expo.io'
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+app.use(cors({
+  origin: [
+    'http://localhost:8082', 
+    'http://localhost:8080',
+    'http://192.168.1.165:8081', 
+    'http://192.168.1.165:8080',
+    'exp://192.168.1.165:8081'
+  ],
   credentials: true
-};
-
-app.use(cors(corsOptions));
+}));
 app.use(morgan('combined'));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
@@ -264,18 +246,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     status: 'OK', 
     message: 'Mise Cooking API is running',
     database: process.env.DATABASE_URL ? 'Configured' : 'Not configured',
-    environment: process.env.NODE_ENV || 'development',
-    cors: 'Configured',
     timestamp: new Date().toISOString()
-  });
-});
-
-// Simple test endpoint (no database required)
-app.get('/api/test', (req: Request, res: Response) => {
-  res.json({ 
-    message: 'API is working!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
   });
 });
 
