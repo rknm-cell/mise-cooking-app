@@ -8,10 +8,9 @@
     "start": "bun run server.ts",
     "start:node": "node --loader ts-node/esm server.ts",
     "dev": "bun --watch server.ts",
-    "build": "tsc && node fix-imports.js",
-    "build:vercel": "tsc && node fix-imports.js && cp package.json dist/",
-    "vercel-build": "tsc && node fix-imports.js && cp package.json dist/",
-    "postinstall": "npm run build:vercel",
+
+    "build": "bun install",
+
     "test": "bun test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -62,5 +61,10 @@
     "drizzle"
   ],
   "author": "Your Name",
-  "license": "MIT"
+
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.0.0"
+  }
 }
+
