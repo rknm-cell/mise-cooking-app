@@ -5,11 +5,26 @@ import { generateObject } from "ai";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
+// Define the recipe type
+type Recipe = {
+  id: string;
+  name: string;
+  description: string;
+  totalTime: string;
+  servings: number;
+  ingredients: string[];
+  instructions: string[];
+  storage: string;
+  nutrition: string[];
+  conversationContext?: string;
+  isModification?: boolean;
+};
+
 // Enhanced recipe generation with conversation context
 export async function generateRecipe(
   prompt: string, 
   conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>
-) {
+): Promise<Recipe | null> {
   try {
     console.log("Generating recipe for prompt: ", prompt);
     console.log("Conversation history length: ", conversationHistory?.length || 0);
@@ -68,7 +83,7 @@ If the user is modifying a previous recipe, note what changes were made in the d
       }),
     });
     
-    const recipe = result.object;
+    const recipe = result.object as Recipe;
     recipe.id = nanoid();
     
     // Add conversation context if this is a modification
@@ -97,7 +112,8 @@ If the user is modifying a previous recipe, note what changes were made in the d
 // Keep the original POST function for compatibility if needed
 export async function POST(req: Request) {
   try {
-    const {prompt, conversationHistory}: {prompt: string, conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>} = await req.json();
+    const body = await req.json() as {prompt: string, conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>};
+    const {prompt, conversationHistory} = body;
     console.log("prompt: ", prompt);
     console.log("conversationHistory: ", conversationHistory);
     
