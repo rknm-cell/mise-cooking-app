@@ -62,7 +62,7 @@ export async function getRecipeById(id: string): Promise<schema.Recipe | null> {
 export async function getAllRecipes(): Promise<schema.Recipe[]> {
   try {
     const recipes = await db.query.recipe.findMany();
-    return recipes || [];
+    return recipes as schema.Recipe[] || [];
   } catch (error) {
     console.error(`Error fetching recipes: `, error);
     return [];
