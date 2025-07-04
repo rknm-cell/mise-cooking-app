@@ -7,7 +7,7 @@
   "scripts": {
     "start": "bun run server.ts",
     "dev": "bun --watch server.ts",
-    "build": "echo 'No build step required'",
+    "build": "bun install",
     "test": "bun test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -51,5 +51,8 @@
   },
   "keywords": ["express", "api", "cooking", "recipes", "drizzle"],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.0.0"
+  }
 }
