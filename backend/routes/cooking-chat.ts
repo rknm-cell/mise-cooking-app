@@ -434,7 +434,7 @@ async function createTimer(timerData: {
 }
 
 // Helper function to build conversation context
-function buildConversationContext(history: Array<{role: string, content: string}>, currentMessage: string) {
+function buildConversationContext(history: Array<{role?: string, content?: string}>, currentMessage: string) {
   if (history.length === 0) {
     return currentMessage;
   }
@@ -442,7 +442,7 @@ function buildConversationContext(history: Array<{role: string, content: string}
   // Keep last 5 exchanges for context
   const recentHistory = history.slice(-10);
   const context = recentHistory
-    .map(msg => `${msg.role}: ${msg.content}`)
+    .map(msg => `${msg.role || 'user'}: ${msg.content || ''}`)
     .join('\n');
 
   return `${context}\n\nUser: ${currentMessage}`;

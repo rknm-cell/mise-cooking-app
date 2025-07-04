@@ -133,7 +133,7 @@ export default function RecipeDetailScreen() {
           { text: 'OK' },
           { 
             text: 'View List', 
-            onPress: () => router.push(`/shopping/${newList.id}`)
+            onPress: () => router.push(`/shopping`)
           }
         ]
       );
