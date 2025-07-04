@@ -3,6 +3,24 @@ import { auth } from '../lib/auth.js';
 
 const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Check for session cookie first
+    const sessionToken = req.cookies?.session_token;
+    
+    if (sessionToken) {
+      // For now, if session token exists, consider user authenticated
+      // In production, you'd validate this token against a session store
+      const session = await auth.api.getSession({
+        headers: req.headers as any,
+      });
+      
+      if (session) {
+        (req as any).user = session.user;
+        next();
+        return;
+      }
+    }
+    
+    // Fallback to better-auth session
     const session = await auth.api.getSession({
       headers: req.headers as any,
     });

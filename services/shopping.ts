@@ -19,13 +19,12 @@ export interface ShoppingListItem {
   createdAt: string;
 }
 
-// Get all shopping lists for the current user
-export const getShoppingLists = async (token: string): Promise<ShoppingList[]> => {
+// Get all shopping lists for the current user - like bookmarks
+export const getShoppingLists = async (userId: string): Promise<ShoppingList[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/shopping/lists`, {
+    const response = await fetch(`${API_BASE_URL}/api/shopping/lists/${userId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -35,30 +34,38 @@ export const getShoppingLists = async (token: string): Promise<ShoppingList[]> =
     }
 
     const data = await response.json();
-    return data.lists || [];
+    return data || [];
   } catch (error) {
     console.error('Error fetching shopping lists:', error);
     throw error;
   }
 };
 
-// Create a new shopping list
-export const createShoppingList = async (token: string, name: string): Promise<ShoppingList> => {
+// Create a new shopping list - like bookmarks
+export const createShoppingList = async (userId: string, name: string): Promise<ShoppingList> => {
   try {
+    console.log('Making request to:', `${API_BASE_URL}/api/shopping/lists`);
+    console.log('Request body:', { userId, name });
+    
     const response = await fetch(`${API_BASE_URL}/api/shopping/lists`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ userId, name }),
     });
 
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Response data:', data);
     return data.list;
   } catch (error) {
     console.error('Error creating shopping list:', error);
@@ -67,14 +74,14 @@ export const createShoppingList = async (token: string, name: string): Promise<S
 };
 
 // Delete a shopping list
-export const deleteShoppingList = async (token: string, listId: string): Promise<void> => {
+export const deleteShoppingList = async (listId: string): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/shopping/lists/${listId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies
     });
 
     if (!response.ok) {
@@ -87,14 +94,14 @@ export const deleteShoppingList = async (token: string, listId: string): Promise
 };
 
 // Get items for a shopping list
-export const getShoppingListItems = async (token: string, listId: string): Promise<ShoppingListItem[]> => {
+export const getShoppingListItems = async (listId: string): Promise<ShoppingListItem[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/shopping/lists/${listId}/items`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies
     });
 
     if (!response.ok) {
@@ -111,7 +118,6 @@ export const getShoppingListItems = async (token: string, listId: string): Promi
 
 // Add item to shopping list
 export const addShoppingListItem = async (
-  token: string, 
   listId: string, 
   name: string, 
   quantity: string, 
@@ -122,9 +128,9 @@ export const addShoppingListItem = async (
     const response = await fetch(`${API_BASE_URL}/api/shopping/lists/${listId}/items`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies
       body: JSON.stringify({ name, quantity, unit, category }),
     });
 
@@ -142,7 +148,6 @@ export const addShoppingListItem = async (
 
 // Update shopping list item
 export const updateShoppingListItem = async (
-  token: string,
   itemId: string,
   updates: {
     name?: string;
@@ -156,9 +161,9 @@ export const updateShoppingListItem = async (
     const response = await fetch(`${API_BASE_URL}/api/shopping/items/${itemId}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies
       body: JSON.stringify(updates),
     });
 
@@ -172,16 +177,15 @@ export const updateShoppingListItem = async (
 };
 
 // Delete shopping list item
-export const deleteShoppingListItem = async (token: string, itemId: string): Promise<void> => {
+export const deleteShoppingListItem = async (itemId: string): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/shopping/items/${itemId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-    },
-    );
+      credentials: 'include', // Include cookies
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -192,9 +196,9 @@ export const deleteShoppingListItem = async (token: string, itemId: string): Pro
   }
 };
 
-// Generate shopping list from recipe
+// Generate shopping list from recipe - like bookmarks
 export const generateShoppingListFromRecipe = async (
-  token: string, 
+  userId: string,
   recipeId: string, 
   listName?: string
 ): Promise<ShoppingList> => {
@@ -202,10 +206,9 @@ export const generateShoppingListFromRecipe = async (
     const response = await fetch(`${API_BASE_URL}/api/shopping/generate-from-recipe`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ recipeId, listName }),
+      body: JSON.stringify({ userId, recipeId, listName }),
     });
 
     if (!response.ok) {
@@ -220,13 +223,12 @@ export const generateShoppingListFromRecipe = async (
   }
 };
 
-// Get all shopping list items aggregated across all lists
-export const getAllShoppingListItems = async (token: string): Promise<ShoppingListItem[]> => {
+// Get all shopping list items aggregated across all lists - like bookmarks
+export const getAllShoppingListItems = async (userId: string): Promise<ShoppingListItem[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/shopping/all-items`, {
+    const response = await fetch(`${API_BASE_URL}/api/shopping/all-items/${userId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
@@ -236,7 +238,7 @@ export const getAllShoppingListItems = async (token: string): Promise<ShoppingLi
     }
 
     const data = await response.json();
-    return data.items || [];
+    return data || [];
   } catch (error) {
     console.error('Error fetching all shopping list items:', error);
     throw error;

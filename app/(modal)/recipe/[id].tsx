@@ -34,7 +34,7 @@ const API_BASE = API_CONFIG.BASE_URL;
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getToken } = useAuth();
+  const { user } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,8 +103,10 @@ export default function RecipeDetailScreen() {
     }
     
     // Second press: generate shopping list with selected ingredients
-    const token = await getToken();
-    if (!token) return;
+    if (!user) {
+      Alert.alert('Error', 'Please log in to create shopping lists');
+      return;
+    }
 
     setGeneratingList(true);
     try {
@@ -112,12 +114,16 @@ export default function RecipeDetailScreen() {
       
       // Create shopping list manually with selected ingredients
       const { createShoppingList, addShoppingListItem } = await import('../../../services/shopping');
-      const newList = await createShoppingList(token, listName);
+      console.log('Creating shopping list:', listName);
+      const newList = await createShoppingList(user.id, listName);
+      console.log('Created shopping list:', newList);
       
       // Add selected ingredients to the list
       const selectedIngredientList = Array.from(selectedIngredients).map(index => recipe.ingredients[index]);
+      console.log('Selected ingredients:', selectedIngredientList);
       for (const ingredient of selectedIngredientList) {
-        await addShoppingListItem(token, newList.id, ingredient, '1', undefined, 'Ingredients');
+        console.log('Adding ingredient:', ingredient);
+        await addShoppingListItem(newList.id, ingredient, '1', undefined, 'Ingredients');
       }
       
       Alert.alert(
@@ -136,7 +142,8 @@ export default function RecipeDetailScreen() {
       setSelectedIngredients(new Set());
     } catch (error) {
       console.error('Error generating shopping list:', error);
-      Alert.alert('Error', 'Failed to generate shopping list');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', `Failed to generate shopping list: ${errorMessage}`);
     } finally {
       setGeneratingList(false);
     }
@@ -286,7 +293,7 @@ to the shopping list */}
                     <>
                       <Ionicons name="cart-outline" size={20} color="white" />
                       <Text style={styles.generateListButtonText}>
-                        {showCheckboxes ? `Add ${selectedIngredients.size} Items` : 'Generate Shopping List'}
+                        {showCheckboxes ? `Add ${selectedIngredients.size} Items` : 'Add to Shopping List'}
                       </Text>
                     </>
                   )}
