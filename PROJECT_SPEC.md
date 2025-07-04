@@ -468,7 +468,7 @@
 
 #### Voice Assistant MVP Features ✅ IMPLEMENTED
 - **Wake Phrase**: "Hey Mise" (configurable per session and user preference)
-- **Acknowledgment**: "Yes, chef" responses for user confirmation
+- **Acknowledgment**: Brief acknowledgment responses for user confirmation
 - **Tool Calls**: `moveToNextStep()`, `moveToPreviousStep()`, `startTimer()`, `modifyRecipe()`, `getPrepWork()`, `getTimingSuggestions()`
 - **Recipe Modifications**: Ingredient substitutions, cooking times, temperatures, step sequences
 - **Error Handling**: "Can you repeat that?" for unclear voice, fallback to text chat for network issues

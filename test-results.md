@@ -11,7 +11,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**: 
 ```json
 {
-  "response": "Yes, chef. I've started a timer for 5 minutes (5:00).",
+  "response": "I've started a timer for 5 minutes (5:00).",
   "timerAction": {
     "action": "create",
     "duration": 300,
@@ -27,7 +27,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. User requested to move to the next step.",
+  "response": "User requested to move to the next step.",
   "navigationAction": {
     "action": "next",
     "reason": "User requested to move to the next step."
@@ -41,7 +41,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. Basil is not available, and parsley will provide a fresh flavor.",
+  "response": "Basil is not available, and parsley will provide a fresh flavor.",
   "modificationAction": {
     "type": "ingredient",
     "target": "basil",
@@ -57,7 +57,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. Here's what you need to prepare: - Measure out the pasta...",
+  "response": "Here's what you need to prepare: - Measure out the pasta...",
   "prepWorkAction": {
     "type": "ingredients",
     "focus": "general",
@@ -77,7 +77,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. Here's the timing: - Allocate 5 minutes for preparation...",
+  "response": "Here's the timing: - Allocate 5 minutes for preparation...",
   "timingAction": {
     "type": "overall",
     "context": "",
@@ -113,7 +113,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. User requested to move to step 3.",
+  "response": "User requested to move to step 3.",
   "navigationAction": {
     "action": "specific",
     "stepNumber": 3,
@@ -128,7 +128,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. User requested a temperature change to 350 degrees.",
+  "response": "User requested a temperature change to 350 degrees.",
   "modificationAction": {
     "type": "temperature",
     "target": "oven",
@@ -144,7 +144,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 **Result**:
 ```json
 {
-  "response": "Yes, chef. Yes, chef! The best way to store leftovers is to:\n\n1. **Cool Down Quickly**: Allow the food to cool...",
+  "response": "The best way to store leftovers is to:\n\n1. **Cool Down Quickly**: Allow the food to cool...",
   "suggestions": [],
   "quickActions": [
     "What's next?",
@@ -188,7 +188,7 @@ All tool calls for the voice-first cooking assistant have been successfully test
 - Timing suggestions for coordination
 
 ### ✅ Response Formatting
-- "Yes, chef" acknowledgment for voice commands
+- Brief acknowledgment for voice commands
 - Structured tool action responses
 - Proper fallback to general AI responses
 - Consistent JSON response format

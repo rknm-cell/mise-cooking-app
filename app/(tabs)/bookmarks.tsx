@@ -3,14 +3,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { API_CONFIG } from '../../constants/Config';
 import { useAuth } from '../../contexts/AuthContext';
 import { fetchBookmarks } from '../../services/bookmarks';
 
@@ -53,7 +54,7 @@ export default function BookmarksScreen() {
       const recipesWithDetails = await Promise.all(
         bookmarks.map(async (bookmark) => {
           try {
-            const response = await fetch(`http://localhost:8080/api/recipes/${bookmark.recipeId}`);
+            const response = await fetch(`${API_CONFIG.BASE_URL}/api/recipes/${bookmark.recipeId}`);
             if (response.ok) {
               const recipe = await response.json();
               return {

@@ -4,17 +4,18 @@ import { HeaderWithProfile } from '@/components';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { API_CONFIG } from '../../constants/Config';
 
 interface RecipeSchema {
   id: string;
@@ -30,10 +31,8 @@ interface RecipeSchema {
   isModification?: boolean;
 }
 
-// Flexible API configuration
-const API_BASE = __DEV__ 
-  ? 'http://localhost:8080'  // Local development
-  : 'https://mise-cooking-app-production.up.railway.app'; // Production
+// Use centralized API configuration
+const API_BASE = API_CONFIG.BASE_URL;
 
 export default function RecipeGenerator() {
   const [generation, setGeneration] = useState<RecipeSchema | undefined>(undefined);

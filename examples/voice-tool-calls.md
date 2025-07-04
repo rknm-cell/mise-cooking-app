@@ -28,7 +28,7 @@ const setTimerSchema = z.object({
 **Response Format**:
 ```typescript
 {
-  response: "Yes, chef. I've started a timer for boiling pasta (5:00).",
+  response: "I've started a timer for boiling pasta (5:00).",
   timerAction: {
     action: "create",
     duration: 300,
@@ -64,7 +64,7 @@ const moveToStepSchema = z.object({
 **Response Format**:
 ```typescript
 {
-  response: "Yes, chef. Moving to the next step.",
+  response: "Moving to the next step.",
   navigationAction: {
     action: "next",
     stepNumber: 3,
@@ -99,7 +99,7 @@ const modifyRecipeSchema = z.object({
 **Response Format**:
 ```typescript
 {
-  response: "Yes, chef. Substituting basil with parsley.",
+  response: "Substituting basil with parsley.",
   modificationAction: {
     type: "ingredient",
     target: "basil",
@@ -133,7 +133,7 @@ const getPrepWorkSchema = z.object({
 **Response Format**:
 ```typescript
 {
-  response: "Yes, chef. Here's what you need to prepare: Gather all ingredients, Prepare cutting board and knife, Preheat oven to 350°F",
+  response: "Here's what you need to prepare: Gather all ingredients, Prepare cutting board and knife, Preheat oven to 350°F",
   prepWorkAction: {
     type: "ingredients",
     focus: "current step preparation",
@@ -170,7 +170,7 @@ const getTimingSuggestionsSchema = z.object({
 **Response Format**:
 ```typescript
 {
-  response: "Yes, chef. Here's the timing: Start prep work early, Monitor cooking times closely, Allow for resting periods",
+  response: "Here's the timing: Start prep work early, Monitor cooking times closely, Allow for resting periods",
   timingAction: {
     type: "overall",
     context: "recipe timing coordination",

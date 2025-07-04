@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FEATURE_FLAGS } from '../../constants/Config';
 import { ttsService } from '../../services/text-to-speech';
 
 interface TTSControlsProps {
@@ -17,6 +18,11 @@ export function TTSControls({
   onSpeakStep 
 }: TTSControlsProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // If TTS is disabled, don't render the component
+  if (!FEATURE_FLAGS.TTS_ENABLED) {
+    return null;
+  }
 
   const handleSpeakStep = async () => {
     try {

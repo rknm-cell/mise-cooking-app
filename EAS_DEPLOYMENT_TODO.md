@@ -3,12 +3,12 @@
 ## **Phase 1: Recipe Session Polish (2 hours)**
 
 ### 1.1 Disable Text-to-Speech (30 min)
-- [ ] **Remove TTS imports** from `RecipeSession.tsx` (keep the service file)
-- [ ] **Remove TTSControls component usage** from RecipeSession (keep the component file)
-- [ ] **Remove TTS service calls** from session start, step completion, and timer events
-- [ ] **Remove TTSControls export** from `components/cooking/index.ts` (keep the file)
-- [ ] **Add TTS feature flag** in `constants/Config.ts` to easily re-enable later
-- [ ] **Test RecipeSession** without TTS functionality
+- [x] **Remove TTS imports** from `RecipeSession.tsx` (keep the service file)
+- [x] **Remove TTSControls component usage** from RecipeSession (keep the component file)
+- [x] **Remove TTS service calls** from session start, step completion, and timer events
+- [x] **Remove TTSControls export** from `components/cooking/index.ts` (keep the file)
+- [x] **Add TTS feature flag** in `constants/Config.ts` to easily re-enable later
+- [x] **Test RecipeSession** without TTS functionality
 
 ### 1.2 Polish Recipe Session UI (1.5 hours)
 - [ ] **Add step navigation buttons**: Previous/Next buttons with proper styling

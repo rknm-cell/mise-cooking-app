@@ -1,4 +1,5 @@
 import * as Speech from 'expo-speech';
+import { FEATURE_FLAGS } from '../constants/Config';
 
 export interface TTSOptions {
   rate?: number;
@@ -25,6 +26,12 @@ export class TextToSpeechService {
    * Speak the given text
    */
   async speak(text: string, options: TTSOptions = {}): Promise<void> {
+    // Check if TTS is enabled
+    if (!FEATURE_FLAGS.TTS_ENABLED) {
+      console.log('TTS disabled by feature flag');
+      return;
+    }
+
     if (this.isSpeaking) {
       await this.stop();
     }
@@ -58,6 +65,11 @@ export class TextToSpeechService {
    * Stop current speech
    */
   async stop(): Promise<void> {
+    // Check if TTS is enabled
+    if (!FEATURE_FLAGS.TTS_ENABLED) {
+      return;
+    }
+
     if (this.isSpeaking) {
       await Speech.stop();
       this.isSpeaking = false;
@@ -69,6 +81,10 @@ export class TextToSpeechService {
    * Check if currently speaking
    */
   getSpeakingStatus(): boolean {
+    // If TTS is disabled, always return false
+    if (!FEATURE_FLAGS.TTS_ENABLED) {
+      return false;
+    }
     return this.isSpeaking;
   }
 
@@ -76,6 +92,10 @@ export class TextToSpeechService {
    * Get current text being spoken
    */
   getCurrentText(): string {
+    // If TTS is disabled, return empty string
+    if (!FEATURE_FLAGS.TTS_ENABLED) {
+      return '';
+    }
     return this.currentText;
   }
 
