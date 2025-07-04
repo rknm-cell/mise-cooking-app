@@ -1,22 +1,26 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
     "allowJs": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": false,
     "outDir": "./dist",
     "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": ["node"]
+
   },
   "include": [
     "**/*.ts",
@@ -24,6 +28,9 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+
+    "dist",
+    "**/*.test.ts"
+
   ]
 } 
