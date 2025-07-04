@@ -1,4 +1,5 @@
 // UI components
+export { FontTest } from './FontTest';
 export { HapticTab } from './HapticTab';
 export { IconSymbol } from './IconSymbol';
 export { default as ParallaxScrollView } from './ParallaxScrollView';

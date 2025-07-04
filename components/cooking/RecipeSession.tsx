@@ -143,7 +143,7 @@ export function RecipeSession() {
   if (!recipe) {
     return (
       <SafeAreaView style={styles.container}>
-        <HeaderWithProfile title="Recipe Session" subtitle="Choose a recipe" />
+        <HeaderWithProfile title="Recipe Session" />
         
         <View style={styles.noRecipeSection}>
           <View style={styles.noRecipeCard}>

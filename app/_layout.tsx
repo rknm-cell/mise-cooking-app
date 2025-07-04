@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import { AuthProvider } from "../contexts/AuthContext";
 import { useCustomFonts } from "../hooks/useFonts";
 
@@ -9,12 +9,17 @@ export default function RootLayout() {
   const [showLoading, setShowLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Font loading status:', fontsLoaded);
+    console.log('Platform:', Platform.OS);
+    
     // Fallback: if fonts don't load within 5 seconds, continue anyway
     const timer = setTimeout(() => {
+      console.log('Font loading timeout - continuing anyway');
       setShowLoading(false);
     }, 5000);
 
     if (fontsLoaded) {
+      console.log('Fonts loaded successfully');
       setShowLoading(false);
       clearTimeout(timer);
     }

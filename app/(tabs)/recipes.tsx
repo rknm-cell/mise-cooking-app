@@ -97,8 +97,8 @@ export default function RecipesScreen() {
           {item.description}
         </Text>
         <View style={styles.recipeMeta}>
-          <Text style={styles.metaText}>⏱️ {item.totalTime}</Text>
-          <Text style={styles.metaText}>👥 {item.servings} servings</Text>
+          <Text style={styles.metaText}>{item.totalTime}</Text>
+          <Text style={styles.metaText}>{item.servings} servings</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // API Configuration
 
 // Utility function to get the correct IP address for development
@@ -32,6 +34,16 @@ export const API_CONFIG = {
     SIGNUP: '/api/auth/signup',
     LOGIN: '/api/auth/login',
   }
+};
+
+// Font Configuration
+export const FONT_CONFIG = {
+  // Primary font for titles and headings
+  PRIMARY: 'NanumPenScript-Regular',
+  // Fallback fonts for better compatibility
+  FALLBACK: Platform.OS === 'ios' ? 'System' : 'sans-serif',
+  // Combined font family for better cross-platform support
+  PRIMARY_WITH_FALLBACK: 'NanumPenScript-Regular, System, sans-serif',
 };
 
 // Feature flags
