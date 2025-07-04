@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import { db } from './db/index.js';
 import { getBookmarks, removeBookmark, saveBookmark } from './db/queries.js';
 import * as schema from './db/schema.js';
+import { auth } from './lib/auth.js';
 import { signIn, signUp } from './models/users.js';
 import cookingChatRoutes from './routes/cooking-chat.js';
 import shoppingRoutes from './routes/shopping.js';
@@ -46,6 +47,9 @@ app.use('/api/', limiter);
 
 // Handle preflight requests
 app.options('*', cors());
+
+// Better Auth routes - this should come before other routes
+app.use('/auth', auth.handler);
 
 // API key endpoint (for frontend to get the key)
 app.get('/api/config', (req: Request, res: Response) => {
@@ -246,7 +250,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 
-// Auth endpoints
+// Auth endpoints - Updated to use Better Auth session management
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -257,12 +261,11 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
 
     const result = await signUp(name, email, password);
     
-    if (result.success) {
-      // Return user data and token
+    if (result.success && result.user) {
+      // Better Auth handles session automatically through cookies
       res.status(201).json({ 
         message: result.message,
-        user: result.user,
-        token: result.token
+        user: result.user
       });
     } else {
       res.status(400).json({ error: result.message });
@@ -283,12 +286,11 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
 
     const result = await signIn(email, password);
     
-    if (result.success) {
-      // Return user data and token
+    if (result.success && result.user) {
+      // Better Auth handles session automatically through cookies
       res.json({ 
         message: result.message,
-        user: result.user,
-        token: result.token
+        user: result.user
       });
     } else {
       res.status(401).json({ error: result.message });
@@ -299,41 +301,47 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
   }
 });
 
-// Get current user
+// Get current user - Updated to use Better Auth session
 app.get('/api/auth/me', async (req: Request, res: Response) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
-    }
-
-    // Find the session in the database using the token
-    const session = await db.query.session.findFirst({
-      where: eq(schema.session.token, token),
+    const session = await auth.api.getSession({
+      headers: req.headers as any,
     });
     
-    if (session && session.userId) {
-      // Get the user data from the database
-      const user = await db.query.user.findFirst({
-        where: eq(schema.user.id, session.userId),
+    if (!session) {
+      return res.status(401).json({ error: 'No valid session found' });
+    }
+
+    // Get the user data from the database
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, session.user.id),
+    });
+    
+    if (user) {
+      res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
       });
-      
-      if (user) {
-        res.json({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        });
-      } else {
-        res.status(401).json({ error: 'User not found in database' });
-      }
     } else {
-      res.status(401).json({ error: 'Invalid or expired token' });
+      res.status(401).json({ error: 'User not found in database' });
     }
   } catch (error) {
     console.error('Error getting user:', error);
-    res.status(401).json({ error: 'Invalid token' });
+    res.status(401).json({ error: 'Invalid session' });
+  }
+});
+
+// Logout endpoint
+app.post('/api/auth/logout', async (req: Request, res: Response) => {
+  try {
+    await auth.api.signOut({
+      headers: req.headers as any,
+    });
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Error in logout:', error);
+    res.status(500).json({ error: 'Failed to logout' });
   }
 });
 

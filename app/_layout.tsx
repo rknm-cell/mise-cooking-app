@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
+import { AuthGuard } from "../components/auth/AuthGuard";
 import { AuthProvider } from "../contexts/AuthContext";
 import { useCustomFonts } from "../hooks/useFonts";
 
@@ -37,15 +38,17 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(modal)" />
-      </Stack>
+      <AuthGuard>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(modal)" />
+        </Stack>
+      </AuthGuard>
     </AuthProvider>
   );
 }
