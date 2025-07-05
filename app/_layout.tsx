@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 import { AuthGuard } from "../components/auth/AuthGuard";
 import { AuthProvider } from "../contexts/AuthContext";
+import { CookingSessionProvider } from "../contexts/CookingSessionContext";
 import { useCustomFonts } from "../hooks/useFonts";
 
 export default function RootLayout() {
@@ -38,17 +39,19 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <AuthGuard>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(modal)" />
-        </Stack>
-      </AuthGuard>
+      <CookingSessionProvider>
+        <AuthGuard>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(modal)" />
+          </Stack>
+        </AuthGuard>
+      </CookingSessionProvider>
     </AuthProvider>
   );
 }

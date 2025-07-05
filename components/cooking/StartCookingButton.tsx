@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity
+  StyleSheet,
+  Text,
+  TouchableOpacity
 } from 'react-native';
+import { useCookingSession } from '../../contexts/CookingSessionContext';
 
 interface Recipe {
   id: string;
@@ -22,7 +23,12 @@ interface StartCookingButtonProps {
 }
 
 export function StartCookingButton({ recipe, size = 'medium' }: StartCookingButtonProps) {
+  const { completeSession } = useCookingSession();
+
   const handleStartCooking = () => {
+    // Complete any existing session
+    completeSession();
+    
     // Navigate to the simple session with recipe data
     router.push({
       pathname: '/(tabs)/recipe-session',
