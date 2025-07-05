@@ -8,9 +8,7 @@
     "start": "bun run server.ts",
     "start:node": "node --loader ts-node/esm server.ts",
     "dev": "bun --watch server.ts",
-
     "build": "bun install",
-
     "test": "bun test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -46,9 +44,11 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.0.0",
+    "@types/node-fetch": "^2.6.12",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.31.4",
     "jest": "^29.7.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.2",
     "supertest": "^6.3.3",
     "typescript": "^5.0.0"
@@ -61,10 +61,8 @@
     "drizzle"
   ],
   "author": "Your Name",
-
   "license": "MIT",
   "engines": {
     "bun": ">=1.0.0"
   }
 }
-

@@ -58,16 +58,14 @@ export default function LoginScreen() {
       const success = await login(form.email, form.password);
       
       if (success) {
-        Alert.alert(
-          'Welcome Back!',
-          'Successfully logged in.',
+        
           [
             {
               text: 'Continue',
               onPress: () => router.replace('/'),
             },
           ]
-        );
+        
       } else {
         Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
       }
