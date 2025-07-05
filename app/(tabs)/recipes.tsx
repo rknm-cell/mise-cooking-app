@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   recipeCard: {
-    backgroundColor: '#2d8d8b',
+    backgroundColor: '#1d7b86',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',

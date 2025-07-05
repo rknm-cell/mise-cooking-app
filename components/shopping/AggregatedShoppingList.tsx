@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -22,7 +22,11 @@ interface AggregatedShoppingListProps {
   onRefresh?: () => void;
 }
 
-export default function AggregatedShoppingList({ onRefresh }: AggregatedShoppingListProps) {
+export interface AggregatedShoppingListRef {
+  refresh: () => void;
+}
+
+const AggregatedShoppingList = forwardRef<AggregatedShoppingListRef, AggregatedShoppingListProps>(({ onRefresh }, ref) => {
   const { user } = useAuth();
   const [aggregatedItems, setAggregatedItems] = useState<AggregatedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +50,10 @@ export default function AggregatedShoppingList({ onRefresh }: AggregatedShopping
   useEffect(() => {
     fetchAllItems();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    refresh: fetchAllItems
+  }));
 
   const handleToggleItem = async (item: AggregatedItem) => {
     if (!user?.id) return;
@@ -150,7 +158,7 @@ export default function AggregatedShoppingList({ onRefresh }: AggregatedShopping
       }
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   loadingContainer: {
@@ -242,4 +250,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     opacity: 0.9,
   },
-}); 
+});
+
+export default AggregatedShoppingList; 

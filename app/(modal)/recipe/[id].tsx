@@ -216,7 +216,8 @@ export default function RecipeDetailScreen() {
             <Ionicons name="arrow-back" size={24} color="#fcf45a" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Recipe Details</Text>
-          <BookmarkButton recipeId={id} size={24} initialIsBookmarked={isBookmarked} />
+          {/*bookmark icon solid yellow when bookmarked, otherwise outline yellow*/} 
+          <BookmarkButton recipeId={id} size={24} initialIsBookmarked={isBookmarked} color="#fcf45a" activeColor="#fcf45a" />
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -355,14 +356,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#426b70',
+    backgroundColor: '#1d7b86',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#1d7b86',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.2)',
   },
@@ -372,7 +373,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1d7b86',
+    color: '#fcf45a',
   },
   placeholder: {
     width: 40,
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#fcf45a',
+    color: '#fff',
     fontWeight: '600',
   },
   scrollView: {
@@ -420,7 +421,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1d7b86',
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -457,7 +458,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 14,
-    color: '#1d7b86',
+    color: '#fff',
     marginLeft: 6,
     opacity: 0.8,
   },
@@ -467,12 +468,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1d7b86',
+    color: '#fff',
     marginBottom: 12,
   },
   ingredientItem: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     lineHeight: 22,
     marginBottom: 8,
   },
@@ -497,17 +498,17 @@ const styles = StyleSheet.create({
   instructionText: {
     flex: 1,
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     lineHeight: 22,
   },
   storageText: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     lineHeight: 22,
   },
   nutritionItem: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     lineHeight: 22,
     marginBottom: 8,
   },
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1d7b86',
+    borderColor: '#fff',
     backgroundColor: 'transparent',
   },
   cancelButtonText: {

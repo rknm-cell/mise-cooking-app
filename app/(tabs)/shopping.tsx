@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
+  Alert,
   StyleSheet,
   TouchableOpacity,
   View
@@ -9,13 +10,27 @@ import { ThemedText, ThemedView } from '../../components';
 import { HeaderWithProfile } from '../../components/navigation/HeaderWithProfile';
 import AggregatedShoppingList from '../../components/shopping/AggregatedShoppingList';
 import { Colors } from '../../constants/Colors';
+import { useAuth } from '../../contexts/AuthContext';
+import { clearCompletedItems } from '../../services/shopping';
 
 export default function ShoppingScreen() {
+  const { user } = useAuth();
   const [viewMode, setViewMode] = useState<'aggregated' | 'lists'>('aggregated');
+  const listRef = useRef<{ refresh: () => void } | null>(null);
 
   const handleRefresh = () => {
-    // This will be called when the aggregated list refreshes
-    // You can add any additional refresh logic here
+    listRef.current?.refresh();
+  };
+
+  const handleClearCompleted = async () => {
+    if (!user?.id) return;
+    
+    try {
+      await clearCompletedItems(user.id);
+      handleRefresh();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to clear completed items');
+    }
   };
 
   return (
@@ -56,11 +71,17 @@ export default function ShoppingScreen() {
               Lists
             </ThemedText>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={handleClearCompleted}
+          >
+            <Ionicons name="trash-outline" size={20} color="#fff" />
+          </TouchableOpacity>
         </View>
       </View>
 
       {viewMode === 'aggregated' ? (
-        <AggregatedShoppingList onRefresh={handleRefresh} />
+        <AggregatedShoppingList ref={listRef} onRefresh={handleRefresh} />
       ) : (
         <View style={styles.listsPlaceholder}>
           <Ionicons name="folder-outline" size={64} color={Colors.light.tint} />
@@ -155,5 +176,11 @@ const styles = StyleSheet.create({
     color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
+  },
+  clearButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 8,
+    borderRadius: 8,
+    marginLeft: 8,
   },
 }); 
