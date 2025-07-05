@@ -4,15 +4,15 @@ import { HeaderWithProfile } from '@/components';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { API_CONFIG } from '../../constants/Config';
@@ -144,9 +144,7 @@ export default function RecipeGenerator() {
       <View style={styles.recipeHeader}>
         <Text style={styles.recipeTitle}>
           {recipe.name}
-          {recipe.isModification && (
-            <Text style={styles.modificationBadge}> (Modified)</Text>
-          )}
+          
         </Text>
         {conversationHistory.length > 0 && (
           <TouchableOpacity style={styles.clearButton} onPress={clearConversation}>
@@ -156,47 +154,32 @@ export default function RecipeGenerator() {
       </View>
       <Text style={styles.recipeDescription}>{recipe.description}</Text>
       
-      {recipe.conversationContext && (
-        <View style={styles.contextContainer}>
-          <Text style={styles.contextText}>
-            💬 {recipe.conversationContext}
-          </Text>
-        </View>
-      )}
+      
       
       <View style={styles.recipeInfo}>
-        <Text style={styles.recipeInfoText}>⏱️ {recipe.totalTime}</Text>
-        <Text style={styles.recipeInfoText}>👥 {recipe.servings} servings</Text>
+        <Text style={styles.recipeInfoText}> {recipe.totalTime}</Text>
+        <Text style={styles.recipeInfoText}> {recipe.servings} servings</Text>
       </View>
-
-      <Text style={styles.sectionTitle}>Ingredients:</Text>
-      {recipe.ingredients.map((ingredient, index) => (
-        <Text key={index} style={styles.ingredient}>• {ingredient}</Text>
-      ))}
-
-      <Text style={styles.sectionTitle}>Instructions:</Text>
-      {recipe.instructions.map((instruction, index) => (
-        <Text key={index} style={styles.instruction}>{index + 1}. {instruction}</Text>
-      ))}
-
-      <Text style={styles.sectionTitle}>Storage:</Text>
-      <Text style={styles.storage}>{recipe.storage}</Text>
-
-      <Text style={styles.sectionTitle}>Nutrition:</Text>
-      {recipe.nutrition.map((item, index) => (
-        <Text key={index} style={styles.nutrition}>• {item}</Text>
-      ))}
-      
-      {conversationHistory.length > 0 && (
-        <View style={styles.conversationIndicator}>
-          <Text style={styles.conversationText}>
-            💬 Conversation context active ({conversationHistory.length / 2} exchanges)
-          </Text>
-        </View>
-      )}
 
       {/* Recipe Action Buttons */}
       <View style={styles.actionButtonsContainer}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.startSessionButton]}
+          onPress={() => {
+            // TODO: Implement start session logic
+            Alert.alert(
+              'Start Cooking',
+              'Starting a new cooking session...',
+              [{ text: 'OK', style: 'default' }]
+            );
+          }}
+        >
+          <Ionicons name="play-circle" size={16} color="#1d7b86" />
+          <Text style={styles.startSessionButtonText}>Start Recipe Session</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={[styles.actionButtonsContainer, styles.secondaryButtonsContainer]}>
         {saveStatus === 'none' && (
           <>
             <TouchableOpacity
@@ -208,7 +191,7 @@ export default function RecipeGenerator() {
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
                 <>
-                  <Ionicons name="bookmark" size={16} color="#fff" />
+                  <Ionicons name="bookmark" size={16} color="#1d7b86" />
                   <Text style={styles.saveButtonText}>Save Recipe</Text>
                 </>
               )}
@@ -246,6 +229,26 @@ export default function RecipeGenerator() {
           </TouchableOpacity>
         )}
       </View>
+
+      <Text style={styles.sectionTitle}>Ingredients:</Text>
+      {recipe.ingredients.map((ingredient, index) => (
+        <Text key={index} style={styles.ingredient}>• {ingredient}</Text>
+      ))}
+
+      <Text style={styles.sectionTitle}>Instructions:</Text>
+      {recipe.instructions.map((instruction, index) => (
+        <Text key={index} style={styles.instruction}>{index + 1}. {instruction}</Text>
+      ))}
+
+      <Text style={styles.sectionTitle}>Storage:</Text>
+      <Text style={styles.storage}>{recipe.storage}</Text>
+
+      <Text style={styles.sectionTitle}>Nutrition:</Text>
+      {recipe.nutrition.map((item, index) => (
+        <Text key={index} style={styles.nutrition}>• {item}</Text>
+      ))}
+      
+      
     </View>
   );
 
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#426b70',
+    backgroundColor: '#1d7b86',
   },
   scrollView: {
     flex: 1,
@@ -382,7 +385,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   recipeContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#1d7b86',
     borderRadius: 16,
     padding: 20,
     marginTop: 20,
@@ -398,12 +401,12 @@ const styles = StyleSheet.create({
   recipeTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1d7b86',
+    color: '#fcf45a',
     marginBottom: 8,
   },
   recipeDescription: {
     fontSize: 16,
-    color: '#666',
+    color: '#fff',
     marginBottom: 16,
     lineHeight: 24,
   },
@@ -413,36 +416,36 @@ const styles = StyleSheet.create({
   },
   recipeInfoText: {
     fontSize: 14,
-    color: '#666',
+    color: '#fff',
     marginRight: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1d7b86',
+    color: '#fff',
     marginTop: 20,
     marginBottom: 10,
   },
   ingredient: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     marginBottom: 4,
     lineHeight: 22,
   },
   instruction: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     marginBottom: 8,
     lineHeight: 22,
   },
   storage: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     lineHeight: 22,
   },
   nutrition: {
     fontSize: 16,
-    color: '#1d7b86',
+    color: '#fff',
     marginBottom: 4,
     lineHeight: 22,
   },
@@ -505,7 +508,8 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 12,
+    marginBottom: 12,
     gap: 12,
   },
   actionButton: {
@@ -519,13 +523,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   saveButton: {
-    backgroundColor: '#fcf45a',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
   saveButtonText: {
     color: '#1d7b86',
     fontSize: 16,
     fontWeight: '600',
   },
+  
   keepButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderWidth: 1,
@@ -560,5 +565,17 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
     fontSize: 16,
     fontWeight: '600',
+  },
+  startSessionButton: {
+    backgroundColor: '#fcf45a',
+    flex: 1,
+  },
+  startSessionButtonText: {
+    color: '#1d7b86',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButtonsContainer: {
+    marginBottom: 20,
   },
 });

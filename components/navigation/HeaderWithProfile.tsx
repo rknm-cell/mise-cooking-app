@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 28,
+    textAlign: 'center',
+    fontSize: 50,
     fontWeight: 'bold',
     color: '#fcf45a',
     fontFamily: Platform.OS === 'android' ? FONT_CONFIG.PRIMARY_WITH_FALLBACK : FONT_CONFIG.PRIMARY,
