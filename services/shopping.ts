@@ -304,4 +304,23 @@ export const aggregateShoppingItems = (items: ShoppingListItem[]): AggregatedIte
     }
     return a.name.localeCompare(b.name);
   });
+};
+
+// Clear completed shopping items
+export const clearCompletedItems = async (userId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/shopping/clear-completed/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error clearing completed items:', error);
+    throw error;
+  }
 }; 

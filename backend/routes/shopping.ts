@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import {
     addShoppingListItem,
+    clearCompletedShoppingItems,
     createShoppingList,
     deleteShoppingList,
     deleteShoppingListItem,
@@ -203,6 +204,27 @@ router.get('/all-items/:userId', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching all shopping list items:', error);
     res.status(500).json({ error: 'Failed to fetch shopping list items' });
+  }
+});
+
+// Clear completed shopping items for user
+router.delete('/clear-completed/:userId', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
+    }
+
+    const result = await clearCompletedShoppingItems(userId);
+    if (result.success) {
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ error: result.message || 'Failed to clear completed items' });
+    }
+  } catch (error) {
+    console.error('Error clearing completed items:', error);
+    res.status(500).json({ error: 'Failed to clear completed items' });
   }
 });
 

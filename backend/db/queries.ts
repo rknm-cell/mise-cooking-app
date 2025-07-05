@@ -283,4 +283,30 @@ export async function isBookmarked(userId: string, recipeId: string): Promise<bo
   }
 }
 
+export async function clearCompletedShoppingItems(userId: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    // First get all shopping lists for the user
+    const lists = await getShoppingLists(userId);
+    const listIds = lists.map(list => list.id);
+    
+    if (listIds.length === 0) {
+      return { success: true };
+    }
+    
+    // Delete all completed items from all user's lists
+    await db.delete(schema.shoppingListItem)
+      .where(
+        and(
+          inArray(schema.shoppingListItem.listId, listIds),
+          eq(schema.shoppingListItem.isCompleted, true)
+        )
+      );
+    
+    return { success: true };
+  } catch (error) {
+    console.error(`Error clearing completed shopping items: `, error);
+    return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
 
