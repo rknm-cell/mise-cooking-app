@@ -25,11 +25,8 @@ export default function LandingPage() {
       
       {/* Header */}
       <View style={styles.header}>
-        <StyledTitle 
-          title="Mise" 
-          subtitle="(meez)" 
-          size="large"
-        />
+        <Text style={styles.title}>Mise</Text>
+        <Text style={styles.subtitle}>(meez)</Text>
       </View>
 
       {/* Main content */}
@@ -99,9 +96,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#426b70',
+    backgroundColor: '#1d7b86',
   },
   header: {
+    //add nanum pen script font
+    fontFamily: 'NanumPenScript_400Regular',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 40,
@@ -203,15 +202,17 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontFamily: 'NanumPenScript_400Regular',
+    fontSize: 48,
+    fontWeight: '400',
+    color: '#fcf45a',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 18,
-    color: '#fff',
+    fontFamily: 'NanumPenScript_400Regular',
+    fontSize: 24,
+    color: '#fcf45a',
     opacity: 0.8,
     textAlign: 'center',
     lineHeight: 24,
