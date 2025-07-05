@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { API_CONFIG } from '../../constants/Config';
 
@@ -66,8 +66,6 @@ export function CookingChat({
       }, 100);
     }
   }, [messages, isExpanded]);
-
-
 
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
@@ -153,9 +151,7 @@ export function CookingChat({
       </Text>
     </View>
   );
-// instead of an icon to access the chat, use an input field where a user cant type in the field and when they send the message, the chat opens up, 
- // the input field should have the style of the chat message input field
- 
+
   if (!isExpanded) {
     return (
         <View style={styles.inputContainer}>
@@ -174,68 +170,69 @@ export function CookingChat({
   }
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.header} onPress={() => setIsExpanded(false)}>
-        <Text style={styles.headerTitle}>Mise Chat</Text>
-        
-         
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.keyboardAvoidingContainer}
+    >
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.header} onPress={() => setIsExpanded(false)}>
+          <Text style={styles.headerTitle}>Mise Chat</Text>
         </TouchableOpacity>
-      
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={item => item.id}
-        style={styles.messagesList}
-        contentContainerStyle={styles.messagesContent}
-      />
-
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#fcf45a" />
-          <Text style={styles.loadingText}>Mise is thinking...</Text>
-        </View>
-      )}
-
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.inputContainer}
-      >
-        <TextInput
-          style={styles.textInput}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Ask Mise for cooking help..."
-          placeholderTextColor="rgba(255, 255, 255, 0.6)"
-          multiline
-          maxLength={500}
-          onFocus={() => setIsExpanded(true)}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={item => item.id}
+          style={styles.messagesList}
+          contentContainerStyle={styles.messagesContent}
         />
-        <TouchableOpacity
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-          onPress={sendMessage}
-          disabled={!inputText.trim() || isLoading}
-        >
-          <Ionicons 
-            name="send" 
-            size={20} 
-            color={inputText.trim() ? "#fff" : "rgba(255, 255, 255, 0.3)"} 
+
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="#fcf45a" />
+            <Text style={styles.loadingText}>Mise is thinking...</Text>
+          </View>
+        )}
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Ask Mise for cooking help..."
+            placeholderTextColor="rgba(255, 255, 255, 0.6)"
+            multiline
+            maxLength={500}
           />
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </View>
+          <TouchableOpacity
+            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+            onPress={sendMessage}
+            disabled={!inputText.trim() || isLoading}
+          >
+            <Ionicons 
+              name="send" 
+              size={20} 
+              color={inputText.trim() ? "#fff" : "rgba(255, 255, 255, 0.3)"} 
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  keyboardAvoidingContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     height: 400,
-    backgroundColor: '#2d8d8b',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#1d7b86',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: '#000',
@@ -339,10 +336,12 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    padding: 16,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#1d7b86',
   },
   textInput: {
     flex: 1,
@@ -353,7 +352,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     maxHeight: 100,
-    marginRight: 8,
+    marginRight: 12,
   },
   sendButton: {
     width: 40,
