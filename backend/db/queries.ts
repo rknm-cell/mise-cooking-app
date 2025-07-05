@@ -1,5 +1,5 @@
 "server-only";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "./index";
 import * as schema from "./schema";
 
@@ -92,7 +92,10 @@ export async function saveBookmark(userId: string, recipeId: string): Promise<{ 
 export async function removeBookmark(userId: string, recipeId: string): Promise<{ success: boolean; message?: string }> {
   try {
     await db.delete(schema.bookmark).where(
-      eq(schema.bookmark.userId, userId) && eq(schema.bookmark.recipeId, recipeId)
+      and(
+        eq(schema.bookmark.userId, userId),
+        eq(schema.bookmark.recipeId, recipeId)
+      )
     );
     return { success: true };
   } catch (error) {
@@ -261,6 +264,22 @@ export async function getUserById(userId: string): Promise<typeof schema.user.$i
   } catch (error) {
     console.error(`Error fetching user ${userId}:`, error);
     return null;
+  }
+}
+
+export async function isBookmarked(userId: string, recipeId: string): Promise<boolean> {
+  try {
+    const bookmark = await db.query.bookmark.findFirst({
+      where: (bookmark) => 
+        and(
+          eq(bookmark.userId, userId),
+          eq(bookmark.recipeId, recipeId)
+        )
+    });
+    return !!bookmark;
+  } catch (error) {
+    console.error(`Error checking bookmark status: `, error);
+    return false;
   }
 }
 

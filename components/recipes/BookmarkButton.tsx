@@ -1,25 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { addBookmark, removeBookmark } from '../../services/bookmarks';
+import { addBookmark, isBookmarked as checkIsBookmarked, removeBookmark } from '../../services/bookmarks';
 
 interface BookmarkButtonProps {
   recipeId: string;
   size?: number;
   color?: string;
   activeColor?: string;
+  initialIsBookmarked?: boolean;
 }
 
 export default function BookmarkButton({ 
   recipeId, 
   size = 24, 
   color = '#666',
-  activeColor = '#fcf45a'
+  activeColor = '#fcf45a',
+  initialIsBookmarked = false
 }: BookmarkButtonProps) {
   const { user } = useAuth();
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      checkIsBookmarked(user.id, recipeId).then(setIsBookmarked);
+    }
+  }, [user, recipeId]);
+
+  useEffect(() => {
+    setIsBookmarked(initialIsBookmarked);
+  }, [initialIsBookmarked]);
 
   const handleBookmarkToggle = async () => {
     if (!user || isLoading) return;

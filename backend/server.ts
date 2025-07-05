@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { db } from './db/index.js';
-import { getBookmarks, removeBookmark, saveBookmark } from './db/queries.js';
+import { getBookmarks, isBookmarked, removeBookmark, saveBookmark } from './db/queries.js';
 import * as schema from './db/schema.js';
 import { auth } from './lib/auth.js';
 import cookingChatRoutes from './routes/cooking-chat.js';
@@ -237,6 +237,23 @@ app.delete('/api/bookmarks', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error removing bookmark from Supabase:', error);
     res.status(500).json({ error: 'Failed to remove bookmark' });
+  }
+});
+
+// Check if recipe is bookmarked
+app.get('/api/bookmarks/:userId/:recipeId', async (req: Request, res: Response) => {
+  try {
+    const { userId, recipeId } = req.params;
+    
+    if (!process.env.DATABASE_URL) {
+      return res.status(500).json({ error: 'Database URL not configured' });
+    }
+
+    const result = await isBookmarked(userId, recipeId);
+    res.json(result);
+  } catch (error) {
+    console.error('Error checking bookmark status:', error);
+    res.status(500).json({ error: 'Failed to check bookmark status' });
   }
 });
 

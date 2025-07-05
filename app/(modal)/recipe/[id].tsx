@@ -43,6 +43,7 @@ export default function RecipeDetailScreen() {
   const [generatingList, setGeneratingList] = useState(false);
   const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [selectedIngredients, setSelectedIngredients] = useState<Set<number>>(new Set());
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const fetchRecipe = async () => {
     if (!id) {
@@ -56,6 +57,15 @@ export default function RecipeDetailScreen() {
       if (response.ok) {
         const data = await response.json();
         setRecipe(data);
+        
+        // Check bookmark status if user is logged in
+        if (user) {
+          const bookmarkResponse = await fetch(`${API_BASE}/api/bookmarks/${user.id}/${id}`);
+          if (bookmarkResponse.ok) {
+            const isBookmarked = await bookmarkResponse.json();
+            setIsBookmarked(isBookmarked);
+          }
+        }
       } else if (response.status === 404) {
         setError('Recipe not found');
       } else {
@@ -206,7 +216,7 @@ export default function RecipeDetailScreen() {
             <Ionicons name="arrow-back" size={24} color="#fcf45a" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Recipe Details</Text>
-          <BookmarkButton recipeId={id} size={24} />
+          <BookmarkButton recipeId={id} size={24} initialIsBookmarked={isBookmarked} />
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
