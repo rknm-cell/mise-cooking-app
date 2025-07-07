@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -56,7 +57,28 @@ export function CookingChat({
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
 
   // Auto-scroll to bottom when messages change or chat opens
   useEffect(() => {
@@ -154,28 +176,41 @@ export function CookingChat({
 
   if (!isExpanded) {
     return (
-        <View style={styles.inputContainer}>
-            <TextInput
-                style={styles.textInput}
-                value={inputText}
-                onChangeText={setInputText}
-                placeholder="Ask Mise for cooking help..."
-                placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                onFocus={() => setIsExpanded(true)}
-            />
-            
-        </View>
-      
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        style={styles.inputContainer}
+      >
+        <TextInput
+          style={styles.textInput}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Ask Mise for cooking help..."
+          placeholderTextColor="rgba(255, 255, 255, 0.6)"
+          onFocus={() => setIsExpanded(true)}
+        />
+      </KeyboardAvoidingView>
     );
   }
 
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.keyboardAvoidingContainer}
+      style={[
+        styles.keyboardAvoidingContainer,
+        isExpanded && styles.expanded,
+        { paddingBottom: keyboardHeight }
+      ]}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.container}>
-        <TouchableOpacity style={styles.header} onPress={() => setIsExpanded(false)}>
+        <TouchableOpacity 
+          style={styles.header} 
+          onPress={() => {
+            Keyboard.dismiss();
+            setIsExpanded(false);
+          }}
+        >
           <Text style={styles.headerTitle}>Mise Chat</Text>
         </TouchableOpacity>
 
@@ -186,6 +221,7 @@ export function CookingChat({
           keyExtractor={item => item.id}
           style={styles.messagesList}
           contentContainerStyle={styles.messagesContent}
+          keyboardShouldPersistTaps="handled"
         />
 
         {isLoading && (
@@ -207,7 +243,10 @@ export function CookingChat({
           />
           <TouchableOpacity
             style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-            onPress={sendMessage}
+            onPress={() => {
+              sendMessage();
+              Keyboard.dismiss();
+            }}
             disabled={!inputText.trim() || isLoading}
           >
             <Ionicons 
@@ -228,7 +267,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 400,
+    backgroundColor: '#1d7b86',
+  },
+  expanded: {
+    height: '100%',
+    top: 170,
   },
   container: {
     flex: 1,
