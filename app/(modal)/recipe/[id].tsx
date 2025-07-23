@@ -249,10 +249,7 @@ export default function RecipeDetailScreen() {
                 <StartCookingButton recipe={recipe} size="large" />
               </View>
             </View>
-{/*The ingredients card should have a checkbox next to each ingredient that is conditionally
-rendered when the generate shopping list button is pressed. The checkboxes should be rendered prechecked and 
- when the button is pressed again, the checked items should be added
-to the shopping list */}
+
             {/* Ingredients Card */}
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Ingredients</Text>
@@ -290,6 +287,7 @@ to the shopping list */}
                     <Text style={styles.cancelButtonText}>Cancel</Text>
                   </TouchableOpacity>
                 )}
+                {/*horizontally align the buttons*/}
                 <TouchableOpacity
                   style={[
                     styles.generateListButton,
@@ -302,7 +300,7 @@ to the shopping list */}
                     <ActivityIndicator size="small" color="white" />
                   ) : (
                     <>
-                      <Ionicons name="cart-outline" size={20} color="white" />
+                      <Ionicons name="cart-outline" size={20} color="#1d7b86" />
                       <Text style={styles.generateListButtonText}>
                         {showCheckboxes ? `Add ${selectedIngredients.size} Items` : 'Add to Shopping List'}
                       </Text>
@@ -522,7 +520,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
+    height: 48,
   },
   generateListButtonText: {
     fontSize: 16,
@@ -544,24 +542,25 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 12,
     marginTop: 16,
   },
   cancelButton: {
+    flex: 1,
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#fff',
-    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1d7b86',
+    color: '#fcf45a',
   },
   generateListButtonSelected: {
     flex: 1,
-    marginLeft: 12,
   },
 });

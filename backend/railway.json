@@ -5,9 +5,9 @@
     "buildCommand": "bun install"
   },
   "deploy": {
-    "startCommand": "bun run server.ts",
+    "startCommand": "./start.sh",
     "healthcheckPath": "/api/health",
-    "healthcheckTimeout": 100,
+    "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   },
@@ -15,6 +15,7 @@
     "production": {
       "variables": {
         "PORT": "8080",
+        "NODE_ENV": "production",
         "RUNTIME": "bun"
       }
     }

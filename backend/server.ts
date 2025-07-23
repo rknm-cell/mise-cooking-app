@@ -29,7 +29,12 @@ app.use(cors({
     'http://localhost:8080',
     'http://192.168.1.165:8081', 
     'http://192.168.1.165:8080',
-    'exp://192.168.1.165:8081'
+    'exp://192.168.1.165:8081',
+    // Add your Expo app URL and any other production URLs
+    'https://your-app-name.railway.app',
+    'https://your-expo-app-url.com',
+    // Allow all origins in development
+    ...(process.env.NODE_ENV === 'development' ? ['*'] : [])
   ],
   credentials: true
 }));

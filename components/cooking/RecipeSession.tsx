@@ -256,13 +256,10 @@ export function RecipeSession() {
       {/* Active Timers */}
       {activeTimers.length > 0 && (
         <View style={styles.timersSection}>
-          <Text style={styles.timersTitle}>Active Timers</Text>
           {activeTimers.map((timer) => (
             <Timer
               key={timer.id}
               duration={timer.duration}
-              description={timer.description}
-              stage={timer.stage}
               onComplete={() => handleTimerComplete(timer.id)}
               onStop={() => handleTimerStop(timer.id)}
             />
@@ -315,7 +312,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   startCard: {
-    backgroundColor: '#2d8d8b',
+    backgroundColor: '#1d7b86',
     borderRadius: 16,
     padding: 32,
     alignItems: 'center',
@@ -369,7 +366,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   currentStepCard: {
-    backgroundColor: '#2d8d8b',
+    backgroundColor: '#1d7b86',
     borderRadius: 16,
     padding: 24,
     flex: 1,
@@ -482,7 +479,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noRecipeCard: {
-    backgroundColor: '#2d8d8b',
+    backgroundColor: '#1d7b86',
     borderRadius: 16,
     padding: 32,
     alignItems: 'center',

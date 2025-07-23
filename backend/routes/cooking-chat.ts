@@ -5,6 +5,49 @@ import { z } from "zod";
 
 const router = express.Router();
 
+// Content moderation helper
+async function validateRecipeRequest(message: string): Promise<{ 
+  isValid: boolean; 
+  reason?: string;
+}> {
+  try {
+    const moderationPrompt = `
+      Analyze if this request is appropriate for a cooking assistant and food-related.
+      Rules:
+      1. Must be about food, cooking, recipes, or kitchen activities
+      2. Must not contain inappropriate, offensive, or harmful content
+      3. Must not request non-food items or dangerous substances
+      4. Must be safe and legal cooking-related content
+      
+      Request: "${message}"
+      
+      Respond with a JSON object containing:
+      {
+        "isValid": boolean,
+        "reason": string (only if isValid is false)
+      }
+    `;
+
+    const result = await generateObject({
+      model: openai("gpt-4o-mini"),
+      schema: z.object({
+        isValid: z.boolean(),
+        reason: z.string().optional()
+      }),
+      system: "You are a content moderation system for a cooking assistant.",
+      prompt: moderationPrompt,
+      maxTokens: 200,
+      temperature: 0.1
+    });
+
+    return result.object;
+  } catch (error) {
+    console.error('Error in content moderation:', error);
+    // Default to allowing the request if moderation fails
+    return { isValid: true };
+  }
+}
+
 // --- Tool Function Schemas for AI ---
 const setTimerSchema = z.object({
   duration: z.number().describe("Duration of the timer in seconds"),
@@ -106,6 +149,20 @@ router.post('/cooking-chat', async (req: Request, res: Response) => {
       isVoiceCommand = false,
       wakePhrase
     } = validatedData;
+
+    // Content moderation check
+    const moderationResult = await validateRecipeRequest(message);
+    if (!moderationResult.isValid) {
+      return res.json({
+        response: `I apologize, but I can only assist with cooking-related requests. ${moderationResult.reason} Please feel free to ask me about recipes, cooking techniques, or kitchen help!`,
+        suggestions: [
+          "Ask for a specific recipe",
+          "Get cooking tips",
+          "Learn about ingredients",
+          "Get kitchen safety advice"
+        ]
+      });
+    }
 
     // Enhanced system prompt with all tool descriptions
     const systemPrompt = `You are Mise, an intelligent cooking assistant with voice-first capabilities. You can perform the following actions:
