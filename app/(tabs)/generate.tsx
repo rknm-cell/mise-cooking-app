@@ -38,7 +38,7 @@ export default function RecipeGenerator() {
   const [generation, setGeneration] = useState<RecipeSchema | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState('');
-  const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  const [conversationHistory, setConversationHistory] = useState<{role: 'user' | 'assistant', content: string}[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'none' | 'saved' | 'error'>('none');
   const progressAnim = useRef(new Animated.Value(0)).current;
