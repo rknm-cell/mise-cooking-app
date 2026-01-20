@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "misecooking",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.racknahm.miserecipe",
@@ -70,9 +70,7 @@
       }
     },
     "owner": "racknahm",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/c945b746-2990-4c92-9b47-f2f6ff9c1178"
     }

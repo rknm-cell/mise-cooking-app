@@ -4,12 +4,9 @@ import { Platform } from 'react-native';
 
 // Utility function to get the correct IP address for development
 const getDevelopmentBaseUrl = (): string => {
-  // For Android simulators, we need to use the actual IP address instead of localhost
-  // This is because Android simulators run in a different network namespace
+  // For development, use localhost since we're running on the same machine
   if (__DEV__) {
-    // Try to get the local IP address from environment or use a fallback
-    // For now, we'll use a common development IP that should work
-    return 'http://192.168.1.165:8080'; // Update this to your actual IP
+    return 'http://localhost:8080';
   }
   return 'http://localhost:8080';
 };
